@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Wordmark } from "@/components/Wordmark";
 import { Reveal } from "@/components/marketing/Reveal";
+import { LedgerHero } from "@/components/marketing/LedgerHero";
 
 export const metadata = {
   title: "RuledOff: chase the close, not your clients",
@@ -53,40 +54,52 @@ export default async function HomePage() {
   return (
     <main className="page-enter">
       {/* 1. Hero */}
-      <section className="mx-auto max-w-5xl px-6 pb-20 pt-14 sm:pt-20">
+      <section className="mx-auto max-w-6xl px-6 pb-20 pt-14 sm:pt-20">
         <Wordmark size={28} />
-        <h1
-          className="mt-12 max-w-4xl font-display font-semibold"
-          style={{ fontSize: "clamp(44px, 7vw, 96px)", lineHeight: 1.02 }}
-        >
-          Chase the close, not your clients.
-        </h1>
-        <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-muted">
-          RuledOff finds what is blocking a client&apos;s month-end and chases
-          them for it with a branded link they open on their phone. No account,
-          no login, no download. When every item is answered, the books are{" "}
-          <span className="font-display" style={{ color: "var(--cleared)" }}>
-            ruled off
-          </span>
-          .
-        </p>
-        <div className="mt-10 flex flex-wrap items-center gap-6">
-          <Link
-            href="/signup"
-            className="btn btn-primary px-6 py-3.5 text-base"
-          >
-            Create your firm
-          </Link>
-          <Link
-            href="/login"
-            className="text-sm text-ink-muted underline decoration-1 underline-offset-4 transition-colors hover:text-ink"
-          >
-            Sign in
-          </Link>
+        <div className="mt-12 grid items-center gap-12 lg:mt-16 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <h1
+              className="font-display font-semibold"
+              style={{ fontSize: "clamp(44px, 6.4vw, 88px)", lineHeight: 1.02 }}
+            >
+              Chase the close, not your clients.
+            </h1>
+            <p className="mt-7 max-w-lg text-lg leading-relaxed text-ink-muted">
+              RuledOff finds what is blocking a client&apos;s month-end and
+              chases them for it with a branded link they open on their phone. No
+              account, no login, no download. When every item is answered, the
+              books are{" "}
+              <span className="font-display" style={{ color: "var(--cleared)" }}>
+                ruled off
+              </span>
+              .
+            </p>
+            <div className="mt-10 flex flex-wrap items-center gap-6">
+              <Link
+                href="/signup"
+                className="btn btn-primary px-6 py-3.5 text-base"
+              >
+                Create your firm
+              </Link>
+              <Link
+                href="/login"
+                className="text-sm text-ink-muted underline decoration-1 underline-offset-4 transition-colors hover:text-ink"
+              >
+                Sign in
+              </Link>
+            </div>
+            <p className="mt-14 text-sm text-ink-muted">
+              Built for solo bookkeepers.{" "}
+              <span className="num" style={{ color: "var(--ink)" }}>
+                $29
+              </span>
+              /mo flat, unlimited clients.
+            </p>
+          </div>
+          <div className="flex justify-center lg:justify-end">
+            <LedgerHero />
+          </div>
         </div>
-        <p className="mt-16 text-sm text-ink-muted">
-          Built for solo bookkeepers.
-        </p>
       </section>
 
       <Rule />
