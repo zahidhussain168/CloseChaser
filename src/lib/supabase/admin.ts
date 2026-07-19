@@ -16,6 +16,13 @@ export function createAdminClient() {
     serverEnv.supabaseSecretKey,
     {
       auth: { persistSession: false, autoRefreshToken: false },
+      // The magic-link portal and cron must always read live data. Next.js
+      // caches fetch() by default in the App Router, which would serve stale
+      // rows; opt every admin request out of that cache.
+      global: {
+        fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+          fetch(input, { ...init, cache: "no-store" }),
+      },
     },
   );
 }
