@@ -10,10 +10,20 @@ build/
 out/
 *.log
 
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
 # Environment / secrets
 .env
 .env.*
 .env.local
+.env*.local
 !.env.example
 
 # Editor / OS

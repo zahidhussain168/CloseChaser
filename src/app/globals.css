@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  "The Ledger" — global tokens and base styles.
+  Single source of truth for the raw palette so animations / inline styles can
+  reference the same values Tailwind uses.
+*/
+:root {
+  --paper: #f2f5ef;
+  --paper-deep: #e9eee4;
+  --paper-sheet: #fbfcfa;
+  --ink: #232a25;
+  --ink-muted: #5e6a5f;
+  --rule: #c9d6c6;
+  --rule-strong: #aebfaa;
+  --pending: #b3402e;
+  --cleared: #2f6b4f;
+  --brass: #a88b4c;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-feature-settings: "kern";
+    /* faint horizontal ruling, like columnar ledger paper */
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 31px,
+      rgba(201, 214, 198, 0.35) 32px
+    );
+    background-size: 100% 32px;
+  }
+
+  /* Every amount, date, and count renders in tabular mono — core identity. */
+  .num {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-fraunces), Georgia, serif;
+    color: var(--ink);
+  }
+
+  /* Visible, brass focus ring everywhere — accessibility bar. */
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background: rgba(168, 139, 76, 0.22);
+  }
+}
+
+@layer components {
+  /* A ledger row: sits ON a rule line, generous vertical rhythm, no shadow. */
+  .ledger-row {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr auto;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.9rem 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  /* Flat "sheet" — the only card allowed, 1px rule border, radius <= 6px. */
+  .sheet {
+    background: var(--paper-sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+  }
+
+  /* Quiet, ledger-styled button. */
+  .btn {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--rule-strong);
+    background: var(--paper-sheet);
+    color: var(--ink);
+    line-height: 1;
+    transition: background-color 120ms ease, border-color 120ms ease;
+  }
+  .btn:hover {
+    background: var(--paper-deep);
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper-sheet);
+    border-color: var(--ink);
+  }
+  .btn-primary:hover {
+    background: #171d19;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .field {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    background: var(--paper-sheet);
+    border: 1px solid var(--rule-strong);
+    border-radius: 6px;
+    color: var(--ink);
+  }
+  .field::placeholder {
+    color: var(--ink-muted);
+  }
+}
+
+/* The double-rule: two close parallel lines that mean "this total is final". */
+.double-rule {
+  position: relative;
+  height: 4px;
+}
+.double-rule::before,
+.double-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: var(--cleared);
+  transform-origin: left center;
+}
+.double-rule::before {
+  top: 0;
+}
+.double-rule::after {
+  top: 3px;
+}
+.double-rule.is-drawn::before,
+.double-rule.is-drawn::after {
+  animation: ruleoff 300ms ease-out forwards;
+}
+.double-rule.is-drawn::after {
+  animation-delay: 60ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
