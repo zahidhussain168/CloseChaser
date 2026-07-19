@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { getClientDetail } from "@/lib/data";
 import { getActiveToken } from "@/lib/links";
@@ -107,6 +108,10 @@ export default async function ClientPage({
         <h2 className="mb-1 font-display text-lg font-semibold">Close checklist</h2>
         {items.length === 0 ? (
           <div className="sheet px-5 py-10 text-center">
+            <div className="empty-nib mb-5" aria-hidden="true">
+              <span className="line" />
+              <span className="nib" />
+            </div>
             <p className="font-display">No open items.</p>
             <p className="mt-1 text-sm text-ink-muted">
               Nothing is blocking this close. Add a request below to start one.
@@ -114,12 +119,15 @@ export default async function ClientPage({
           </div>
         ) : (
           <div className="border-t" style={{ borderColor: "var(--rule)" }}>
-            {items.map((item: Item) => {
+            {items.map((item: Item, idx) => {
               const attachments = (item.attachments ?? []) as Attachment[];
               const accepted = item.state === "accepted";
               return (
                 <div key={item.id} className="relative">
-                  <div className="ledger-row">
+                  <div
+                    className="ledger-row reveal-row"
+                    style={{ ["--i"]: idx } as CSSProperties}
+                  >
                     <span className="flex justify-center">
                       <StatusMark state={item.state} />
                     </span>

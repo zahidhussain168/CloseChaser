@@ -7,7 +7,7 @@ export const maxDuration = 60;
 
 /**
  * Daily reminder scheduler. On Vercel, set CRON_SECRET in project env and add a
- * cron in vercel.json — Vercel then calls this with `Authorization: Bearer
+ * cron in vercel.json. Vercel then calls this with `Authorization: Bearer
  * <CRON_SECRET>`. For local/manual runs, pass `?key=<CRON_SECRET>`.
  */
 function authorized(req: Request): boolean {

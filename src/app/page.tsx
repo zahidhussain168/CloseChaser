@@ -11,14 +11,14 @@ export default async function HomePage() {
   if (user) redirect("/dashboard");
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-6 py-16">
+    <main className="page-enter mx-auto flex min-h-dvh max-w-2xl flex-col justify-center px-6 py-16">
       <Wordmark size={30} />
       <h1 className="mt-10 max-w-xl font-display text-4xl font-semibold leading-tight sm:text-5xl">
         Chase the close, not your clients.
       </h1>
       <p className="mt-5 max-w-lg text-lg text-ink-muted">
         RuledOff finds what&apos;s blocking a client&apos;s month-end and chases
-        them for it — a branded link they open on their phone. No account, no
+        them for it with a branded link they open on their phone. No account, no
         login, no download. When every item is answered, the books are{" "}
         <span className="font-display" style={{ color: "var(--cleared)" }}>
           ruled off

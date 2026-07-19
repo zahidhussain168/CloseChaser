@@ -80,7 +80,7 @@ export default async function PortalPage({
 
   return (
     <main
-      className="mx-auto min-h-dvh max-w-md px-5 py-8"
+      className="page-enter mx-auto min-h-dvh max-w-md px-5 py-8"
       style={brandStyle}
     >
       <header

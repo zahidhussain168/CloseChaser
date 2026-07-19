@@ -1,7 +1,7 @@
 import type { ReminderLevel } from "@/lib/types";
 
 /**
- * Chase cadence: day 2, day 5, day 9, then weekly — escalating by COPY, not by
+ * Chase cadence: day 2, day 5, day 9, then weekly, escalating by COPY, not by
  * channel. The scheduler sends at most one reminder per run: the next one due.
  *
  * Reminders are counted per close period. Given how many have already gone out,

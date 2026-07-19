@@ -6,7 +6,7 @@ import { loadTemplates } from "@/lib/chase";
 import { BrandingForm, TemplateEditor } from "@/components/app/SettingsForms";
 import type { EmailKind } from "@/lib/email/templates";
 
-export const metadata: Metadata = { title: "Settings — RuledOff" };
+export const metadata: Metadata = { title: "Settings · RuledOff" };
 
 const ORDER: EmailKind[] = ["initial", "level1", "level2", "level3", "level4"];
 
@@ -36,7 +36,7 @@ export default async function SettingsPage() {
         <div>
           <h2 className="font-display text-2xl font-semibold">Chase emails</h2>
           <p className="mt-1 text-sm text-ink-muted">
-            The escalation ladder — friendly, then specific, then consequence.
+            The escalation ladder: friendly, then specific, then consequence.
             Edit the wording; the checklist button is added automatically.
           </p>
         </div>

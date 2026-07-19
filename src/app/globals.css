@@ -159,12 +159,151 @@
   animation-delay: 60ms;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Motion system: "ink on paper"
+   Ink, paper, and bookkeeping gestures. 150-400ms, ease-out, transform/opacity/
+   clip-path only (no layout thrash). Reduced-motion neutralised at the bottom.
+   ───────────────────────────────────────────────────────────────────────── */
+
+@keyframes fadeup {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ruleGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+/* Draw + ink-bleed settle in one pass: line lands 1.6x thick, settles to 1x. */
+@keyframes ruleInk {
+  0% { transform: scaleX(0) scaleY(1.6); opacity: 0.5; }
+  70% { transform: scaleX(1) scaleY(1.3); opacity: 1; }
+  100% { transform: scaleX(1) scaleY(1); opacity: 1; }
+}
+@keyframes nibTravel {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(140px); }
+  100% { transform: translateX(0); }
+}
+@keyframes nibLine {
+  0% { transform: scaleX(0); }
+  50% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+@keyframes inkFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(var(--fill, 1)); }
+}
+
+/* 1. Page/view transitions: content settles up 8px. */
+.page-enter { animation: fadeup 320ms ease-out both; }
+
+/* 2. List reveals: rows stagger 40ms apart, each drawing its bottom rule. */
+.reveal-row {
+  position: relative;
+  border-bottom: none !important;
+  animation: rowIn 260ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.reveal-row::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--rule);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: ruleGrow 300ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 40ms + 90ms);
+  transition: background-color 140ms ease;
+}
+
+/* 6. Hover: zero lift. The rule darkens; nothing floats. */
+.ledger-row { transition: border-color 140ms ease; }
+.ledger-row:hover { border-bottom-color: var(--rule-strong); }
+.reveal-row:hover::after { background: var(--rule-strong); }
+
+/* 7. Buttons: press like a stamp (1px down + ink darken, 100ms). */
+.btn { transition: background-color 120ms ease, border-color 120ms ease, transform 100ms ease; }
+.btn:active { transform: translateY(1px); }
+.btn-primary:active { background: #10140f; }
+
+/* 3. The double-rule: draw left-to-right with a subtle ink-bleed settle. */
+.double-rule::before,
+.double-rule::after { height: 1px; transform: scaleX(0); }
+.double-rule.is-drawn::before,
+.double-rule.is-drawn::after {
+  animation: ruleInk 320ms ease-out forwards;
+}
+.double-rule.is-drawn::after { animation-delay: 70ms; }
+
+/* 5. Ink-fill progress: fills like a pen stroke, not a gradient slide. */
+.ink-progress {
+  position: relative;
+  height: 2px;
+  background: var(--rule);
+  overflow: hidden;
+  border-radius: 1px;
+}
+.ink-progress > span {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(var(--fill, 0));
+  background: var(--cleared);
+  animation: inkFill 520ms ease-out both;
+}
+
+/* 9. Empty states: a pen nib slowly drawing a rule line. */
+.empty-nib { position: relative; height: 12px; width: 160px; margin: 0 auto; }
+.empty-nib .line {
+  position: absolute;
+  left: 0; right: 0; top: 6px;
+  height: 1px;
+  background: var(--rule);
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: nibLine 3.4s ease-in-out infinite;
+}
+.empty-nib .nib {
+  position: absolute;
+  top: 2px; left: 0;
+  width: 2px; height: 9px;
+  background: var(--rule-strong);
+  border-radius: 1px;
+  animation: nibTravel 3.4s ease-in-out infinite;
+}
+
+/* 8. Completion ceremony: one confident ink-draw underline under the headline. */
+.ink-underline {
+  display: block;
+  height: 2px;
+  background: var(--ink);
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: ruleGrow 360ms ease-out 200ms both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
     animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+  /* Ensure drawn/filled states rest in their final position, not at scale 0. */
+  .reveal-row::after,
+  .double-rule.is-drawn::before,
+  .double-rule.is-drawn::after { transform: scaleX(1) scaleY(1); }
+  .ink-progress > span { transform: scaleX(var(--fill, 0)); }
+  .empty-nib .line { transform: scaleX(1); }
+  .empty-nib .nib { display: none; }
+  .ink-underline { transform: scaleX(1); }
 }

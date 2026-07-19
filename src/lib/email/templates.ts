@@ -15,10 +15,10 @@ export type EmailTemplate = { subject: string; body: string };
 
 export const EMAIL_KIND_LABELS: Record<EmailKind, string> = {
   initial: "First chase",
-  level1: "Reminder 1 — friendly (day 2)",
-  level2: "Reminder 2 — specific + deadline (day 5)",
-  level3: "Reminder 3 — consequence (day 9)",
-  level4: "Reminder 4 — weekly",
+  level1: "Reminder 1, friendly (day 2)",
+  level2: "Reminder 2, specific with a deadline (day 5)",
+  level3: "Reminder 3, consequence (day 9)",
+  level4: "Reminder 4, weekly",
 };
 
 export function kindForLevel(level: ReminderLevel): EmailKind {
@@ -31,7 +31,7 @@ export const DEFAULT_TEMPLATES: Record<EmailKind, EmailTemplate> = {
     body:
       "Hi {{firstName}},\n\n" +
       "I'm getting your {{month}} books closed and there are {{openCount}} things I need from you. " +
-      "No account, no login, no app to download — just tap the button, answer what you can, and you're done. " +
+      "No account, no login, no app to download. Just tap the button, answer what you can, and you're done. " +
       "It saves as you go, so you can stop and come back anytime.\n\n" +
       "Thanks so much,\n{{firmName}}",
   },
@@ -39,7 +39,7 @@ export const DEFAULT_TEMPLATES: Record<EmailKind, EmailTemplate> = {
     subject: "Quick nudge on your {{month}} books",
     body:
       "Hi {{firstName}},\n\n" +
-      "Just circling back — there are still {{openCount}} quick items to wrap up {{month}}. " +
+      "Just circling back. There are still {{openCount}} quick items to wrap up {{month}}. " +
       "Most folks knock these out in a couple of minutes from their phone.\n\n" +
       "Thanks,\n{{firmName}}",
   },
@@ -48,7 +48,7 @@ export const DEFAULT_TEMPLATES: Record<EmailKind, EmailTemplate> = {
     body:
       "Hi {{firstName}},\n\n" +
       "To keep {{month}} on track I'd love to have these {{openCount}} items back by {{deadline}}. " +
-      "Everything you need is behind the button below — you can answer or snap a photo right from your phone.\n\n" +
+      "Everything you need is behind the button below. You can answer or snap a photo right from your phone.\n\n" +
       "Appreciate it,\n{{firmName}}",
   },
   level3: {
@@ -57,7 +57,7 @@ export const DEFAULT_TEMPLATES: Record<EmailKind, EmailTemplate> = {
       "Hi {{firstName}},\n\n" +
       "I want to be straight with you: your {{month}} books can't be closed until these {{openCount}} items are answered, " +
       "and late books can mean late taxes and filings down the line. " +
-      "This is the last big thing standing between you and a clean close — it only takes a few minutes.\n\n" +
+      "This is the last big thing standing between you and a clean close, and it only takes a few minutes.\n\n" +
       "Here to help if anything's unclear,\n{{firmName}}",
   },
   level4: {
@@ -125,7 +125,7 @@ export function buildEmailHtml(opts: {
         <td style="padding:10px 0;border-bottom:1px solid #C9D6C6;font-size:14px;color:#232A25;">
           <span style="color:#B3402E;font-family:'IBM Plex Mono',Menlo,monospace;">•</span>
           &nbsp; ${escapeHtml(it.title)}
-          <span style="color:#5E6A5F;font-size:12px;"> — ${it.type === "document" ? "upload" : "quick answer"}</span>
+          <span style="color:#5E6A5F;font-size:12px;"> (${it.type === "document" ? "upload" : "quick answer"})</span>
         </td>
       </tr>`,
     )
@@ -175,5 +175,5 @@ export function buildEmailText(opts: {
   firmName: string;
 }): string {
   const list = opts.items.map((i) => `  - ${i.title}`).join("\n");
-  return `${opts.bodyText}\n\nOpen items:\n${list}\n\nOpen your checklist (no login): ${opts.ctaUrl}\n\n— ${opts.firmName} via RuledOff`;
+  return `${opts.bodyText}\n\nOpen items:\n${list}\n\nOpen your checklist (no login): ${opts.ctaUrl}\n\nSent by ${opts.firmName} via RuledOff`;
 }

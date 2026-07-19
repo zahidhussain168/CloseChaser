@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/check-copy.mjs && next build",
     "start": "next start",
     "lint": "next lint",
+    "check:copy": "node scripts/check-copy.mjs",
+    "qa": "node scripts/check-copy.mjs",
     "seed": "node --env-file=.env.local scripts/seed.mjs",
     "migrate": "node --env-file=.env.local scripts/apply-migration.mjs",
     "migrate:print": "node scripts/print-migration.mjs"

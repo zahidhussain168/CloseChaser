@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LoginForm } from "@/components/auth/AuthForms";
 
-export const metadata: Metadata = { title: "Sign in — RuledOff" };
+export const metadata: Metadata = { title: "Sign in · RuledOff" };
 
 export default function LoginPage() {
   return (

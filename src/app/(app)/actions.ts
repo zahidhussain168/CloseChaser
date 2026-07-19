@@ -111,7 +111,7 @@ export async function deleteItemAction(itemId: string, clientId: string) {
   revalidatePath(`/clients/${clientId}`);
 }
 
-/** Bookkeeper accepts an answered item — this rules it off. */
+/** Bookkeeper accepts an answered item, which rules it off. */
 export async function acceptItemAction(itemId: string, clientId: string) {
   await requireUserId();
   const supabase = createClient();
@@ -178,7 +178,7 @@ export async function fireChaseAction(clientId: string) {
     (i) => i.state === "requested" || i.state === "nudged",
   );
   if (open.length === 0) {
-    return { ok: false, error: "Nothing open to chase — this close is clear." };
+    return { ok: false, error: "Nothing open to chase. This close is clear." };
   }
 
   const token = await ensureMagicToken(supabase, clientId);

@@ -11,7 +11,7 @@ export default function AuthLayout({
       <Link href="/" className="mb-8 inline-flex">
         <Wordmark />
       </Link>
-      <div className="sheet p-6 sm:p-8">{children}</div>
+      <div className="sheet page-enter p-6 sm:p-8">{children}</div>
       <p className="mt-6 text-center text-xs text-ink-muted">
         Close the books. Ruled off.
       </p>

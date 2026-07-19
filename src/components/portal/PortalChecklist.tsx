@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type CSSProperties } from "react";
 import { StatusMark } from "@/components/StatusMark";
 import { DoubleRule } from "@/components/DoubleRule";
 
@@ -102,7 +102,7 @@ export function PortalChecklist({
     <div className="flex flex-col">
       <p className="mb-5 text-[15px] text-ink-muted">
         A few things to wrap up <span className="num">{monthLabel}</span>. Answer
-        what you can — it saves as you go, and you can come back anytime.
+        what you can. It saves as you go, and you can come back anytime.
         {doneCount > 0 && (
           <>
             {" "}
@@ -115,9 +115,10 @@ export function PortalChecklist({
       </p>
 
       <div className="border-t" style={{ borderColor: "var(--rule)" }}>
-        {items.map((item) => (
+        {items.map((item, idx) => (
           <PortalRow
             key={item.id}
+            index={idx}
             item={item}
             onAnswer={(text) => submitAnswer(item.id, text)}
             onUpload={(files) => uploadFiles(item.id, files)}
@@ -130,10 +131,12 @@ export function PortalChecklist({
 
 function PortalRow({
   item,
+  index,
   onAnswer,
   onUpload,
 }: {
   item: RowState;
+  index: number;
   onAnswer: (text: string) => void;
   onUpload: (files: FileList) => void;
 }) {
@@ -143,7 +146,10 @@ function PortalRow({
   const locked = item.state === "accepted";
 
   return (
-    <div className="relative py-4" style={{ borderBottom: "1px solid var(--rule)" }}>
+    <div
+      className="reveal-row relative py-4"
+      style={{ ["--i"]: index } as CSSProperties}
+    >
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex w-6 justify-center">
           <StatusMark state={item.state} animate={item.ruled} />
@@ -238,10 +244,16 @@ function CompletionMoment({
 }) {
   return (
     <div className="flex flex-col items-center py-16 text-center animate-fadein">
-      <h2 className="font-display text-5xl font-semibold" style={{ color: "var(--ink)" }}>
-        Ruled off.
-      </h2>
-      <p className="mt-3 text-[15px] text-ink-muted">
+      <div className="inline-block">
+        <h2
+          className="font-display text-5xl font-semibold"
+          style={{ color: "var(--ink)" }}
+        >
+          Ruled off.
+        </h2>
+        <span className="ink-underline mt-1" aria-hidden="true" />
+      </div>
+      <p className="mt-4 text-[15px] text-ink-muted">
         Your books for <span className="num">{monthLabel}</span> are closed.
       </p>
       <div className="mt-8 w-40">

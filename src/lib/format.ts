@@ -4,7 +4,7 @@ export function formatMoney(
   amount: number | null | undefined,
   currency = "USD",
 ): string {
-  if (amount == null) return "—";
+  if (amount == null) return "";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
@@ -12,9 +12,9 @@ export function formatMoney(
 }
 
 export function formatDate(input: string | Date | null | undefined): string {
-  if (!input) return "—";
+  if (!input) return "";
   const d = typeof input === "string" ? new Date(input) : input;
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "";
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "2-digit",
@@ -38,7 +38,7 @@ export function monthKey(d: Date = new Date()): string {
   return `${y}-${m}-01`;
 }
 
-/** "3 open" / "1 open" — count in mono at the call site. */
+/** "3 open" / "1 open". Count renders in mono at the call site. */
 export function pluralize(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }

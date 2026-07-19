@@ -6,7 +6,7 @@ import type { Item, ItemState } from "@/lib/types";
  *  requested  initial; nothing sent yet or awaiting client
  *  nudged     a reminder has gone out; still awaiting the client
  *  answered   the client sent something back (text and/or files)
- *  accepted   the bookkeeper accepted it — the item is ruled off (final)
+ *  accepted   the bookkeeper accepted it; the item is ruled off (final)
  */
 const TRANSITIONS: Record<ItemState, ItemState[]> = {
   requested: ["nudged", "answered"],
@@ -19,7 +19,7 @@ export function canTransition(from: ItemState, to: ItemState): boolean {
   return TRANSITIONS[from]?.includes(to) ?? false;
 }
 
-/** Still blocking the close — the client owes us something. */
+/** Still blocking the close; the client owes us something. */
 export function isOpen(state: ItemState): boolean {
   return state === "requested" || state === "nudged";
 }

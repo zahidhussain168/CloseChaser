@@ -39,7 +39,7 @@ export function MagicLinkBar({
   return (
     <div className="sheet flex flex-col gap-2 p-3">
       <div className="text-xs uppercase tracking-wide text-ink-muted">
-        Client link — no login required
+        Client link, no login required
       </div>
       <div className="flex items-center gap-2">
         <code

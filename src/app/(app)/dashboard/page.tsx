@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { listClientsWithBlocking } from "@/lib/data";
 import { AddClientForm } from "@/components/app/AddClientForm";
 import { formatMonth, monthKey } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Clients — RuledOff" };
+export const metadata: Metadata = { title: "Clients · RuledOff" };
 
 export default async function DashboardPage() {
   const clients = await listClientsWithBlocking();
@@ -40,6 +41,10 @@ export default async function DashboardPage() {
 
       {clients.length === 0 ? (
         <div className="sheet px-6 py-12 text-center">
+          <div className="empty-nib mb-5" aria-hidden="true">
+            <span className="line" />
+            <span className="nib" />
+          </div>
           <p className="font-display text-xl">No clients yet.</p>
           <p className="mt-2 text-sm text-ink-muted">
             Add your first client to start a close.
@@ -47,11 +52,12 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="border-t" style={{ borderColor: "var(--rule)" }}>
-          {clients.map((c) => (
+          {clients.map((c, idx) => (
             <Link
               key={c.id}
               href={`/clients/${c.id}`}
-              className="ledger-row block transition-colors hover:bg-paper-deep"
+              className="ledger-row reveal-row block"
+              style={{ ["--i"]: idx } as CSSProperties}
             >
               <span className="flex justify-center pt-0.5">
                 <span
@@ -72,6 +78,17 @@ export default async function DashboardPage() {
                   {c.email}
                   {c.qbo_realm_id ? " · QBO linked" : " · manual"}
                 </span>
+                {c.totalItems > 0 && (
+                  <span
+                    className="ink-progress mt-1.5 block max-w-[140px]"
+                    style={
+                      { ["--fill"]: (c.totalItems - c.openCount) / c.totalItems } as React.CSSProperties
+                    }
+                    aria-hidden="true"
+                  >
+                    <span />
+                  </span>
+                )}
               </span>
               <span className="text-right">
                 {c.period?.status === "closed" ? (

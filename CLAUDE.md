@@ -112,3 +112,46 @@ When an item is completed, it receives the accountant's double-rule: two close p
 ## After each phase
 
 Run the app, screenshot the key screens at desktop and 375px mobile widths, and self-critique against this brief before showing me: does anything look like a default template? Is the mono-numeral ledger identity carried through? Is the ruled-off moment working? Fix, then present.
+
+## Copy rule — no em dashes, anywhere
+
+Remove every em dash (—) and en dash (–) from all user-facing text across the
+entire system: UI labels, buttons, empty states, tooltips, error messages, the
+magic-link client page, and ALL email templates (every escalation level).
+Rewrite each sentence naturally instead: use a period, a comma, or restructure
+the sentence. Do not just swap in a hyphen. Hyphens (-) remain allowed in
+compound words like "no-login" and in phone/date formatting.
+
+Enforcement: after rewriting, run a grep across the codebase for "—" and "–" in
+JSX/TSX strings, email templates, and seed data, and show the zero-match output.
+A check runs in the QA step (`npm run check:copy`) and /qa fails if either
+character ever appears in rendered UI text again.
+
+## Motion System — "ink on paper"
+
+Every animation mimics ink, paper, and bookkeeping gestures. Durations
+150-400ms, ease-out, respect prefers-reduced-motion everywhere.
+1. Page/view transitions: content fades up 8px like a page settling.
+2. List reveals: checklist rows stagger in 40ms apart, each drawing its bottom
+   rule line left-to-right as it appears.
+3. The double-rule completion: already specified. Make it flawless. Add a subtle
+   ink-bleed effect (the line starts 1.5px, settles to 1px).
+4. Numbers: when amounts/counts change, animate with a rolling odometer effect in
+   the mono font.
+5. Progress: each close period shows a thin ink-fill progress bar that fills like
+   a pen stroke, not a CSS gradient slide.
+6. Hover states: rows lift ZERO px (no floating). Instead the row's rule line
+   darkens and a small posting-column marker inks in.
+7. Buttons: press states feel like a stamp, a 1px translate down plus slight ink
+   darkening, 100ms.
+8. The "Ruled off." completion moment: rows rule off in sequence (80ms stagger),
+   then the headline appears with a single confident ink-draw underline. This
+   must feel like a ceremony. No confetti.
+9. Empty states: a slow, subtle looping animation of a pen nib drawing a rule
+   line, in --rule color.
+10. Magic-link client page: same system but fewer, faster animations (mobile,
+    busy user). Item completion double-rule is the hero there.
+
+Use CSS transitions/keyframes and the Web Animations API; add Framer Motion ONLY
+if genuinely needed. Performance budget: no animation may cause layout thrash;
+animate transform/opacity/clip-path only.

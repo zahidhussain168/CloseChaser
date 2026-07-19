@@ -23,9 +23,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RuledOff — close the books, ruled off",
+  title: "RuledOff: close the books, ruled off",
   description:
-    "RuledOff chases your client for what's blocking the month-end close — no logins, no portals, no downloads.",
+    "RuledOff chases your client for what's blocking the month-end close. No logins, no portals, no downloads.",
 };
 
 export default function RootLayout({
