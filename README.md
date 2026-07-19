@@ -1,10 +1,10 @@
-# CloseChaser
+# RuledOff
 
 > Repository scaffolded and pending project details.
 
 ## Overview
 
-_TODO: Describe what CloseChaser does._
+_TODO: Describe what RuledOff does._
 
 ## Getting Started
 
