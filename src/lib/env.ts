@@ -38,6 +38,15 @@ export const serverEnv = {
   get resendFrom() {
     return process.env.RESEND_FROM ?? "onboarding@resend.dev";
   },
+  /**
+   * Sandbox only: when set, every chase email is redirected here instead of the
+   * client's real address. Lets the demo deliver while using an unverified
+   * Resend sender (which can only send to the account owner). Leave unset in
+   * production once a domain is verified.
+   */
+  get resendTestRecipient() {
+    return process.env.RESEND_TEST_RECIPIENT ?? "";
+  },
   get cronSecret() {
     return required("CRON_SECRET");
   },

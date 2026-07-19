@@ -22,10 +22,18 @@ export type SendResult =
 
 export async function sendEmail(input: SendEmailInput): Promise<SendResult> {
   try {
+    // Sandbox redirect: with an unverified Resend sender, deliver everything to
+    // the account owner so the demo works. The real recipient is shown in the
+    // subject so it's clear who each chase was meant for.
+    const testTo = serverEnv.resendTestRecipient;
+    const redirecting = testTo && testTo !== input.to;
+    const to = redirecting ? testTo : input.to;
+    const subject = redirecting ? `[to ${input.to}] ${input.subject}` : input.subject;
+
     const { data, error } = await resend().emails.send({
       from: serverEnv.resendFrom,
-      to: input.to,
-      subject: input.subject,
+      to,
+      subject,
       html: input.html,
       text: input.text,
       replyTo: input.replyTo,
