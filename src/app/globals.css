@@ -27,15 +27,15 @@
   --elev-1: 0 8px 24px rgba(35, 42, 37, 0.08);
   --elev-2: 0 18px 48px rgba(35, 42, 37, 0.12);
 
-  /* Section spacing tokens. Hero + ink band use the hero value; all else use the base. */
-  --section-y: 128px;
-  --section-y-hero: 160px;
+  /* Section spacing tokens. The ink band uses the larger value; all else the base. */
+  --section-y: 96px;
+  --section-y-hero: 120px;
 }
 
 @media (max-width: 640px) {
   :root {
-    --section-y: 80px;
-    --section-y-hero: 96px;
+    --section-y: 60px;
+    --section-y-hero: 76px;
   }
 }
 
