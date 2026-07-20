@@ -120,7 +120,7 @@ export default async function DashboardPage({
             </div>
 
             <div className="flex flex-col gap-2.5">
-              {clients.map((c, idx) => {
+              {clients.map((c) => {
                 const done = c.totalItems - c.openCount;
                 const fill = c.totalItems ? done / c.totalItems : 0;
                 const isDone = c.period?.status === "closed" || (!c.openCount && c.totalItems);
@@ -135,8 +135,7 @@ export default async function DashboardPage({
                   <Link
                     key={c.id}
                     href={`/clients/${c.id}`}
-                    className="sheet lift reveal-row flex items-center gap-4 p-4"
-                    style={{ ["--i"]: idx } as CSSProperties}
+                    className="sheet lift flex items-center gap-4 p-4"
                   >
                     <span
                       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[13px] font-bold"
