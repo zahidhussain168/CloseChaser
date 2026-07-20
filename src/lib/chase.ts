@@ -78,7 +78,7 @@ export async function sendChaseEmail(args: ChaseArgs): Promise<SendResult> {
     type: i.type,
   }));
   const ctaUrl = magicLinkUrl(serverEnv.appUrl, token);
-  const accent = firm.accent_color || "#A88B4C";
+  const accent = firm.accent_color || "#C59B3A";
 
   const html = buildEmailHtml({
     bodyText,

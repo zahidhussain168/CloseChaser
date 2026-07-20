@@ -12,30 +12,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // App palette, kept in lockstep with the marketing `site` scale below
+        // and with the CSS custom properties in globals.css.
         paper: {
-          DEFAULT: "#F2F5EF", // app background — pale ledger-green paper
-          deep: "#E9EEE4", // subtle inset / hover on paper
-          sheet: "#FBFCFA", // a raised "sheet" (slightly whiter than paper)
+          DEFAULT: "#F7F5F1", // app background — warm paper
+          deep: "#ECE7DE", // subtle inset / hover on paper
+          sheet: "#FFFFFF", // a raised "sheet"
         },
         ink: {
-          DEFAULT: "#232A25", // primary text — near-black green ink
-          soft: "#55605457", // muted (uses alpha for quiet secondary text)
-          muted: "#5E6A5F", // secondary text, opaque
+          DEFAULT: "#111315", // primary text
+          soft: "#6F6E6957", // muted (uses alpha for quiet secondary text)
+          muted: "#6F6E69", // secondary text, opaque
         },
         rule: {
-          DEFAULT: "#C9D6C6", // ruled lines — borders/dividers
-          strong: "#AEBFAA", // heavier rule where emphasis is needed
+          DEFAULT: "#D9D4CA", // ruled lines — borders/dividers
+          strong: "#C6C0B4", // heavier rule where emphasis is needed
         },
         pending: {
-          DEFAULT: "#B3402E", // accountant's red ink — OUTSTANDING/OVERDUE ONLY
-          soft: "#B3402E1A",
+          DEFAULT: "#B94B3D", // accountant's red ink — OUTSTANDING/OVERDUE ONLY
+          soft: "#B94B3D1A",
         },
         cleared: {
-          DEFAULT: "#2F6B4F", // deep ledger green — completed/reconciled
-          soft: "#2F6B4F14",
+          DEFAULT: "#0E8A5F", // ledger green — completed/reconciled
+          soft: "#0E8A5F14",
         },
         brass: {
-          DEFAULT: "#A88B4C", // brass paper-fastener accent — sparingly
+          DEFAULT: "#C59B3A", // gold accent — sparingly
         },
         // Marketing site: warmer editorial palette (echoes the app, bolder).
         site: {
@@ -51,7 +53,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-display)", "var(--font-inter)", "system-ui", "sans-serif"],
+        // Titles use the same editorial serif as the marketing site.
+        display: ["var(--font-newsreader)", "Georgia", "Times New Roman", "serif"],
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         mono: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
         // Marketing: literary serif display + tiny mono labels.

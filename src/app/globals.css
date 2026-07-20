@@ -14,24 +14,29 @@
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   --font-newsreader: "Newsreader", Georgia, "Times New Roman", serif;
 
-  --paper: #f2f5ef;
-  --paper-deep: #e9eee4;
-  --paper-sheet: #fbfcfa;
-  --ink: #232a25;
-  --ink-muted: #5e6a5f;
-  --rule: #c9d6c6;
-  --rule-strong: #aebfaa;
-  --pending: #b3402e;
-  --pending-bright: #cf5b45; /* ~15% brighter red, for red ink on the dark band */
-  --cleared: #2f6b4f;
-  --brass: #a88b4c;
+  /*
+    Editorial palette, shared with the marketing site so the product and the
+    page that sells it read as one thing. Same roles as before: paper, ink,
+    ruled lines, red for outstanding, green for cleared, gold used sparingly.
+  */
+  --paper: #f7f5f1;
+  --paper-deep: #ece7de;
+  --paper-sheet: #ffffff;
+  --ink: #111315;
+  --ink-muted: #6f6e69;
+  --rule: #d9d4ca;
+  --rule-strong: #c6c0b4;
+  --pending: #b94b3d;
+  --pending-bright: #d06a58; /* brighter red ink, for use on the dark band */
+  --cleared: #0e8a5f;
+  --brass: #c59b3a;
 
-  /* One shared easing token for every transition and animation. */
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* One shared easing token: paper settling, no bounce. */
+  --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
 
   /* Depth: one soft ink shadow, raised on hover. No stacked shadows. */
-  --elev-1: 0 8px 24px rgba(35, 42, 37, 0.08);
-  --elev-2: 0 18px 48px rgba(35, 42, 37, 0.12);
+  --elev-1: 0 8px 24px rgba(17, 19, 21, 0.07);
+  --elev-2: 0 24px 52px -28px rgba(17, 19, 21, 0.22);
 
   /* Section spacing tokens. The ink band uses the larger value; all else the base. */
   --section-y: 96px;
@@ -63,22 +68,25 @@
     letter-spacing: -0.01em;
   }
 
+  /* Editorial serif for titles, same face as the marketing site. */
   h1,
   h2,
   h3 {
-    font-family: var(--font-display), Inter, system-ui, sans-serif;
+    font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--ink);
   }
 
-  /* Visible, brass focus ring everywhere — accessibility bar. */
+  /* Visible focus ring everywhere — accessibility bar. */
   :focus-visible {
-    outline: 2px solid var(--brass);
+    outline: 2px solid var(--cleared);
     outline-offset: 2px;
     border-radius: 3px;
   }
 
   ::selection {
-    background: rgba(168, 139, 76, 0.22);
+    background: rgba(197, 155, 58, 0.22);
   }
 }
 
@@ -111,13 +119,13 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.6rem 1.25rem;
-    border-radius: 9999px;
+    border-radius: 7px;
     border: 1px solid var(--rule-strong);
     background: var(--paper-sheet);
     color: var(--ink);
     line-height: 1;
     min-height: 44px; /* touch target */
-    white-space: nowrap; /* pills never wrap into circles */
+    white-space: nowrap;
     transition: background-color 120ms var(--ease), border-color 120ms var(--ease);
   }
   .btn:hover {
@@ -127,9 +135,10 @@
     background: var(--ink);
     color: var(--paper-sheet);
     border-color: var(--ink);
+    box-shadow: 0 2px 0 rgba(17, 19, 21, 0.18);
   }
   .btn-primary:hover {
-    background: #171d19;
+    background: #1c1f22;
   }
   .btn:disabled {
     opacity: 0.5;
@@ -248,13 +257,13 @@
 .ledger-row:hover { border-bottom-color: var(--rule-strong); }
 .reveal-row:hover::after { background: var(--rule-strong); }
 
-/* 7. Buttons: press like a stamp, scale(0.98) + ink darken over 100ms. */
+/* 7. Buttons: depress 1px like a physical key, no bounce. */
 .btn {
   transition: background-color 100ms var(--ease), border-color 100ms var(--ease),
-    transform 100ms var(--ease);
+    transform 100ms var(--ease), box-shadow 100ms var(--ease);
 }
-.btn:active { transform: scale(0.98); }
-.btn-primary:active { background: #10140f; }
+.btn:active { transform: translateY(1px); }
+.btn-primary:active { box-shadow: none; }
 
 /* 3. The double-rule: draw left-to-right with a subtle ink-bleed settle. */
 .double-rule::before,
@@ -370,12 +379,15 @@
 }
 
 /* Section kicker: a short Fraunces italic line above the title. */
+/* Eyebrow label, same language as the marketing site's mono labels. Green is
+   reserved for genuinely cleared things, so it is not used here. */
 .kicker {
-  font-family: var(--font-display), Inter, system-ui, sans-serif;
-  font-style: italic;
-  font-size: 18px;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
   line-height: 1;
-  color: var(--cleared);
+  color: var(--ink-muted);
 }
 
 /* Tiny mono folio number, top-right of each section. */

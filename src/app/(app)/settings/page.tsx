@@ -31,7 +31,7 @@ export default async function SettingsPage() {
         </div>
         <BrandingForm
           name={firm.name}
-          accentColor={firm.accent_color || "#A88B4C"}
+          accentColor={firm.accent_color || "#C59B3A"}
           replyTo={firm.reply_to ?? ""}
         />
       </section>

@@ -112,7 +112,7 @@ export function buildEmailHtml(opts: {
     .split(/\n\n+/)
     .map(
       (p) =>
-        `<p style="margin:0 0 16px;line-height:1.55;color:#232A25;font-size:15px;">${escapeHtml(
+        `<p style="margin:0 0 16px;line-height:1.55;color:#111315;font-size:15px;">${escapeHtml(
           p,
         ).replace(/\n/g, "<br/>")}</p>`,
     )
@@ -122,10 +122,10 @@ export function buildEmailHtml(opts: {
     .map(
       (it) => `
       <tr>
-        <td style="padding:10px 0;border-bottom:1px solid #C9D6C6;font-size:14px;color:#232A25;">
-          <span style="color:#B3402E;font-family:'IBM Plex Mono',Menlo,monospace;">•</span>
+        <td style="padding:10px 0;border-bottom:1px solid #D9D4CA;font-size:14px;color:#111315;">
+          <span style="color:#B94B3D;font-family:'IBM Plex Mono',Menlo,monospace;">•</span>
           &nbsp; ${escapeHtml(it.title)}
-          <span style="color:#5E6A5F;font-size:12px;"> (${it.type === "document" ? "upload" : "quick answer"})</span>
+          <span style="color:#6F6E69;font-size:12px;"> (${it.type === "document" ? "upload" : "quick answer"})</span>
         </td>
       </tr>`,
     )
@@ -133,12 +133,12 @@ export function buildEmailHtml(opts: {
 
   return `<!doctype html>
 <html>
-  <body style="margin:0;background:#F2F5EF;padding:24px 0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;">
+  <body style="margin:0;background:#F7F5F1;padding:24px 0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr><td align="center">
-        <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#FBFCFA;border:1px solid #C9D6C6;border-radius:6px;">
+        <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#FFFFFF;border:1px solid #D9D4CA;border-radius:6px;">
           <tr><td style="padding:24px 28px 8px;border-bottom:2px solid ${accent};">
-            <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:#232A25;">${escapeHtml(
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:#111315;">${escapeHtml(
               firmName,
             )}</div>
           </td></tr>
@@ -148,14 +148,14 @@ export function buildEmailHtml(opts: {
           ${
             items.length
               ? `<tr><td style="padding:4px 28px 8px;">
-                  <div style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#5E6A5F;margin-bottom:4px;">Open items</div>
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #C9D6C6;">${itemRows}</table>
+                  <div style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#6F6E69;margin-bottom:4px;">Open items</div>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #D9D4CA;">${itemRows}</table>
                 </td></tr>`
               : ""
           }
           <tr><td style="padding:18px 28px 28px;">
-            <a href="${ctaUrl}" style="display:inline-block;background:#232A25;color:#FBFCFA;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:600;font-size:15px;">Open your checklist</a>
-            <div style="margin-top:12px;font-size:12px;color:#5E6A5F;">No login required. This private link is just for you.</div>
+            <a href="${ctaUrl}" style="display:inline-block;background:#111315;color:#FFFFFF;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:600;font-size:15px;">Open your checklist</a>
+            <div style="margin-top:12px;font-size:12px;color:#6F6E69;">No login required. This private link is just for you.</div>
           </td></tr>
         </table>
         <div style="max-width:520px;margin:14px auto 0;font-size:11px;color:#8A968B;">Sent by ${escapeHtml(

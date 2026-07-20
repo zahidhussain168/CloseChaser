@@ -81,7 +81,7 @@ export default async function PortalPage({
   });
 
   const brandStyle = {
-    ["--brass"]: firm.accent_color || "#A88B4C",
+    ["--brass"]: firm.accent_color || "#C59B3A",
   } as CSSProperties;
 
   return (
