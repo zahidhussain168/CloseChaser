@@ -14,6 +14,7 @@
     "migrate:print": "node scripts/print-migration.mjs"
   },
   "dependencies": {
+    "@paddle/paddle-js": "^1.6.4",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.45.4",
     "clsx": "^2.1.1",

@@ -9,6 +9,8 @@ import { QboConnectCard } from "@/components/app/QboConnectCard";
 import { CadenceForm } from "@/components/app/CadenceForm";
 import { getQboConnection } from "@/lib/qbo/connection";
 import { normaliseCadence } from "@/lib/reminders";
+import { BillingCard } from "@/components/app/BillingCard";
+import { getSubscriptionState } from "@/lib/paddle/subscription";
 import type { EmailKind } from "@/lib/email/templates";
 
 export const metadata: Metadata = { title: "Settings · RuledOff" };
@@ -34,12 +36,42 @@ export default async function SettingsPage({
     weeklyStep: (firm as { reminder_weekly_step?: number }).reminder_weekly_step,
   });
 
+  const sub = getSubscriptionState(firm);
+  const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN ?? null;
+  const priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_ID ?? null;
+  const billingConfigured = Boolean(
+    process.env.PADDLE_API_KEY && priceId && clientToken,
+  );
+
   return (
     <div className="flex max-w-2xl flex-col gap-12">
       <div>
         <p className="kicker">Workspace</p>
         <h1 className="t-h2 mt-2 font-display font-semibold">Settings</h1>
       </div>
+
+      <section className="flex flex-col gap-4">
+        <div>
+          <h2 className="t-h3 font-display font-semibold">Plan and billing</h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            Your subscription, powered by Paddle. Cancel or update your card anytime.
+          </p>
+        </div>
+        <BillingCard
+          configured={billingConfigured}
+          priceId={priceId}
+          clientToken={clientToken}
+          environment={
+            (process.env.NEXT_PUBLIC_PADDLE_ENV as "sandbox" | "production") ?? "sandbox"
+          }
+          status={sub.status}
+          active={sub.active}
+          inTrial={sub.inTrial}
+          trialDaysLeft={sub.trialDaysLeft}
+          hasSubscription={sub.hasSubscription}
+          currentPeriodEnd={sub.currentPeriodEnd}
+        />
+      </section>
 
       <section className="flex flex-col gap-4">
         <div>

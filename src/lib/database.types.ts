@@ -26,6 +26,11 @@ export interface Database {
           logo_url: string | null;
           reminder_offsets: number[];
           reminder_weekly_step: number;
+          paddle_customer_id: string | null;
+          paddle_subscription_id: string | null;
+          subscription_status: string;
+          current_period_end: string | null;
+          trial_ends_at: string | null;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -36,6 +41,11 @@ export interface Database {
           logo_url?: string | null;
           reminder_offsets?: number[];
           reminder_weekly_step?: number;
+          paddle_customer_id?: string | null;
+          paddle_subscription_id?: string | null;
+          subscription_status?: string;
+          current_period_end?: string | null;
+          trial_ends_at?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["firms"]["Insert"]>;

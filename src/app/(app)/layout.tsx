@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Logo } from "@/components/site/Logo";
 import { SidebarNav } from "@/components/app/SidebarNav";
+import { TrialBanner } from "@/components/app/TrialBanner";
 import { getFirm } from "@/lib/data";
 import { signOutAction } from "@/app/(auth)/actions";
 
@@ -91,9 +92,12 @@ export default async function AppLayout({
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-8 lg:px-10 lg:py-10">
-        {children}
-      </main>
+      <div className="flex-1">
+        <TrialBanner firm={firm} />
+        <main className="mx-auto w-full max-w-4xl px-5 py-8 lg:px-10 lg:py-10">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
