@@ -2,8 +2,23 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { serverEnv } from "@/lib/env";
 
-/** Public path prefixes that never require a bookkeeper session. */
-const PUBLIC_PREFIXES = ["/login", "/signup", "/pricing", "/c/", "/api/cron", "/api/client"];
+/**
+ * Public path prefixes that never require a bookkeeper session.
+ *
+ * /api/qbo/callback is public because Intuit returns the browser here by a top
+ * level redirect and the session cookie may not arrive. Guarding it here sent
+ * the callback to /login and the connection was lost without a word. It is
+ * protected instead by the HMAC signed state it requires.
+ */
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/signup",
+  "/pricing",
+  "/c/",
+  "/api/cron",
+  "/api/client",
+  "/api/qbo/callback",
+];
 
 function isPublic(pathname: string): boolean {
   if (pathname === "/") return true;
