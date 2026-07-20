@@ -8,6 +8,12 @@
   reference the same values Tailwind uses.
 */
 :root {
+  /* Fonts (loaded via a runtime <link> in the root layout). */
+  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+  --font-plex-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --font-newsreader: "Newsreader", Georgia, "Times New Roman", serif;
+
   --paper: #f2f5ef;
   --paper-deep: #e9eee4;
   --paper-sheet: #fbfcfa;

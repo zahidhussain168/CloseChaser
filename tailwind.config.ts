@@ -37,11 +37,27 @@ const config: Config = {
         brass: {
           DEFAULT: "#A88B4C", // brass paper-fastener accent — sparingly
         },
+        // Marketing site: warmer editorial palette (echoes the app, bolder).
+        site: {
+          bg: "#F7F5F1",
+          paper: "#ECE7DE",
+          ink: "#111315",
+          secondary: "#6F6E69",
+          border: "#D9D4CA",
+          green: "#0E8A5F",
+          red: "#B94B3D",
+          gold: "#C59B3A",
+          white: "#FFFFFF",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "var(--font-inter)", "system-ui", "sans-serif"],
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         mono: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
+        // Marketing: literary serif display + tiny mono labels.
+        editorial: ["var(--font-newsreader)", "Georgia", "Times New Roman", "serif"],
+        // Geist Mono is unavailable in this Next version; fall back to the shared Plex Mono.
+        geist: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
         sheet: "14px", // softened toward a modern SaaS look
