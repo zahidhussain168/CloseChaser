@@ -16,6 +16,7 @@
   --rule: #c9d6c6;
   --rule-strong: #aebfaa;
   --pending: #b3402e;
+  --pending-bright: #cf5b45; /* ~15% brighter red, for red ink on the dark band */
   --cleared: #2f6b4f;
   --brass: #a88b4c;
 }
@@ -315,6 +316,99 @@
 }
 .reveal-in .ink-rule { transform: scaleX(1); }
 
+/* ─── Craft pass: texture, marginalia, kickers, sticky nav, ink band ─────── */
+
+/* Paper grain: felt, not seen. Fixed overlay over paper sections only; the ink
+   band sits above it (higher z-index) so it stays clean. */
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-attachment: fixed;
+}
+
+/* Ledger left margin: a thin red rule 48px from the page edge, desktop only. */
+.ledger-margin { display: none; }
+@media (min-width: 1024px) {
+  .ledger-margin {
+    display: block;
+    position: fixed;
+    left: 48px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(179, 64, 46, 0.28);
+    z-index: 40;
+    pointer-events: none;
+  }
+}
+
+/* Section kicker: a short Fraunces italic line above the title. */
+.kicker {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--cleared);
+}
+
+/* Tiny mono folio number, top-right of each section. */
+.folio {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+}
+.ink-band .folio { color: rgba(242, 245, 239, 0.5); }
+
+/* Full-bleed ink band. Sits above the grain so no texture bleeds onto it. */
+.ink-band {
+  position: relative;
+  z-index: 2;
+  background: var(--ink);
+  color: var(--paper);
+}
+.ink-band .ink-rule-soft { background: rgba(242, 245, 239, 0.15); }
+
+/* Sticky nav: slides down once you scroll past the hero. */
+.sticky-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transform: translateY(-100%);
+  transition: transform 260ms ease-out;
+}
+.sticky-nav.is-visible { transform: translateY(0); }
+
+/* Typing indicator: three dots at rest, gently pulsing. */
+.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.typing span {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--ink-muted);
+  animation: typingDot 1.3s infinite ease-in-out;
+}
+.typing span:nth-child(2) { animation-delay: 0.16s; }
+.typing span:nth-child(3) { animation-delay: 0.32s; }
+@keyframes typingDot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 0.9; transform: translateY(-2px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -324,6 +418,7 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+  .typing span { opacity: 0.5; }
   /* Ensure drawn/filled states rest in their final position, not at scale 0. */
   .reveal-row::after,
   .double-rule.is-drawn::before,
