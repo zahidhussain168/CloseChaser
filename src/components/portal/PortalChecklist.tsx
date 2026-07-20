@@ -225,7 +225,7 @@ function PortalRow({
                 <li
                   key={i}
                   className="num inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs"
-                  style={{ background: "rgba(47,107,79,0.1)", color: "var(--cleared)" }}
+                  style={{ background: "var(--success-tint)", color: "var(--success)" }}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
                   {a.name}
@@ -234,7 +234,7 @@ function PortalRow({
             </ul>
           )}
           {item.error && (
-            <p className="mt-2 text-sm" style={{ color: "var(--pending)" }}>
+            <p className="mt-2 text-sm" style={{ color: "var(--danger)" }}>
               {item.error}
             </p>
           )}

@@ -20,6 +20,7 @@ import { TextChaseCard } from "@/components/app/TextChaseCard";
 import { buildTextMessage, smsHref } from "@/lib/textmessage";
 import { getFirm } from "@/lib/data";
 import { getQboConnection } from "@/lib/qbo/connection";
+import { ProgressRing } from "@/components/site/ProgressRing";
 import type { Attachment, Item } from "@/lib/types";
 
 const STATE_LABEL: Record<string, string> = {
@@ -29,12 +30,10 @@ const STATE_LABEL: Record<string, string> = {
   accepted: "ruled off",
 };
 
-function pillStyle(state: string): CSSProperties {
-  if (state === "accepted")
-    return { color: "var(--cleared)", background: "rgba(47,107,79,0.1)" };
-  if (state === "answered")
-    return { color: "var(--brass)", background: "rgba(168,139,76,0.12)" };
-  return { color: "var(--pending)", background: "rgba(179,64,46,0.1)" };
+function pillClass(state: string): string {
+  if (state === "accepted") return "pill pill-success";
+  if (state === "answered") return "pill pill-brand";
+  return "pill pill-warning";
 }
 
 function TxnMeta({ details }: { details: Record<string, unknown> }) {
@@ -114,38 +113,32 @@ export default async function ClientPage({
               {client.phone ? ` · ${client.phone}` : ""}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <span className="num text-xs text-ink-muted">
-              {formatMonth(period.month)} close
-            </span>
-            <span
-              className="num rounded-full px-3 py-1 text-xs"
-              style={{
-                color: statusColor,
-                background:
-                  statusColor === "var(--pending)"
-                    ? "rgba(179,64,46,0.1)"
-                    : statusColor === "var(--cleared)"
-                      ? "rgba(47,107,79,0.1)"
-                      : "var(--paper-deep)",
-              }}
-            >
-              {statusText}
-            </span>
+          <div className="flex items-center gap-4">
             {items.length > 0 && (
-              <span className="flex items-center gap-2">
-                <span
-                  className="ink-progress block w-28"
-                  style={{ ["--fill"]: fill } as CSSProperties}
-                  aria-hidden="true"
-                >
-                  <span />
-                </span>
-                <span className="num text-[11px] text-ink-muted">
-                  {done}/{items.length}
-                </span>
-              </span>
+              <ProgressRing value={fill} size={58} stroke={6} label={`${Math.round(fill * 100)}%`} />
             )}
+            <div className="flex flex-col items-end gap-2">
+              <span className="num text-xs text-ink-muted">
+                {formatMonth(period.month)} close
+              </span>
+              <span
+                className={
+                  "num " +
+                  (closed || (!open && items.length)
+                    ? "pill pill-success"
+                    : open
+                      ? "pill pill-warning"
+                      : "pill pill-brand")
+                }
+              >
+                {statusText}
+              </span>
+              {items.length > 0 && (
+                <span className="num text-[11px] text-ink-muted">
+                  {done} of {items.length} done
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -243,10 +236,7 @@ export default async function ClientPage({
                         qboSyncError={item.source === "qbo" ? item.qbo_sync_error : null}
                       />
                     </span>
-                    <span
-                      className="num shrink-0 rounded-full px-2.5 py-1 text-xs"
-                      style={pillStyle(item.state)}
-                    >
+                    <span className={pillClass(item.state) + " num shrink-0"}>
                       {STATE_LABEL[item.state]}
                     </span>
                   </div>

@@ -31,8 +31,10 @@ export function StatusMark({
   return (
     <span
       aria-hidden="true"
-      className="mt-0.5 inline-block h-4 w-4 rounded-[3px] border"
-      style={{ borderColor: "var(--rule-strong)" }}
-    />
+      className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border-2"
+      style={{ borderColor: "var(--border-strong)" }}
+    >
+      <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--faint)" }} />
+    </span>
   );
 }
