@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Wordmark } from "@/components/Wordmark";
 import { Reveal } from "@/components/marketing/Reveal";
-import { LedgerHero } from "@/components/marketing/LedgerHero";
+import { Hero } from "@/components/marketing/Hero";
+import { Counter } from "@/components/marketing/Counter";
 import { StickyNav } from "@/components/marketing/StickyNav";
 import { CircledNumber } from "@/components/marketing/CircledNumber";
 import { FooterCeremony } from "@/components/marketing/FooterCeremony";
@@ -71,45 +72,7 @@ export default async function HomePage() {
 
       <main className="page-enter">
         {/* 1. Hero */}
-        <section className="section-y-hero relative mx-auto max-w-6xl px-6">
-          <span className="folio">01</span>
-          <Wordmark size={28} />
-          <div className="mt-14 grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <h1 className="t-display font-display font-semibold">
-                Chase the close, not your clients.
-              </h1>
-              <p className="t-body-lg mt-7 max-w-lg text-ink-muted">
-                RuledOff finds what is blocking a client&apos;s month-end and
-                chases them for it with a branded link they open on their phone.
-                No account, no login, no download. When every item is answered,
-                the books are{" "}
-                <span className="font-display" style={{ color: "var(--cleared)" }}>
-                  ruled off
-                </span>
-                .
-              </p>
-              <div className="mt-10 flex flex-wrap items-center gap-6">
-                <Link href="/signup" className="btn btn-primary px-6 text-base">
-                  Create your firm
-                </Link>
-                <Link href="/login" className={QUIET_LINK}>
-                  Sign in
-                </Link>
-              </div>
-              <p className="t-small mt-12 text-ink-muted">
-                Built for solo bookkeepers.{" "}
-                <span className="num" style={{ color: "var(--ink)" }}>
-                  $29
-                </span>
-                /mo flat, unlimited clients.
-              </p>
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <LedgerHero />
-            </div>
-          </div>
-        </section>
+        <Hero />
 
         {/* 2. The problem: the one dark band */}
         <section className="ink-band section-y-hero relative">
@@ -133,12 +96,11 @@ export default async function HomePage() {
                   className={i > 0 ? "sm:border-l sm:pl-8" : ""}
                   style={{ borderColor: "rgba(242, 245, 239, 0.15)" }}
                 >
-                  <span
+                  <Counter
+                    to={Number(s.n)}
                     className="num block text-4xl"
                     style={{ color: "var(--paper)" }}
-                  >
-                    {s.n}
-                  </span>
+                  />
                   <span
                     className="t-small mt-1.5 block"
                     style={{ color: "rgba(242, 245, 239, 0.72)" }}
@@ -155,7 +117,7 @@ export default async function HomePage() {
         <Reveal as="section" className="section-y relative mx-auto max-w-5xl px-6">
           <span className="folio">03</span>
           <p className="kicker">How it works</p>
-          <h2 className="t-h2 mt-4 font-display font-semibold">
+          <h2 className="h2-float t-h2 mt-4 font-display font-semibold">
             Three steps to a closed month.
           </h2>
           <ol className="mt-10 grid gap-10 sm:grid-cols-3">
@@ -180,7 +142,7 @@ export default async function HomePage() {
         <Reveal as="section" className="section-y relative mx-auto max-w-5xl px-6">
           <span className="folio">04</span>
           <p className="kicker">What it catches</p>
-          <h2 className="t-h2 mt-4 max-w-2xl font-display font-semibold">
+          <h2 className="h2-float t-h2 mt-4 max-w-2xl font-display font-semibold">
             It knows what holds up the books.
           </h2>
           <ul
@@ -215,7 +177,7 @@ export default async function HomePage() {
         <Reveal as="section" className="section-y relative mx-auto max-w-5xl px-6">
           <span className="folio">05</span>
           <p className="kicker">The chase</p>
-          <h2 className="t-h2 mt-4 max-w-2xl font-display font-semibold">
+          <h2 className="h2-float t-h2 mt-4 max-w-2xl font-display font-semibold">
             Reminders that get results, then stop.
           </h2>
           <p className="t-body-lg mt-6 max-w-xl text-ink-muted">
@@ -250,7 +212,7 @@ export default async function HomePage() {
         >
           <span className="folio">06</span>
           <p className="kicker">Pricing</p>
-          <h2 className="t-h2 mt-4 font-display font-semibold">
+          <h2 className="h2-float t-h2 mt-4 font-display font-semibold">
             One price. Every client.
           </h2>
           <p className="num mt-6 text-5xl" style={{ color: "var(--ink)" }}>

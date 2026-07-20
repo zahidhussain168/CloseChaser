@@ -23,6 +23,10 @@
   /* One shared easing token for every transition and animation. */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
+  /* Depth: one soft ink shadow, raised on hover. No stacked shadows. */
+  --elev-1: 0 8px 24px rgba(35, 42, 37, 0.08);
+  --elev-2: 0 18px 48px rgba(35, 42, 37, 0.12);
+
   /* Section spacing tokens. Hero + ink band use the hero value; all else use the base. */
   --section-y: 128px;
   --section-y-hero: 160px;
@@ -97,6 +101,7 @@
     background: var(--paper-sheet);
     border: 1px solid var(--rule);
     border-radius: 6px;
+    box-shadow: var(--elev-1);
   }
 
   /* Quiet, ledger-styled button. */
@@ -450,6 +455,57 @@
   30% { opacity: 0.9; transform: translateY(-2px); }
 }
 
+/* ─── L3 signature motion ─────────────────────────────────────────────────── */
+
+/* Hero H1 mask reveal: each line wipes up from behind a clip. */
+.mask-line { display: block; overflow: hidden; padding-bottom: 0.04em; }
+.mask-line > span { display: block; transform: translateY(112%); }
+.mask-reveal.is-in .mask-line > span {
+  animation: maskUp 720ms var(--ease) forwards;
+}
+.mask-reveal.is-in .mask-line:nth-child(2) > span { animation-delay: 90ms; }
+.mask-reveal.is-in .mask-line:nth-child(3) > span { animation-delay: 180ms; }
+@keyframes maskUp { to { transform: translateY(0); } }
+
+/* Section H2: rise + de-blur once on scroll-in (one-shot, then static). */
+.h2-float {
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(6px);
+  transition: opacity 640ms var(--ease), transform 640ms var(--ease),
+    filter 640ms var(--ease);
+}
+.reveal-in .h2-float,
+.h2-float.is-in { opacity: 1; transform: none; filter: blur(0); }
+
+/* Cursor spotlight on interactive cards (subtle brass wash, hover only). */
+.spot { position: relative; isolation: isolate; }
+.spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 220ms var(--ease);
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(168, 139, 76, 0.14),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+.spot:hover { box-shadow: var(--elev-2); }
+.spot:hover::before { opacity: 1; }
+
+/* Hero ledger stack: sheets fan in from a pile on load. */
+.fan { opacity: 0; }
+.fan.is-in { animation: fanIn 620ms var(--ease) forwards; }
+@keyframes fanIn {
+  from { opacity: 0; transform: translateY(18px) rotate(-1deg) scale(0.98); }
+  to { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -460,6 +516,10 @@
     transition-duration: 0.001ms !important;
   }
   .typing span { opacity: 0.5; }
+  .mask-line > span { transform: none !important; }
+  .h2-float { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .fan { opacity: 1 !important; }
+  .spot::before { display: none; }
   /* Ensure drawn/filled states rest in their final position, not at scale 0. */
   .reveal-row::after,
   .double-rule.is-drawn::before,
