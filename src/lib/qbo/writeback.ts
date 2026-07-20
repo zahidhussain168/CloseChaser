@@ -19,20 +19,20 @@ export function parseTxnRef(qboTxnId: string): { entity: string; id: string } | 
   return { entity, id };
 }
 
-/** QBO rejects a sparse update without the current SyncToken. */
-async function readSyncToken(
+/** Read the whole entity. Its SyncToken is required to write anything back. */
+async function readEntity(
   conn: QboConnection,
   entity: string,
   id: string,
-): Promise<{ syncToken: string; privateNote: string | null }> {
+): Promise<Record<string, unknown>> {
   const res = await qboFetch(conn, `${entity.toLowerCase()}/${id}?minorversion=70`);
   if (!res.ok) {
     throw new Error(`Could not read ${entity} ${id} (${res.status})`);
   }
-  const json = (await res.json()) as Record<string, { SyncToken?: string; PrivateNote?: string }>;
+  const json = (await res.json()) as Record<string, Record<string, unknown>>;
   const body = json[entity];
   if (!body?.SyncToken) throw new Error(`${entity} ${id} did not return a SyncToken`);
-  return { syncToken: body.SyncToken, privateNote: body.PrivateNote ?? null };
+  return body;
 }
 
 /**
@@ -46,22 +46,29 @@ export function mergeNote(existing: string | null, answer: string): string {
   return `${existing}\n${addition}`.slice(0, 4000);
 }
 
+/**
+ * Write the answer onto the transaction as a memo.
+ *
+ * A sparse update is not usable here: QBO still demands each entity's mandatory
+ * fields (PaymentType on a Purchase, DepositToAccountRef on a Deposit, and so
+ * on), and that list varies per entity. So the whole object is read and sent
+ * back with only PrivateNote changed. The SyncToken makes this safe: if anyone
+ * edited the transaction in the meantime, QBO rejects the write rather than
+ * letting us overwrite their change.
+ */
 async function updateMemo(
   conn: QboConnection,
   entity: string,
   id: string,
   answer: string,
 ): Promise<void> {
-  const { syncToken, privateNote } = await readSyncToken(conn, entity, id);
+  const body = await readEntity(conn, entity, id);
+  const existing = typeof body.PrivateNote === "string" ? body.PrivateNote : null;
+
   const res = await qboFetch(conn, `${entity.toLowerCase()}?minorversion=70`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      sparse: true,
-      Id: id,
-      SyncToken: syncToken,
-      PrivateNote: mergeNote(privateNote, answer),
-    }),
+    body: JSON.stringify({ ...body, PrivateNote: mergeNote(existing, answer) }),
   });
   if (!res.ok) {
     throw new Error(`Memo update failed (${res.status}): ${(await res.text()).slice(0, 200)}`);
