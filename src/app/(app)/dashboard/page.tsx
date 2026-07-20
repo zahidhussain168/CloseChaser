@@ -41,12 +41,17 @@ function StatCard({
   );
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { subscribed?: string };
+}) {
   const [clients, firm] = await Promise.all([
     listClientsWithBlocking(),
     getFirm(),
   ]);
   const month = formatMonth(monthKey());
+  const justSubscribed = searchParams.subscribed === "1";
 
   const totalOpen = clients.reduce((n, c) => n + c.openCount, 0);
   const chasing = clients.filter((c) => c.period?.status === "chasing").length;
@@ -55,6 +60,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-10">
+      {justSubscribed ? (
+        <div
+          className="flex items-center gap-3 rounded-xl border px-5 py-3.5 text-sm"
+          style={{ background: "var(--success-tint)", borderColor: "var(--success)" }}
+        >
+          <span
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white"
+            style={{ background: "var(--success)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5 10 17.5 19 6.5" /></svg>
+          </span>
+          <span className="font-medium text-text">
+            You are subscribed. Your 14-day free trial is running, then it is $29 a month.
+          </span>
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="kicker">{firm?.name ?? "Your firm"}</p>

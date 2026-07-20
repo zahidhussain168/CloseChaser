@@ -60,27 +60,58 @@ export function BillingCard(props: Props) {
       items: [{ priceId, quantity: 1 }],
       customer: { email: prep.email },
       customData: { firm_id: prep.firmId },
-      settings: { displayMode: "overlay", theme: "light" },
+      settings: {
+        displayMode: "overlay",
+        theme: "light",
+        // Land the bookkeeper back in the app once payment succeeds instead of
+        // leaving them stranded on the "completed" overlay.
+        successUrl: `${window.location.origin}/dashboard?subscribed=1`,
+      },
     });
   }
 
-  const paid = props.hasSubscription && (props.status === "active" || props.status === "past_due");
+  // A subscription that exists is "subscribed", even while trialing: a 14-day
+  // trial subscription starts as `trialing` (card on file, first charge later),
+  // which is an active paid relationship, not a lapsed trial.
+  const subscribed =
+    props.hasSubscription &&
+    (props.status === "active" || props.status === "trialing" || props.status === "past_due");
 
-  const statusLabel = paid
+  const renewLabel = props.currentPeriodEnd
+    ? new Date(props.currentPeriodEnd).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+
+  const statusLabel = subscribed
     ? props.status === "past_due"
       ? "Payment past due"
-      : "Active"
+      : props.status === "trialing"
+        ? "Active, in trial"
+        : "Active"
     : props.inTrial
       ? `Trial: ${props.trialDaysLeft} day${props.trialDaysLeft === 1 ? "" : "s"} left`
       : "Trial ended";
 
-  const pillClass = paid
+  const pillClass = subscribed
     ? props.status === "past_due"
       ? "pill pill-warning"
       : "pill pill-success"
     : props.inTrial
       ? "pill pill-brand"
       : "pill pill-danger";
+
+  const subline = subscribed
+    ? props.status === "trialing" && renewLabel
+      ? `Your free trial runs to ${renewLabel}, then $29 a month.`
+      : props.status === "past_due"
+        ? "Your last payment did not go through. Update your card to stay active."
+        : renewLabel
+          ? `Renews ${renewLabel}.`
+          : null
+    : null;
 
   return (
     <div className="sheet p-6">
@@ -107,8 +138,10 @@ export function BillingCard(props: Props) {
         ))}
       </ul>
 
+      {subline ? <p className="mt-4 text-sm text-ink-muted">{subline}</p> : null}
+
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        {paid ? (
+        {subscribed ? (
           <button
             type="button"
             className="btn text-sm"
