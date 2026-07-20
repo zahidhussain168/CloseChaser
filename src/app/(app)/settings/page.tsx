@@ -36,9 +36,14 @@ export default async function SettingsPage({
 
   return (
     <div className="flex max-w-2xl flex-col gap-12">
+      <div>
+        <p className="kicker">Workspace</p>
+        <h1 className="t-h2 mt-2 font-display font-semibold">Settings</h1>
+      </div>
+
       <section className="flex flex-col gap-4">
         <div>
-          <h1 className="t-h2 font-display font-semibold">Branding</h1>
+          <h2 className="t-h3 font-display font-semibold">Branding</h2>
           <p className="mt-1 text-sm text-ink-muted">
             How your firm appears to clients on the link and in emails.
           </p>
@@ -52,7 +57,7 @@ export default async function SettingsPage({
 
       <section className="flex flex-col gap-4">
         <div>
-          <h2 className="t-h2 font-display font-semibold">Connections</h2>
+          <h2 className="t-h3 font-display font-semibold">Connections</h2>
           <p className="mt-1 text-sm text-ink-muted">
             Link your books so RuledOff can see what is still open.
           </p>
@@ -68,7 +73,7 @@ export default async function SettingsPage({
 
       <section className="flex flex-col gap-4">
         <div>
-          <h2 className="t-h2 font-display font-semibold">Reminder cadence</h2>
+          <h2 className="t-h3 font-display font-semibold">Reminder cadence</h2>
           <p className="mt-1 text-sm text-ink-muted">
             When the chase emails go out. The wording of each one is below.
           </p>
@@ -78,7 +83,7 @@ export default async function SettingsPage({
 
       <section className="flex flex-col gap-4">
         <div>
-          <h2 className="t-h2 font-display font-semibold">Request templates</h2>
+          <h2 className="t-h3 font-display font-semibold">Request templates</h2>
           <p className="mt-1 text-sm text-ink-muted">
             Save the requests you send every month. Assign a template to a client
             and its items appear automatically in each new close.
@@ -89,7 +94,7 @@ export default async function SettingsPage({
 
       <section className="flex flex-col gap-4">
         <div>
-          <h2 className="t-h2 font-display font-semibold">Chase emails</h2>
+          <h2 className="t-h3 font-display font-semibold">Chase emails</h2>
           <p className="mt-1 text-sm text-ink-muted">
             The escalation ladder: friendly, then specific, then consequence.
             Edit the wording; the checklist button is added automatically.

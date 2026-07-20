@@ -38,16 +38,15 @@ export function SidebarNav({ orientation = "vertical" }: { orientation?: "vertic
             key={href}
             href={href}
             className={clsx(
-              "group relative flex items-center gap-2.5 rounded-[8px] px-3 py-2 text-sm transition-colors",
-              active ? "text-ink" : "text-ink-muted hover:text-ink",
+              "group relative flex items-center gap-2.5 rounded-[10px] px-3 py-2 text-sm font-medium transition-colors",
+              active ? "text-brand" : "text-muted hover:bg-surface-2 hover:text-text",
             )}
-            style={active ? { background: "var(--paper-deep)" } : undefined}
+            style={active ? { background: "var(--brand-tint)" } : undefined}
           >
             {active && (
               <span
                 aria-hidden="true"
-                className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full"
-                style={{ background: "var(--brass)" }}
+                className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-brand"
               />
             )}
             <Icon />

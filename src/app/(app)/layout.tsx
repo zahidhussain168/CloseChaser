@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Wordmark } from "@/components/Wordmark";
+import { Logo } from "@/components/site/Logo";
 import { SidebarNav } from "@/components/app/SidebarNav";
 import { getFirm } from "@/lib/data";
 import { signOutAction } from "@/app/(auth)/actions";
@@ -32,7 +32,7 @@ export default async function AppLayout({
       >
         <div>
           <Link href="/dashboard" className="tap mb-8 inline-flex px-2">
-            <Wordmark size={20} />
+            <Logo />
           </Link>
           <SidebarNav />
         </div>
@@ -76,7 +76,7 @@ export default async function AppLayout({
         }}
       >
         <Link href="/dashboard" className="tap">
-          <Wordmark size={18} />
+          <Logo />
         </Link>
         <div className="flex items-center gap-2">
           <SidebarNav orientation="horizontal" />
