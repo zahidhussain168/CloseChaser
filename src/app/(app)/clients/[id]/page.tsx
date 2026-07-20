@@ -164,7 +164,7 @@ export default async function ClientPage({
                               target="_blank"
                               rel="noopener"
                               className="num text-xs underline underline-offset-2"
-                              style={{ color: "var(--brass)" }}
+                              style={{ color: "var(--cleared)" }}
                             >
                               {a.name}
                             </a>

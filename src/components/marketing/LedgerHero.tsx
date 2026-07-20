@@ -40,7 +40,7 @@ export function LedgerHero() {
           <div className="flex items-center gap-2.5">
             <span
               className="num flex h-8 w-8 items-center justify-center rounded-full text-xs"
-              style={{ background: "var(--paper-deep)", color: "var(--brass)" }}
+              style={{ background: "var(--paper-deep)", color: "var(--ink)" }}
             >
               DM
             </span>

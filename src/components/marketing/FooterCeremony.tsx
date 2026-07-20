@@ -34,19 +34,16 @@ export function FooterCeremony() {
   return (
     <section
       ref={ref}
-      className="relative mx-auto max-w-5xl px-6 py-[120px] text-center"
+      className="section-y relative mx-auto max-w-5xl px-6 text-center"
     >
-      <h2
-        className="font-display font-semibold"
-        style={{ fontSize: "clamp(30px, 4.5vw, 56px)", lineHeight: 1.05 }}
-      >
+      <h2 className="t-ceremony font-display font-semibold">
         Close the month. Rule it off.
       </h2>
       <div className="mx-auto mt-5 w-44">
         <DoubleRule drawn={shown} />
       </div>
       <div className="mt-10">
-        <Link href="/signup" className="btn btn-primary px-6 py-3.5 text-base">
+        <Link href="/signup" className="btn btn-primary px-6 text-base">
           Create your firm
         </Link>
       </div>

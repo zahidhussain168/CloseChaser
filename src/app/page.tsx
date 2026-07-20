@@ -49,6 +49,9 @@ const LADDER = [
   { day: "Day 9", line: "The honest one. Late books mean late taxes." },
 ];
 
+const QUIET_LINK =
+  "tap text-sm text-ink-muted underline decoration-1 underline-offset-4 transition-colors hover:text-ink";
+
 function Rule() {
   return <div className="border-t" style={{ borderColor: "var(--rule)" }} />;
 }
@@ -68,18 +71,15 @@ export default async function HomePage() {
 
       <main className="page-enter">
         {/* 1. Hero */}
-        <section className="relative mx-auto max-w-6xl px-6 pb-[160px] pt-20">
+        <section className="section-y-hero relative mx-auto max-w-6xl px-6">
           <span className="folio">01</span>
           <Wordmark size={28} />
           <div className="mt-14 grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
-              <h1
-                className="font-display font-semibold"
-                style={{ fontSize: "clamp(44px, 6.4vw, 88px)", lineHeight: 1.02 }}
-              >
+              <h1 className="t-display font-display font-semibold">
                 Chase the close, not your clients.
               </h1>
-              <p className="mt-7 max-w-lg text-lg leading-relaxed text-ink-muted">
+              <p className="t-body-lg mt-7 max-w-lg text-ink-muted">
                 RuledOff finds what is blocking a client&apos;s month-end and
                 chases them for it with a branded link they open on their phone.
                 No account, no login, no download. When every item is answered,
@@ -90,20 +90,14 @@ export default async function HomePage() {
                 .
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-6">
-                <Link
-                  href="/signup"
-                  className="btn btn-primary px-6 py-3.5 text-base"
-                >
+                <Link href="/signup" className="btn btn-primary px-6 text-base">
                   Create your firm
                 </Link>
-                <Link
-                  href="/login"
-                  className="text-sm text-ink-muted underline decoration-1 underline-offset-4 transition-colors hover:text-ink"
-                >
+                <Link href="/login" className={QUIET_LINK}>
                   Sign in
                 </Link>
               </div>
-              <p className="mt-14 text-sm text-ink-muted">
+              <p className="t-small mt-12 text-ink-muted">
                 Built for solo bookkeepers.{" "}
                 <span className="num" style={{ color: "var(--ink)" }}>
                   $29
@@ -118,16 +112,13 @@ export default async function HomePage() {
         </section>
 
         {/* 2. The problem: the one dark band */}
-        <section className="ink-band relative">
+        <section className="ink-band section-y-hero relative">
           <span className="folio">02</span>
-          <div className="mx-auto max-w-5xl px-6 py-[160px]">
+          <div className="mx-auto max-w-5xl px-6">
             <p className="kicker" style={{ color: "#6fb094" }}>
               The problem
             </p>
-            <blockquote
-              className="mt-5 max-w-3xl font-display font-semibold"
-              style={{ fontSize: "clamp(36px, 5vw, 72px)", lineHeight: 1.05 }}
-            >
+            <blockquote className="t-display mt-5 max-w-3xl font-display font-semibold">
               The books were done a week ago. The month is{" "}
               <span style={{ color: "var(--pending-bright)" }}>still waiting</span>{" "}
               on the client.
@@ -149,7 +140,7 @@ export default async function HomePage() {
                     {s.n}
                   </span>
                   <span
-                    className="mt-1.5 block text-sm"
+                    className="t-small mt-1.5 block"
                     style={{ color: "rgba(242, 245, 239, 0.72)" }}
                   >
                     {s.label}
@@ -161,16 +152,10 @@ export default async function HomePage() {
         </section>
 
         {/* 3. How it works */}
-        <Reveal
-          as="section"
-          className="relative mx-auto max-w-5xl px-6 py-[120px]"
-        >
+        <Reveal as="section" className="section-y relative mx-auto max-w-5xl px-6">
           <span className="folio">03</span>
           <p className="kicker">How it works</p>
-          <h2
-            className="mt-4 font-display font-semibold"
-            style={{ fontSize: "clamp(28px, 4vw, 46px)", lineHeight: 1.08 }}
-          >
+          <h2 className="t-h2 mt-4 font-display font-semibold">
             Three steps to a closed month.
           </h2>
           <ol className="mt-10 grid gap-10 sm:grid-cols-3">
@@ -178,14 +163,12 @@ export default async function HomePage() {
               <li
                 key={s.n}
                 className="step"
-                style={{ transitionDelay: `${i * 90}ms` }}
+                style={{ transitionDelay: `${i * 40}ms` }}
               >
                 <CircledNumber n={s.n} />
                 <div className="ink-rule my-4 max-w-[3rem]" />
-                <h3 className="font-display text-lg font-semibold">{s.title}</h3>
-                <p className="mt-1.5 text-[15px] leading-relaxed text-ink-muted">
-                  {s.body}
-                </p>
+                <h3 className="t-h3 font-display font-semibold">{s.title}</h3>
+                <p className="t-body mt-1.5 text-ink-muted">{s.body}</p>
               </li>
             ))}
           </ol>
@@ -194,16 +177,10 @@ export default async function HomePage() {
         <Rule />
 
         {/* 4. What it catches */}
-        <Reveal
-          as="section"
-          className="relative mx-auto max-w-5xl px-6 py-[104px]"
-        >
+        <Reveal as="section" className="section-y relative mx-auto max-w-5xl px-6">
           <span className="folio">04</span>
           <p className="kicker">What it catches</p>
-          <h2
-            className="mt-4 max-w-2xl font-display font-semibold"
-            style={{ fontSize: "clamp(28px, 4vw, 46px)", lineHeight: 1.08 }}
-          >
+          <h2 className="t-h2 mt-4 max-w-2xl font-display font-semibold">
             It knows what holds up the books.
           </h2>
           <ul
@@ -216,7 +193,7 @@ export default async function HomePage() {
                 className="step grid grid-cols-[2rem_1fr] items-baseline gap-2 border-b py-4"
                 style={{
                   borderColor: "var(--rule)",
-                  transitionDelay: `${i * 70}ms`,
+                  transitionDelay: `${i * 40}ms`,
                 }}
               >
                 <span
@@ -226,7 +203,7 @@ export default async function HomePage() {
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="text-[17px]">{c}</span>
+                <span className="t-body-lg">{c}</span>
               </li>
             ))}
           </ul>
@@ -235,19 +212,13 @@ export default async function HomePage() {
         <Rule />
 
         {/* 5. The chase */}
-        <Reveal
-          as="section"
-          className="relative mx-auto max-w-5xl px-6 py-[112px]"
-        >
+        <Reveal as="section" className="section-y relative mx-auto max-w-5xl px-6">
           <span className="folio">05</span>
           <p className="kicker">The chase</p>
-          <h2
-            className="mt-4 max-w-2xl font-display font-semibold"
-            style={{ fontSize: "clamp(28px, 4vw, 46px)", lineHeight: 1.08 }}
-          >
+          <h2 className="t-h2 mt-4 max-w-2xl font-display font-semibold">
             Reminders that get results, then stop.
           </h2>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted">
+          <p className="t-body-lg mt-6 max-w-xl text-ink-muted">
             Escalation by words, not noise. The same client, the same inbox, a
             firmer tone each time.
           </p>
@@ -256,15 +227,15 @@ export default async function HomePage() {
               <div
                 key={l.day}
                 className="step px-1 py-4"
-                style={{ transitionDelay: `${i * 90}ms` }}
+                style={{ transitionDelay: `${i * 40}ms` }}
               >
                 <span className="num block text-sm text-ink-muted">{l.day}</span>
                 <div className="ink-rule my-3" />
-                <p className="text-[17px] leading-snug">{l.line}</p>
+                <p className="t-body-lg leading-snug">{l.line}</p>
               </div>
             ))}
           </div>
-          <p className="mt-10 max-w-xl text-[15px] leading-relaxed text-ink-muted">
+          <p className="t-body mt-10 max-w-xl text-ink-muted">
             The instant every item is answered, the chasing ends. You never
             pester a client who already delivered.
           </p>
@@ -275,36 +246,27 @@ export default async function HomePage() {
         {/* 6. Pricing */}
         <Reveal
           as="section"
-          className="relative mx-auto max-w-5xl px-6 py-[140px] text-center"
+          className="section-y relative mx-auto max-w-5xl px-6 text-center"
         >
           <span className="folio">06</span>
           <p className="kicker">Pricing</p>
-          <h2
-            className="mt-4 font-display font-semibold"
-            style={{ fontSize: "clamp(30px, 5vw, 58px)", lineHeight: 1.05 }}
-          >
+          <h2 className="t-h2 mt-4 font-display font-semibold">
             One price. Every client.
           </h2>
           <p className="num mt-6 text-5xl" style={{ color: "var(--ink)" }}>
             $29
             <span className="text-lg text-ink-muted">/mo</span>
           </p>
-          <p className="mx-auto mt-5 max-w-md text-[15px] leading-relaxed text-ink-muted">
+          <p className="t-body mx-auto mt-5 max-w-md text-ink-muted">
             Flat monthly price, unlimited clients, a 14-day trial. Close more
             books without hiring, without nagging, and without another portal
             your clients ignore.
           </p>
           <div className="mx-auto mt-8 flex max-w-xs flex-col items-center gap-4">
-            <Link
-              href="/signup"
-              className="btn btn-primary w-full px-6 py-3.5 text-base"
-            >
+            <Link href="/signup" className="btn btn-primary w-full px-6 text-base">
               Create your firm
             </Link>
-            <Link
-              href="/login"
-              className="text-sm text-ink-muted underline decoration-1 underline-offset-4 transition-colors hover:text-ink"
-            >
+            <Link href="/login" className={QUIET_LINK}>
               Sign in
             </Link>
           </div>
@@ -319,8 +281,10 @@ export default async function HomePage() {
 
         {/* Footer */}
         <footer className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-10">
-          <Wordmark size={18} />
-          <p className="text-sm text-ink-muted">Close the books. Ruled off.</p>
+          <Link href="/" className="tap" aria-label="RuledOff home">
+            <Wordmark size={18} />
+          </Link>
+          <p className="t-small text-ink-muted">Close the books. Ruled off.</p>
         </footer>
       </main>
     </>
