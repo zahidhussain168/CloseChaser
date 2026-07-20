@@ -18,7 +18,7 @@ export function MagicLinkBar({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
+      setTimeout(() => setCopied(false), 1800);
     } catch {
       /* clipboard unavailable */
     }
@@ -26,31 +26,50 @@ export function MagicLinkBar({
 
   if (!url) {
     return (
-      <button
-        disabled={pending}
-        className="btn"
-        onClick={() => start(() => ensureLinkAction(clientId))}
-      >
-        {pending ? "Creating…" : "Create magic link"}
-      </button>
+      <div className="sheet flex items-center justify-between gap-3 p-4">
+        <span className="text-sm text-ink-muted">No client link yet.</span>
+        <button
+          disabled={pending}
+          className="btn"
+          onClick={() => start(() => ensureLinkAction(clientId))}
+        >
+          {pending ? "Creating…" : "Create link"}
+        </button>
+      </div>
     );
   }
 
   return (
-    <div className="sheet flex flex-col gap-2 p-3">
-      <div className="text-xs uppercase tracking-wide text-ink-muted">
-        Client link, no login required
-      </div>
-      <div className="flex items-center gap-2">
-        <code
-          className="num flex-1 truncate rounded-[4px] px-2 py-1.5 text-xs"
-          style={{ background: "var(--paper-deep)", color: "var(--ink)" }}
-          title={url}
+    <div className="sheet flex flex-col gap-3 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+            style={{ background: "var(--paper-deep)", color: "var(--cleared)" }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M9 17H7A5 5 0 0 1 7 7h2" />
+              <path d="M15 7h2a5 5 0 1 1 0 10h-2" />
+              <line x1="8" x2="16" y1="12" y2="12" />
+            </svg>
+          </span>
+          <div className="min-w-0">
+            <div className="text-sm font-medium">Client link</div>
+            <div className="text-xs text-ink-muted">
+              No login required. Opens on their phone.
+            </div>
+          </div>
+        </div>
+        <button
+          className="btn shrink-0 px-4 py-2 text-sm"
+          onClick={copy}
+          style={
+            copied
+              ? { color: "var(--cleared)", borderColor: "var(--cleared)" }
+              : undefined
+          }
         >
-          {url}
-        </code>
-        <button className="btn px-3 py-1.5 text-sm" onClick={copy}>
-          {copied ? "Copied" : "Copy"}
+          {copied ? "Copied" : "Copy link"}
         </button>
       </div>
       <button

@@ -75,7 +75,7 @@ export default async function ClientPage({
       : "var(--ink-muted)";
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div>
         <Link
           href="/dashboard"
