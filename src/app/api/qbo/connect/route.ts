@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { buildAuthorizeUrl } from "@/lib/qbo/oauth";
 import { getFirm } from "@/lib/data";
 
@@ -11,10 +11,11 @@ export const dynamic = "force-dynamic";
  * httpOnly cookie and checked on the way back, so a forged callback cannot bind
  * somebody else's QuickBooks company to this firm.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   const firm = await getFirm();
   if (!firm) {
-    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL));
+    // Stay on the host the bookkeeper is already using; the session lives there.
+    return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
   }
 
   const state = randomBytes(24).toString("base64url");

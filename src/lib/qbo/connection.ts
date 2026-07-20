@@ -37,7 +37,7 @@ export async function saveQboConnection(params: {
 }): Promise<void> {
   const service = createAdminClient();
   const now = Date.now();
-  await service.from("qbo_connections").upsert(
+  const { error } = await service.from("qbo_connections").upsert(
     {
       firm_id: params.firmId,
       realm_id: params.realmId,
@@ -52,6 +52,11 @@ export async function saveQboConnection(params: {
     },
     { onConflict: "firm_id,realm_id" },
   );
+  // Without this the callback reports success on a failed write, which is how a
+  // "connected" QuickBooks ended up with no row behind it.
+  if (error) {
+    throw new Error(`Could not save the QuickBooks connection: ${error.message}`);
+  }
 }
 
 /**

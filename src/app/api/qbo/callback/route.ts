@@ -6,8 +6,16 @@ import { getFirm } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-function back(status: string, detail?: string) {
-  const url = new URL("/settings", process.env.NEXT_PUBLIC_APP_URL);
+/**
+ * Come back to the SAME host the bookkeeper is actually on.
+ *
+ * A Vercel project answers on several aliases, and the Supabase session cookie
+ * is per-domain. Redirecting to a configured URL instead of the current origin
+ * can land them on a host where they are not signed in, which reads as a failed
+ * connection even when it worked.
+ */
+function back(request: NextRequest, status: string, detail?: string) {
+  const url = new URL("/settings", request.nextUrl.origin);
   url.searchParams.set("qbo", status);
   if (detail) url.searchParams.set("detail", detail.slice(0, 140));
   return NextResponse.redirect(url);
@@ -23,21 +31,30 @@ export async function GET(request: NextRequest) {
   const expected = cookies().get("qbo_state")?.value;
   cookies().delete("qbo_state");
 
-  if (params.get("error")) return back("declined");
-  if (!code || !realmId) return back("error", "QuickBooks did not return a company.");
+  if (params.get("error")) return back(request, "declined");
+  if (!code || !realmId) {
+    return back(request, "error", "QuickBooks did not return a company.");
+  }
   if (!state || !expected || state !== expected) {
-    return back("error", "That connection request expired. Please try again.");
+    return back(request, "error", "That connection request expired. Please try again.");
   }
 
   const firm = await getFirm();
-  if (!firm) return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL));
+  if (!firm) {
+    // Say so rather than bouncing to a login page that looks like a dead end.
+    return back(
+      request,
+      "error",
+      "You were signed out during the connection. Sign in and try again.",
+    );
+  }
 
   try {
     const tokens = await exchangeCode(code);
     await saveQboConnection({ firmId: firm.id, realmId, tokens });
   } catch (e) {
-    return back("error", e instanceof Error ? e.message : "Could not connect QuickBooks.");
+    return back(request, "error", e instanceof Error ? e.message : "Could not connect QuickBooks.");
   }
 
-  return back("connected");
+  return back(request, "connected");
 }
