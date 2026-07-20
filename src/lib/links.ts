@@ -10,9 +10,17 @@ export async function getActiveToken(
   supabase: DB,
   clientId: string,
 ): Promise<string | null> {
+  return (await getActiveLink(supabase, clientId))?.token ?? null;
+}
+
+/** The active link with its last-opened timestamp, if any. */
+export async function getActiveLink(
+  supabase: DB,
+  clientId: string,
+): Promise<{ token: string; lastOpenedAt: string | null } | null> {
   const { data } = await supabase
     .from("magic_links")
-    .select("token, expires_at, revoked_at")
+    .select("token, expires_at, revoked_at, last_opened_at")
     .eq("client_id", clientId)
     .is("revoked_at", null)
     .order("created_at", { ascending: false })
@@ -20,7 +28,7 @@ export async function getActiveToken(
     .maybeSingle();
   if (!data) return null;
   if (new Date(data.expires_at).getTime() < Date.now()) return null;
-  return data.token;
+  return { token: data.token, lastOpenedAt: data.last_opened_at };
 }
 
 /** Reuse an active token or mint a fresh 30-day one. */

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { listClientsWithBlocking, getFirm } from "@/lib/data";
 import { AddClientForm } from "@/components/app/AddClientForm";
 import { Counter } from "@/components/marketing/Counter";
-import { formatMonth, monthKey } from "@/lib/format";
+import { formatMonth, monthKey, timeAgo } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Clients · RuledOff" };
 
@@ -157,6 +157,30 @@ export default async function DashboardPage() {
                       {c.email}
                       {c.qbo_realm_id ? " · QBO linked" : " · manual"}
                     </span>
+                    {c.period?.status === "chasing" && c.openCount > 0 && (
+                      <span className="mt-1 flex items-center gap-1.5 text-[11px]">
+                        <span
+                          aria-hidden="true"
+                          className="inline-block h-1.5 w-1.5 rounded-full"
+                          style={{
+                            background: c.lastOpenedAt
+                              ? "var(--cleared)"
+                              : "var(--pending)",
+                          }}
+                        />
+                        <span
+                          style={{
+                            color: c.lastOpenedAt
+                              ? "var(--ink-muted)"
+                              : "var(--pending)",
+                          }}
+                        >
+                          {c.lastOpenedAt
+                            ? `Opened ${timeAgo(c.lastOpenedAt)}`
+                            : "Link not opened yet"}
+                        </span>
+                      </span>
+                    )}
                   </span>
                   <span className="hidden sm:block">
                     {c.totalItems > 0 ? (

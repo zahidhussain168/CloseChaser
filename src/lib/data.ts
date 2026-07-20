@@ -34,6 +34,7 @@ export type ClientWithBlocking = Client & {
   openCount: number;
   period: ClosePeriod | null;
   totalItems: number;
+  lastOpenedAt: string | null;
 };
 
 /** All clients for the firm, annotated with how much is blocking the close. */
@@ -66,11 +67,25 @@ export async function listClientsWithBlocking(): Promise<ClientWithBlocking[]> {
       items = (itemRows as Pick<Item, "state">[]) ?? [];
     }
 
+    const { data: linkRow } = await supabase
+      .from("magic_links")
+      .select("last_opened_at, expires_at")
+      .eq("client_id", c.id)
+      .is("revoked_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const lastOpenedAt =
+      linkRow && new Date(linkRow.expires_at).getTime() > Date.now()
+        ? linkRow.last_opened_at
+        : null;
+
     result.push({
       ...c,
       period: (period as ClosePeriod) ?? null,
       openCount: openCount(items),
       totalItems: items.length,
+      lastOpenedAt,
     });
   }
 

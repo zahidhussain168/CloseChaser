@@ -6,9 +6,13 @@ import { ensureLinkAction, regenerateLinkAction } from "@/app/(app)/actions";
 export function MagicLinkBar({
   clientId,
   url,
+  openedLabel,
+  opened,
 }: {
   clientId: string;
   url: string | null;
+  openedLabel?: string | null;
+  opened?: boolean;
 }) {
   const [pending, start] = useTransition();
   const [copied, setCopied] = useState(false);
@@ -55,9 +59,24 @@ export function MagicLinkBar({
           </span>
           <div className="min-w-0">
             <div className="text-sm font-medium">Client link</div>
-            <div className="text-xs text-ink-muted">
-              No login required. Opens on their phone.
-            </div>
+            {openedLabel ? (
+              <div className="flex items-center gap-1.5 text-xs">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-2 w-2 rounded-full"
+                  style={{
+                    background: opened
+                      ? "var(--cleared)"
+                      : "var(--rule-strong)",
+                  }}
+                />
+                <span className="text-ink-muted">{openedLabel}</span>
+              </div>
+            ) : (
+              <div className="text-xs text-ink-muted">
+                No login required. Opens on their phone.
+              </div>
+            )}
           </div>
         </div>
         <button

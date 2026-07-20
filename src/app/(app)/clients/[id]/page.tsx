@@ -2,12 +2,12 @@ import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { getClientDetail, listTemplates } from "@/lib/data";
-import { getActiveToken } from "@/lib/links";
+import { getActiveLink } from "@/lib/links";
 import { ClientTemplatePicker } from "@/components/app/ClientTemplatePicker";
 import { createClient } from "@/lib/supabase/server";
 import { magicLinkUrl } from "@/lib/tokens";
 import { serverEnv } from "@/lib/env";
-import { formatMonth, formatMoney, formatDate } from "@/lib/format";
+import { formatMonth, formatMoney, formatDate, timeAgo } from "@/lib/format";
 import { openCount, isOpen } from "@/lib/state";
 import { StatusMark } from "@/components/StatusMark";
 import { DoubleRule } from "@/components/DoubleRule";
@@ -56,8 +56,14 @@ export default async function ClientPage({
 
   const { client, period, items } = detail;
   const supabase = createClient();
-  const token = await getActiveToken(supabase, client.id);
-  const url = token ? magicLinkUrl(serverEnv.appUrl, token) : null;
+  const link = await getActiveLink(supabase, client.id);
+  const url = link ? magicLinkUrl(serverEnv.appUrl, link.token) : null;
+  const opened = !!link?.lastOpenedAt;
+  const openedLabel = link
+    ? opened
+      ? `Opened ${timeAgo(link.lastOpenedAt)}`
+      : "Not opened yet"
+    : null;
   const open = openCount(items);
   const templates = (await listTemplates()).map((t) => ({ id: t.id, name: t.name }));
   const done = items.length - open;
@@ -131,7 +137,12 @@ export default async function ClientPage({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
-        <MagicLinkBar clientId={client.id} url={url} />
+        <MagicLinkBar
+          clientId={client.id}
+          url={url}
+          openedLabel={openedLabel}
+          opened={opened}
+        />
         <ChaseButton
           clientId={client.id}
           openCount={open}

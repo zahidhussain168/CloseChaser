@@ -42,3 +42,20 @@ export function monthKey(d: Date = new Date()): string {
 export function pluralize(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
+
+/** Compact relative time: "just now", "5m ago", "2h ago", "3d ago", or a date. */
+export function timeAgo(input: string | Date | null | undefined): string {
+  if (!input) return "";
+  const d = typeof input === "string" ? new Date(input) : input;
+  const ms = Date.now() - d.getTime();
+  if (Number.isNaN(ms)) return "";
+  const s = Math.floor(ms / 1000);
+  if (s < 45) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const days = Math.floor(h / 24);
+  if (days < 7) return `${days}d ago`;
+  return formatDate(d);
+}
