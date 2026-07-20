@@ -75,7 +75,7 @@ async function main() {
       {
         owner_id: user.id,
         name: "Sarah Chen Bookkeeping",
-        accent_color: "#A88B4C",
+        accent_color: "#C59B3A",
         reply_to: "sarah@chenbooks.example",
       },
       { onConflict: "owner_id" },
