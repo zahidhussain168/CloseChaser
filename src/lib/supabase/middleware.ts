@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { serverEnv } from "@/lib/env";
 
 /** Public path prefixes that never require a bookkeeper session. */
-const PUBLIC_PREFIXES = ["/login", "/signup", "/c/", "/api/cron", "/api/client"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/pricing", "/c/", "/api/cron", "/api/client"];
 
 function isPublic(pathname: string): boolean {
   if (pathname === "/") return true;

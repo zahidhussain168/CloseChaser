@@ -27,9 +27,12 @@ export function StickyNav() {
           <Link href="/" className="tap" aria-label="RuledOff home">
             <Wordmark size={18} />
           </Link>
-          <span className="num hidden text-sm text-ink-muted sm:block">
+          <Link
+            href="/pricing"
+            className="num hidden text-sm text-ink-muted transition-colors hover:text-ink sm:block"
+          >
             $29/mo flat
-          </span>
+          </Link>
           <Link href="/signup" className="btn btn-primary px-4 text-sm">
             Create your firm
           </Link>
