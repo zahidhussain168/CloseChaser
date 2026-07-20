@@ -383,7 +383,7 @@
 }
 
 /* ── Locked modular type scale ───────────────────────────────────────────── */
-.t-display { font-size: clamp(44px, 6.4vw, 88px); line-height: 1.02; }
+.t-display { font-size: clamp(44px, 6.4vw, 88px); line-height: 1.06; }
 .t-h2 { font-size: clamp(30px, 5vw, 48px); line-height: 1.08; }
 .t-ceremony { font-size: clamp(34px, 6vw, 64px); line-height: 1.05; } /* sanctioned exception */
 .t-h3 { font-size: 24px; line-height: 1.25; }
@@ -450,8 +450,8 @@
 /* ─── L3 signature motion ─────────────────────────────────────────────────── */
 
 /* Hero H1 mask reveal: each line wipes up from behind a clip. */
-.mask-line { display: block; overflow: hidden; padding-bottom: 0.04em; }
-.mask-line > span { display: block; transform: translateY(112%); }
+.mask-line { display: block; overflow: hidden; padding-bottom: 0.18em; }
+.mask-line > span { display: block; transform: translateY(122%); }
 .mask-reveal.is-in .mask-line > span {
   animation: maskUp 720ms var(--ease) forwards;
 }

@@ -27,7 +27,7 @@ export function Hero() {
 
   return (
     <section
-      className="section-y-hero relative overflow-hidden"
+      className="relative overflow-hidden pb-20 pt-12 lg:pb-24 lg:pt-16"
       style={{ background: "var(--paper)" }}
     >
       <AmbientLedger />
@@ -36,7 +36,7 @@ export function Hero() {
       </span>
       <div className="relative z-10 mx-auto max-w-6xl px-6">
         <Wordmark size={28} />
-        <div className="mt-14 grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mt-10 grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <h1
               className={clsx(
