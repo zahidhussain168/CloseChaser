@@ -111,6 +111,7 @@
     color: var(--ink);
     line-height: 1;
     min-height: 44px; /* touch target */
+    white-space: nowrap; /* pills never wrap into circles */
     transition: background-color 120ms var(--ease), border-color 120ms var(--ease);
   }
   .btn:hover {

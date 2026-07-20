@@ -37,7 +37,7 @@ export function ChaseButton({
         {pending
           ? "Sending…"
           : chasing
-            ? "Re-send the chase now"
+            ? "Re-send chase"
             : `Chase ${openCount} item${openCount === 1 ? "" : "s"}`}
       </button>
       {msg && (
