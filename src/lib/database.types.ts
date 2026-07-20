@@ -120,6 +120,8 @@ export interface Database {
           attachments: Json;
           answered_at: string | null;
           accepted_at: string | null;
+          qbo_synced_at: string | null;
+          qbo_sync_error: string | null;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -134,6 +136,8 @@ export interface Database {
           attachments?: Json;
           answered_at?: string | null;
           accepted_at?: string | null;
+          qbo_synced_at?: string | null;
+          qbo_sync_error?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["items"]["Insert"]>;
@@ -203,6 +207,35 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["email_templates"]["Insert"]>;
+        Relationships: [];
+      };
+      qbo_connections: {
+        Row: {
+          id: string;
+          firm_id: string;
+          realm_id: string;
+          company_name: string | null;
+          access_token: string;
+          refresh_token: string;
+          access_expires_at: string;
+          refresh_expires_at: string | null;
+          last_synced_at: string | null;
+          updated_at: string;
+        } & Timestamps;
+        Insert: {
+          id?: string;
+          firm_id: string;
+          realm_id: string;
+          company_name?: string | null;
+          access_token: string;
+          refresh_token: string;
+          access_expires_at: string;
+          refresh_expires_at?: string | null;
+          last_synced_at?: string | null;
+          updated_at?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["qbo_connections"]["Insert"]>;
         Relationships: [];
       };
     };

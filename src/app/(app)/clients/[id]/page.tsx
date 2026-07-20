@@ -15,6 +15,8 @@ import { AddItemForm } from "@/components/app/AddItemForm";
 import { ChaseButton } from "@/components/app/ChaseButton";
 import { MagicLinkBar } from "@/components/app/MagicLinkBar";
 import { ItemActions } from "@/components/app/ItemActions";
+import { ImportPanel } from "@/components/app/ImportPanel";
+import { getQboConnection } from "@/lib/qbo/connection";
 import type { Attachment, Item } from "@/lib/types";
 
 const STATE_LABEL: Record<string, string> = {
@@ -56,6 +58,7 @@ export default async function ClientPage({
 
   const { client, period, items } = detail;
   const supabase = createClient();
+  const qboConnected = Boolean(await getQboConnection());
   const link = await getActiveLink(supabase, client.id);
   const url = link ? magicLinkUrl(serverEnv.appUrl, link.token) : null;
   const opened = !!link?.lastOpenedAt;
@@ -240,6 +243,11 @@ export default async function ClientPage({
             })}
           </div>
         )}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="t-h3 font-display font-semibold">From the books</h2>
+        <ImportPanel clientId={client.id} qboConnected={qboConnected} />
       </section>
 
       <section className="flex flex-col gap-3">

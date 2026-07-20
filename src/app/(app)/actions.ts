@@ -11,17 +11,9 @@ import {
 } from "@/lib/data";
 import { ensureMagicToken, regenerateToken } from "@/lib/links";
 import { sendChaseEmail } from "@/lib/chase";
+import { requireUserId } from "@/lib/auth";
 import type { FormState } from "@/lib/forms";
 import type { Client, Firm, Item } from "@/lib/types";
-
-async function requireUserId(): Promise<string> {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-  return user.id;
-}
 
 // ── Clients ──────────────────────────────────────────────────────────────────
 

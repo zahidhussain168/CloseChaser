@@ -5,19 +5,26 @@ import { createClient } from "@/lib/supabase/server";
 import { loadTemplates } from "@/lib/chase";
 import { BrandingForm, TemplateEditor } from "@/components/app/SettingsForms";
 import { TemplatesManager } from "@/components/app/TemplatesManager";
+import { QboConnectCard } from "@/components/app/QboConnectCard";
+import { getQboConnection } from "@/lib/qbo/connection";
 import type { EmailKind } from "@/lib/email/templates";
 
 export const metadata: Metadata = { title: "Settings · RuledOff" };
 
 const ORDER: EmailKind[] = ["initial", "level1", "level2", "level3", "level4"];
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: { qbo?: string; detail?: string };
+}) {
   const firm = await getFirm();
   if (!firm) redirect("/login");
 
-  const [emails, requestTemplates] = await Promise.all([
+  const [emails, requestTemplates, qbo] = await Promise.all([
     loadTemplates(createClient(), firm.id),
     listTemplates(),
+    getQboConnection(),
   ]);
 
   return (
@@ -33,6 +40,22 @@ export default async function SettingsPage() {
           name={firm.name}
           accentColor={firm.accent_color || "#C59B3A"}
           replyTo={firm.reply_to ?? ""}
+        />
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <div>
+          <h2 className="t-h2 font-display font-semibold">Connections</h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            Link your books so RuledOff can see what is still open.
+          </p>
+        </div>
+        <QboConnectCard
+          connected={Boolean(qbo)}
+          companyName={qbo?.company_name ?? null}
+          realmId={qbo?.realm_id ?? null}
+          status={searchParams.qbo}
+          detail={searchParams.detail}
         />
       </section>
 

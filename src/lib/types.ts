@@ -78,6 +78,9 @@ export type Item = {
   attachments: Attachment[];
   answered_at: string | null;
   accepted_at: string | null;
+  /** When the answer was pushed back to QuickBooks, and why it last failed. */
+  qbo_synced_at: string | null;
+  qbo_sync_error: string | null;
   created_at: string;
 };
 
