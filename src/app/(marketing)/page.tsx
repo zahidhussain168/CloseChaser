@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Hero } from "@/sections/Hero";
+import { MarketingContent } from "@/sections/MarketingContent";
 
 export const metadata = {
   title: "RuledOff: stop chasing clients, close the month faster",
@@ -15,9 +15,5 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
   if (user) redirect("/dashboard");
 
-  return (
-    <main>
-      <Hero />
-    </main>
-  );
+  return <MarketingContent />;
 }
