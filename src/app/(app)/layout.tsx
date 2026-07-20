@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Wordmark } from "@/components/Wordmark";
+import { SidebarNav } from "@/components/app/SidebarNav";
 import { getFirm } from "@/lib/data";
 import { signOutAction } from "@/app/(auth)/actions";
 
@@ -12,45 +13,87 @@ export default async function AppLayout({
   const firm = await getFirm();
   if (!firm) redirect("/login");
 
+  const initials = firm.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+
   return (
-    <div className="min-h-dvh">
-      <header
-        className="sticky top-0 z-10 border-b backdrop-blur"
+    <div className="lg:flex lg:min-h-dvh">
+      {/* Desktop sidebar */}
+      <aside
+        className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col justify-between px-4 py-6 lg:flex"
         style={{
-          borderColor: "var(--rule)",
-          background: "color-mix(in srgb, var(--paper) 88%, transparent)",
+          background: "var(--paper-sheet)",
+          borderRight: "1px solid var(--rule)",
         }}
       >
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3">
-          <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="inline-flex">
-              <Wordmark size={20} />
-            </Link>
-            <nav className="hidden gap-5 text-sm sm:flex">
-              <Link href="/dashboard" className="text-ink-muted hover:text-ink">
-                Clients
-              </Link>
-              <Link href="/settings" className="text-ink-muted hover:text-ink">
-                Settings
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="hidden text-sm text-ink-muted sm:inline">
-              {firm.name}
+        <div>
+          <Link href="/dashboard" className="tap mb-8 inline-flex px-2">
+            <Wordmark size={20} />
+          </Link>
+          <SidebarNav />
+        </div>
+        <div>
+          <div
+            className="mb-3 flex items-center gap-2.5 rounded-[8px] px-2 py-2"
+            style={{ background: "var(--paper-deep)" }}
+          >
+            <span
+              className="num flex h-8 w-8 items-center justify-center rounded-full text-xs"
+              style={{ background: "var(--paper-sheet)", color: "var(--ink)" }}
+            >
+              {initials}
             </span>
-            <form action={signOutAction}>
-              <button
-                type="submit"
-                className="text-sm text-ink-muted underline-offset-2 hover:text-ink hover:underline"
-              >
-                Sign out
-              </button>
-            </form>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">
+                {firm.name}
+              </span>
+              <span className="block text-[11px] text-ink-muted">
+                Bookkeeper
+              </span>
+            </span>
           </div>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="px-2 text-sm text-ink-muted transition-colors hover:text-ink"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      {/* Mobile top bar */}
+      <header
+        className="sticky top-0 z-10 flex items-center justify-between px-5 py-3 backdrop-blur lg:hidden"
+        style={{
+          background: "color-mix(in srgb, var(--paper) 88%, transparent)",
+          borderBottom: "1px solid var(--rule)",
+        }}
+      >
+        <Link href="/dashboard" className="tap">
+          <Wordmark size={18} />
+        </Link>
+        <div className="flex items-center gap-2">
+          <SidebarNav orientation="horizontal" />
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="px-2 text-sm text-ink-muted hover:text-ink"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-5 py-8">{children}</main>
+
+      <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-8 lg:px-10 lg:py-10">
+        {children}
+      </main>
     </div>
   );
 }
