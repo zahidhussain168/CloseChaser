@@ -57,7 +57,7 @@ export function TextChaseCard({
         from a system.
       </p>
 
-      <p className="mt-4 whitespace-pre-wrap break-words rounded-[8px] border border-rule bg-paper-deep p-3 text-sm">
+      <p className="mt-4 whitespace-pre-wrap [overflow-wrap:anywhere] rounded-[8px] border border-rule bg-paper-deep p-3 text-sm">
         {message}
       </p>
 
