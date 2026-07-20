@@ -1,25 +1,22 @@
 import { Hero } from "./Hero";
-import { Contrast } from "./Contrast";
-import { Phone } from "./Phone";
-import { Timeline } from "./Timeline";
-import { DashboardSection } from "./DashboardSection";
-import { Finale } from "./Finale";
+import { Features } from "./Features";
+import { HowItWorks } from "./HowItWorks";
+import { AppShowcase } from "./AppShowcase";
+import { MobileShowcase } from "./MobileShowcase";
+import { PricingCTA } from "./PricingCTA";
 import { SiteFooter } from "@/components/site/SiteFooter";
 
-/**
- * One sustained scroll arc: the page starts busy (the hero checklist) and gets
- * calmer as you descend, until the single "Ruled off" climax. Reduced-motion
- * handling comes from the marketing layout's MotionProvider.
- */
+/** 2026 fintech landing page: hero, features, how-it-works, product and mobile
+ *  showcases, pricing CTA, footer. */
 export function MarketingContent() {
   return (
     <main>
       <Hero />
-      <Contrast />
-      <Phone />
-      <Timeline />
-      <DashboardSection />
-      <Finale />
+      <Features />
+      <HowItWorks />
+      <AppShowcase />
+      <MobileShowcase />
+      <PricingCTA />
       <SiteFooter />
     </main>
   );

@@ -1,5 +1,4 @@
 import { Button } from "@/components/site/Button";
-import { MonoLabel } from "@/components/site/MonoLabel";
 import { Reveal } from "@/components/site/Reveal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -9,7 +8,7 @@ export const metadata = {
   description: "One flat price. Unlimited clients. Every close, ruled off.",
 };
 
-const GREEN = "#0E8A5F";
+const GREEN = "#10B981";
 
 function Tick() {
   return (
@@ -92,7 +91,7 @@ export default function PricingPage() {
       {/* Price */}
       <section className="mx-auto max-w-5xl px-6 pb-24 pt-8 lg:pt-14">
         <div className="text-center">
-          <MonoLabel>Pricing</MonoLabel>
+          <p className="kicker">Pricing</p>
           <h1 className="mt-5 font-editorial text-[clamp(40px,5.4vw,72px)] font-medium leading-[1.04] tracking-[-0.01em] text-site-ink">
             One price. Every client.
           </h1>
@@ -141,7 +140,7 @@ export default function PricingPage() {
       <section className="border-t border-site-border bg-site-paper">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <Reveal>
-            <MonoLabel>Why flat</MonoLabel>
+            <p className="kicker">Why flat</p>
             <h2 className="mt-5 max-w-2xl font-editorial text-[clamp(28px,4vw,46px)] font-medium leading-[1.08] tracking-[-0.01em] text-site-ink">
               Cheaper than the hour you spend chasing.
             </h2>
@@ -167,7 +166,7 @@ export default function PricingPage() {
       <section className="border-t border-site-border bg-site-bg">
         <div className="mx-auto max-w-3xl px-6 py-24">
           <Reveal>
-            <MonoLabel>Questions</MonoLabel>
+            <p className="kicker">Questions</p>
             <h2 className="mt-5 font-editorial text-[clamp(28px,4vw,46px)] font-medium leading-[1.08] tracking-[-0.01em] text-site-ink">
               The short answers.
             </h2>

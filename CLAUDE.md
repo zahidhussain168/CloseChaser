@@ -70,44 +70,48 @@ A `.env.local` file exists in the project root with Supabase, Resend, and QBO sa
 
 Client accounts/logins/portal. OCR. E-signatures. Proposals. CRM. Time tracking. Per-client billing logic. Chat. Native apps. App-sent SMS (no A2P registration available). If I ask for any of these later, remind me why they're excluded.
 
-## DESIGN BRIEF — this must NOT look like a generic SaaS template
+## DESIGN BRIEF — modern fintech (2026 refresh)
 
-### Concept: "The Ledger"
+### Concept: calm, trustworthy, automated
 
-The visual world of RuledOff is the physical accounting ledger — the pale-green columnar paper, ruled lines, red ink for outstanding items, and the accountant's double-rule (double underline) that means "this total is final." The design should feel like beautiful, modern ledger paper come to life — calm, precise, trustworthy — not like a startup dashboard. The product is literally named after this mark: completing work = getting ruled off.
+RuledOff should feel like a modern accounting product a solo bookkeeper is glad to open: clean, confident, and quietly powerful. Draw on the best of Xero (clean sidebar, summary cards, prioritized task lists, status pills), FreshBooks (approachable warmth, simple mobile portals), and 2026 finance dashboards (card-heavy layouts, subtle shadows, progress rings, color-coded priorities). Professional and calm, never loud. The product is named after the accountant's mark for "final" — completing work is getting ruled off, and completion always reads as calm relief, in green.
+
+Note: this supersedes the earlier "Ledger" identity (warm paper, serif, ruled lines). The tokens below are the source of truth; they live in `src/app/globals.css` (`:root` and `.dark`) and `tailwind.config.ts`.
 
 ### Tokens
 
-Palette (use these, derive shades from them):
+Palette (light; dark variants in `.dark`):
 
-* --paper: #F2F5EF (pale ledger-green paper — app background)
-* --ink: #232A25 (near-black green-ink — primary text)
-* --rule: #C9D6C6 (the ruled lines of ledger paper — borders/dividers)
-* --pending: #B3402E (accountant's red ink — outstanding/overdue items ONLY)
-* --cleared: #2F6B4F (deep ledger green — completed/reconciled states)
-* --brass: #A88B4C (brass paper-fastener accent — used sparingly: focus rings, the active nav marker, small details)
+* Brand teal: `#0EA5E9` (primary actions, links, focus), darker `#0284C7`, tints `#E0F2FE` / `#F0F9FF`
+* Success green: `#10B981` (ruled off / completed), tint `#D1FAE5`
+* Warning amber: `#F59E0B` (pending / waiting), tint `#FEF3C7`
+* Danger red: `#EF4444` (overdue only), tint `#FEE2E2`
+* Neutrals: bg `#F8FAFC`, surface `#FFFFFF`, surface-2 `#F1F5F9`, border `#E8EDF3`, text `#0F172A`, muted `#64748B`
+* Full light + dark mode. Dark: bg `#0B1120`, surface `#131C2E`, brighter teal `#38BDF8`.
 
 Typography:
 
-* Display/headings: "Fraunces" (Google Fonts) — warm, slightly old-style, used at heavy weights sparingly (page titles, the completion moment)
-* Body/UI: "Inter" — quiet and legible
-* Numbers & data: "IBM Plex Mono" with tabular numerals — every amount, date, and count renders in mono, like ledger entries. This is a core part of the identity, not a garnish.
+* Display/headings: "Plus Jakarta Sans" (700/800), tight tracking. Confident, friendly, geometric.
+* Body/UI: "Inter".
+* Numbers & data: Inter with `tabular-nums` (`.num`). Use for amounts, dates, counts, and progress figures.
 
 Layout:
 
-* Horizontal ruled lines (1px --rule) structure lists the way ledger paper does: rows sit ON rules, generous vertical rhythm, almost no cards or drop shadows. Where a card is unavoidable, it's a flat sheet with a 1px rule border, radius 6px max.
-* Left column of each checklist row is a narrow "posting column" holding the item's status mark, like the tick column in a real ledger.
+* Card-heavy. The `.sheet` class is the workhorse surface: white, 1px border, soft shadow, radius 14px. Cards may lift on hover (`.lift`).
+* Summary cards at the top of dashboards. Prioritized task lists below. Status pills (`.pill` + `.pill-success|warning|danger|brand`) for state. Progress rings (`ProgressRing`) and gradient progress bars (`.ink-progress`) for completion.
+* Generous white space. Mobile-first, fully responsive.
 
 ### The signature element: getting ruled off
 
-When an item is completed, it receives the accountant's double-rule: two close parallel lines drawn beneath the row (animate them drawing left-to-right, ~300ms, ease-out; skip animation under prefers-reduced-motion), the amount/date flips from red ink to --cleared, and a small hand-drawn-style check appears in the posting column. When ALL items in a close period are done, the client page plays the full moment: every row rules off in sequence, then a Fraunces headline — "Ruled off." — with a one-line sub: "Your books for [Month] are closed." and the period's item count double-ruled beneath it. This moment IS the brand; make it feel earned and satisfying, not cartoonish. No confetti.
+Completion is the emotional peak and stays green. When an item is accepted, it gets a success tick and a "Ruled off" pill; a subtle double-rule (`.double-rule`, now brand green) can draw in beneath. Progress rings sweep from brand teal to success green as a close fills up. Keep it satisfying and calm, never cartoonish. No confetti.
 
-### Design restraint rules
+### Design rules
 
-* The double-rule moment is the ONE place the design shows off. Everything else stays quiet: no gradients, no glassmorphism, no purple, no floating blobs, no drop-shadow stacks, no emoji in UI.
-* Red ink (--pending) appears only on genuinely outstanding/overdue things, so it keeps its meaning.
-* Empty states use ledger vernacular and direct the next action: "No open items. Nothing is blocking this close."
-* The bookkeeper app and the client magic-link page share the same design language, but the client page is even simpler: one column, big touch targets, firm's name at top, zero navigation.
+* Teal is for brand and actions; green means done; amber means pending; red means overdue only, so red keeps its meaning.
+* Subtle gradients and soft shadows are welcome (hero wash, CTA bands, progress fills). Avoid heavy neon glows, glassmorphism everywhere, or purple.
+* Icons: Lucide, consistent stroke. No emoji in UI.
+* Empty states are plain and direct the next action: "No open items. Nothing is blocking this close."
+* The bookkeeper app and the client magic-link page share the language, but the client page is even simpler: one column, big touch targets, firm's name at top, zero navigation. The client page respects the firm's saved accent color (`--brass`).
 
 ## After each phase
 

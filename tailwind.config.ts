@@ -1,83 +1,92 @@
 import type { Config } from "tailwindcss";
 
 /**
- * "The Ledger" design system.
- * Palette and type are derived from CLAUDE.md — this must NOT look like a
- * generic SaaS template. Colors are the accountant's ledger: pale-green paper,
- * green-black ink, ruled lines, red ink for outstanding, deep green for cleared,
- * and a sparingly-used brass accent.
+ * RuledOff 2026 design system.
+ * Modern fintech: teal brand, cool slate neutrals, emerald for "ruled off",
+ * amber for pending, red for overdue. Light + dark (class strategy).
+ * Utilities read CSS variables so light/dark swap without recompiling classes.
  */
 const config: Config = {
+  darkMode: "class",
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // App palette, kept in lockstep with the marketing `site` scale below
-        // and with the CSS custom properties in globals.css.
+        brand: {
+          DEFAULT: "#0EA5E9",
+          50: "#F0F9FF",
+          100: "#E0F2FE",
+          200: "#BAE6FD",
+          300: "#7DD3FC",
+          400: "#38BDF8",
+          500: "#0EA5E9",
+          600: "#0284C7",
+          700: "#0369A1",
+          800: "#075985",
+          900: "#0C4A6E",
+        },
+        // Variable-backed roles so dark mode swaps automatically.
+        bg: "var(--bg)",
+        surface: "var(--surface)",
+        "surface-2": "var(--surface-2)",
+        line: "var(--border)",
+        "line-strong": "var(--border-strong)",
+        text: "var(--text)",
+        muted: "var(--muted)",
+        faint: "var(--faint)",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        danger: "var(--danger)",
+
+        // Legacy names kept so app screens keep compiling; now variable-backed.
         paper: {
-          DEFAULT: "#F7F5F1", // app background — warm paper
-          deep: "#ECE7DE", // subtle inset / hover on paper
-          sheet: "#FFFFFF", // a raised "sheet"
+          DEFAULT: "var(--bg)",
+          deep: "var(--surface-2)",
+          sheet: "var(--surface)",
         },
         ink: {
-          DEFAULT: "#111315", // primary text
-          soft: "#6F6E6957", // muted (uses alpha for quiet secondary text)
-          muted: "#6F6E69", // secondary text, opaque
+          DEFAULT: "var(--text)",
+          soft: "var(--muted)",
+          muted: "var(--muted)",
         },
         rule: {
-          DEFAULT: "#D9D4CA", // ruled lines — borders/dividers
-          strong: "#C6C0B4", // heavier rule where emphasis is needed
+          DEFAULT: "var(--border)",
+          strong: "var(--border-strong)",
         },
-        pending: {
-          DEFAULT: "#B94B3D", // accountant's red ink — OUTSTANDING/OVERDUE ONLY
-          soft: "#B94B3D1A",
-        },
-        cleared: {
-          DEFAULT: "#0E8A5F", // ledger green — completed/reconciled
-          soft: "#0E8A5F14",
-        },
-        brass: {
-          DEFAULT: "#C59B3A", // gold accent — sparingly
-        },
-        // Marketing site: warmer editorial palette (echoes the app, bolder).
+        pending: { DEFAULT: "var(--warning)", soft: "var(--warning-tint)" },
+        cleared: { DEFAULT: "var(--success)", soft: "var(--success-tint)" },
+        brass: { DEFAULT: "var(--brand)" },
         site: {
-          bg: "#F7F5F1",
-          paper: "#ECE7DE",
-          ink: "#111315",
-          secondary: "#6F6E69",
-          border: "#D9D4CA",
-          green: "#0E8A5F",
-          red: "#B94B3D",
-          gold: "#C59B3A",
-          white: "#FFFFFF",
+          bg: "var(--bg)",
+          paper: "var(--surface-2)",
+          ink: "var(--text)",
+          secondary: "var(--muted)",
+          border: "var(--border)",
+          green: "var(--success)",
+          red: "var(--danger)",
+          gold: "var(--warning)",
+          white: "var(--surface)",
         },
       },
       fontFamily: {
-        // Titles use the same editorial serif as the marketing site.
-        display: ["var(--font-newsreader)", "Georgia", "Times New Roman", "serif"],
+        display: ["var(--font-display)", "Inter", "system-ui", "sans-serif"],
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         mono: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
-        // Marketing: literary serif display + tiny mono labels.
-        editorial: ["var(--font-newsreader)", "Georgia", "Times New Roman", "serif"],
-        // Geist Mono is unavailable in this Next version; fall back to the shared Plex Mono.
-        geist: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
+        editorial: ["var(--font-display)", "Inter", "system-ui", "sans-serif"],
+        geist: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        sheet: "14px", // softened toward a modern SaaS look
+        sheet: "14px",
+        xl2: "20px",
       },
-      fontVariantNumeric: {
-        tabular: "tabular-nums",
+      boxShadow: {
+        elev1: "var(--elev-1)",
+        elev2: "var(--elev-2)",
+        brand: "var(--elev-brand)",
       },
       keyframes: {
-        // The signature "ruled off" double-rule, drawn left-to-right.
-        ruleoff: {
-          "0%": { transform: "scaleX(0)" },
-          "100%": { transform: "scaleX(1)" },
-        },
-        checkdraw: {
-          "0%": { "stroke-dashoffset": "24" },
-          "100%": { "stroke-dashoffset": "0" },
-        },
+        ruleoff: { "0%": { transform: "scaleX(0)" }, "100%": { transform: "scaleX(1)" } },
+        checkdraw: { "0%": { "stroke-dashoffset": "24" }, "100%": { "stroke-dashoffset": "0" } },
         fadein: {
           "0%": { opacity: "0", transform: "translateY(4px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },

@@ -135,12 +135,17 @@ export default async function DashboardPage() {
                     : c.totalItems
                       ? "clear"
                       : "no items";
-              const tone =
-                c.period?.status === "closed" || (!c.openCount && c.totalItems)
-                  ? "var(--cleared)"
-                  : c.openCount
-                    ? "var(--pending)"
-                    : "var(--ink-muted)";
+              const isDone = c.period?.status === "closed" || (!c.openCount && c.totalItems);
+              const tone = isDone
+                ? "var(--cleared)"
+                : c.openCount
+                  ? "var(--pending)"
+                  : "var(--ink-muted)";
+              const pillClass = isDone
+                ? "pill pill-success"
+                : c.openCount
+                  ? "pill pill-warning"
+                  : "pill pill-brand";
               return (
                 <Link
                   key={c.id}
@@ -206,11 +211,8 @@ export default async function DashboardPage() {
                       </span>
                     )}
                   </span>
-                  <span
-                    className="num text-right text-sm"
-                    style={{ color: tone }}
-                  >
-                    {label}
+                  <span className="flex justify-end">
+                    <span className={pillClass + " num"}>{label}</span>
                   </span>
                 </Link>
               );

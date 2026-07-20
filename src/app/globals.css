@@ -3,50 +3,103 @@
 @tailwind utilities;
 
 /*
-  "The Ledger" — global tokens and base styles.
-  Single source of truth for the raw palette so animations / inline styles can
-  reference the same values Tailwind uses.
+  RuledOff design system, 2026 refresh.
+  Modern fintech: teal brand, cool neutrals, green for "ruled off", amber for
+  pending, red for overdue. Card-heavy, soft shadows, light + dark.
+
+  Legacy token names (paper/ink/rule/pending/cleared) are kept as aliases so the
+  app screens re-skin through these variables instead of a full rewrite.
 */
 :root {
-  /* Fonts (loaded via a runtime <link> in the root layout). */
   --font-inter: "Inter", system-ui, -apple-system, sans-serif;
   --font-plex-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
-  --font-newsreader: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-newsreader: "Plus Jakarta Sans", system-ui, sans-serif; /* legacy alias */
 
-  /*
-    Editorial palette, shared with the marketing site so the product and the
-    page that sells it read as one thing. Same roles as before: paper, ink,
-    ruled lines, red for outstanding, green for cleared, gold used sparingly.
-  */
-  --paper: #f7f5f1;
-  --paper-deep: #ece7de;
-  --paper-sheet: #ffffff;
-  --ink: #111315;
-  --ink-muted: #6f6e69;
-  --rule: #d9d4ca;
-  --rule-strong: #c6c0b4;
-  --pending: #b94b3d;
-  --pending-bright: #d06a58; /* brighter red ink, for use on the dark band */
-  --cleared: #0e8a5f;
-  --brass: #c59b3a;
+  /* Brand */
+  --brand: #0ea5e9;
+  --brand-dark: #0284c7;
+  --brand-darker: #0369a1;
+  --brand-tint: #e0f2fe;
+  --brand-tint-2: #f0f9ff;
 
-  /* One shared easing token: paper settling, no bounce. */
-  --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* Semantic */
+  --success: #10b981;
+  --success-tint: #d1fae5;
+  --warning: #f59e0b;
+  --warning-tint: #fef3c7;
+  --danger: #ef4444;
+  --danger-tint: #fee2e2;
 
-  /* Depth: one soft ink shadow, raised on hover. No stacked shadows. */
-  --elev-1: 0 8px 24px rgba(17, 19, 21, 0.07);
-  --elev-2: 0 24px 52px -28px rgba(17, 19, 21, 0.22);
+  /* Neutrals (light) */
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --border: #e8edf3;
+  --border-strong: #d3dbe6;
+  --text: #0f172a;
+  --muted: #64748b;
+  --faint: #94a3b8;
 
-  /* Section spacing tokens. The ink band uses the larger value; all else the base. */
+  /* Legacy aliases used by the app screens */
+  --paper: var(--bg);
+  --paper-deep: var(--surface-2);
+  --paper-sheet: var(--surface);
+  --ink: var(--text);
+  --ink-muted: var(--muted);
+  --rule: var(--border);
+  --rule-strong: var(--border-strong);
+  --pending: var(--warning);
+  --pending-bright: #fbbf24;
+  --cleared: var(--success);
+  --brass: var(--brand);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --elev-1: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --elev-2: 0 4px 12px rgba(15, 23, 42, 0.06), 0 16px 40px rgba(15, 23, 42, 0.1);
+  --elev-brand: 0 8px 24px -8px rgba(14, 165, 233, 0.5);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
+
   --section-y: 96px;
   --section-y-hero: 120px;
 }
 
+.dark {
+  --brand: #38bdf8;
+  --brand-dark: #0ea5e9;
+  --brand-darker: #0284c7;
+  --brand-tint: #0c2a3d;
+  --brand-tint-2: #0a2233;
+
+  --success: #34d399;
+  --success-tint: #06331f;
+  --warning: #fbbf24;
+  --warning-tint: #3a2c07;
+  --danger: #f87171;
+  --danger-tint: #3a1414;
+
+  --bg: #0b1120;
+  --surface: #131c2e;
+  --surface-2: #1a2436;
+  --border: #26314a;
+  --border-strong: #35415c;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --faint: #64748b;
+
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.35);
+  --elev-2: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --elev-brand: 0 8px 24px -8px rgba(56, 189, 248, 0.45);
+}
+
 @media (max-width: 640px) {
   :root {
-    --section-y: 60px;
-    --section-y-hero: 76px;
+    --section-y: 64px;
+    --section-y-hero: 80px;
   }
 }
 
@@ -54,91 +107,94 @@
   html {
     -webkit-text-size-adjust: 100%;
   }
-
   body {
-    background-color: var(--paper);
-    color: var(--ink);
-    font-feature-settings: "kern";
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-inter);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
   }
-
-  /* Every amount, date, and count renders in tabular mono — core identity. */
   .num {
-    font-family: var(--font-plex-mono), ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
   }
-
-  /* Editorial serif for titles, same face as the marketing site. */
-  h1,
-  h2,
-  h3 {
-    font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--ink);
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    color: var(--text);
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
-
-  /* Visible focus ring everywhere — accessibility bar. */
   :focus-visible {
-    outline: 2px solid var(--cleared);
+    outline: 2px solid var(--brand);
     outline-offset: 2px;
-    border-radius: 3px;
+    border-radius: 4px;
   }
-
   ::selection {
-    background: rgba(197, 155, 58, 0.22);
+    background: color-mix(in srgb, var(--brand) 24%, transparent);
   }
 }
 
 @layer components {
-  /* A ledger row: sits ON a rule line, generous vertical rhythm, no shadow. */
+  /* Card: the workhorse surface. */
+  .sheet {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--elev-1);
+  }
+
   .ledger-row {
     display: grid;
     grid-template-columns: 2.25rem 1fr auto;
     align-items: start;
     gap: 0.75rem;
     padding: 0.9rem 0.25rem;
-    border-bottom: 1px solid var(--rule);
+    border-bottom: 1px solid var(--border);
     position: relative;
   }
 
-  /* Soft sheet card: 1px rule border, generous rounding, one soft shadow. */
-  .sheet {
-    background: var(--paper-sheet);
-    border: 1px solid var(--rule);
-    border-radius: 14px;
-    box-shadow: var(--elev-1);
-  }
-
-  /* Soft pill button. */
+  /* Buttons */
   .btn {
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-inter);
     font-weight: 600;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.6rem 1.25rem;
-    border-radius: 7px;
-    border: 1px solid var(--rule-strong);
-    background: var(--paper-sheet);
-    color: var(--ink);
+    padding: 0.6rem 1.15rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
     line-height: 1;
-    min-height: 44px; /* touch target */
+    min-height: 44px;
     white-space: nowrap;
-    transition: background-color 120ms var(--ease), border-color 120ms var(--ease);
+    transition: background-color 140ms var(--ease), border-color 140ms var(--ease),
+      transform 120ms var(--ease), box-shadow 140ms var(--ease), color 140ms var(--ease);
   }
   .btn:hover {
-    background: var(--paper-deep);
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+  }
+  .btn:active {
+    transform: translateY(1px);
   }
   .btn-primary {
-    background: var(--ink);
-    color: var(--paper-sheet);
-    border-color: var(--ink);
-    box-shadow: 0 2px 0 rgba(17, 19, 21, 0.18);
+    background: var(--brand);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: var(--elev-brand);
   }
   .btn-primary:hover {
-    background: #1c1f22;
+    background: var(--brand-dark);
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .btn-ghost:hover {
+    background: var(--surface-2);
   }
   .btn:disabled {
     opacity: 0.5;
@@ -146,400 +202,178 @@
   }
 
   .field {
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-inter);
     width: 100%;
     padding: 0.7rem 0.9rem;
-    background: var(--paper-sheet);
-    border: 1px solid var(--rule-strong);
-    border-radius: 10px;
-    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    transition: border-color 140ms var(--ease), box-shadow 140ms var(--ease);
   }
   .field::placeholder {
-    color: var(--ink-muted);
+    color: var(--faint);
   }
+  .field:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 18%, transparent);
+  }
+
+  /* Status pill */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .pill-success { background: var(--success-tint); color: var(--success); }
+  .pill-warning { background: var(--warning-tint); color: #b45309; }
+  .pill-danger  { background: var(--danger-tint);  color: var(--danger); }
+  .pill-brand   { background: var(--brand-tint);   color: var(--brand-darker); }
+  .dark .pill-warning { color: var(--warning); }
+  .dark .pill-brand { color: var(--brand); }
 }
 
-/* The double-rule: two close parallel lines that mean "this total is final". */
-.double-rule {
-  position: relative;
-  height: 4px;
-}
-.double-rule::before,
-.double-rule::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1.5px;
-  background: var(--cleared);
-  transform-origin: left center;
-}
-.double-rule::before {
-  top: 0;
-}
-.double-rule::after {
-  top: 3px;
-}
-.double-rule.is-drawn::before,
-.double-rule.is-drawn::after {
-  animation: ruleoff 300ms var(--ease) forwards;
-}
-.double-rule.is-drawn::after {
-  animation-delay: 60ms;
+/* Eyebrow label */
+.kicker {
+  font-family: var(--font-inter);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--brand);
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   Motion system: "ink on paper"
-   Ink, paper, and bookkeeping gestures. 150-400ms, var(--ease), transform/opacity/
-   clip-path only (no layout thrash). Reduced-motion neutralised at the bottom.
-   ───────────────────────────────────────────────────────────────────────── */
+/* Type scale */
+.t-display { font-size: clamp(40px, 6vw, 76px); line-height: 1.05; letter-spacing: -0.03em; }
+.t-h2 { font-size: clamp(28px, 4.5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; }
+.t-h3 { font-size: 22px; line-height: 1.3; }
+.t-body-lg { font-size: 18px; line-height: 1.6; }
+.t-body { font-size: 16px; line-height: 1.6; }
+.t-small { font-size: 14px; }
 
-@keyframes fadeup {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes rowIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes ruleGrow {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-/* Draw + ink-bleed settle in one pass: line lands 1.6x thick, settles to 1x. */
-@keyframes ruleInk {
-  0% { transform: scaleX(0) scaleY(1.6); opacity: 0.5; }
-  70% { transform: scaleX(1) scaleY(1.3); opacity: 1; }
-  100% { transform: scaleX(1) scaleY(1); opacity: 1; }
-}
-@keyframes nibTravel {
-  0% { transform: translateX(0); }
-  50% { transform: translateX(140px); }
-  100% { transform: translateX(0); }
-}
-@keyframes nibLine {
-  0% { transform: scaleX(0); }
-  50% { transform: scaleX(1); }
-  100% { transform: scaleX(0); }
-}
-@keyframes inkFill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(var(--fill, 1)); }
+.section-y { padding-top: var(--section-y); padding-bottom: var(--section-y); }
+.section-y-hero { padding-top: var(--section-y-hero); padding-bottom: var(--section-y-hero); }
+
+.tap { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Gradient wash for hero / CTA bands */
+.brand-wash {
+  background:
+    radial-gradient(60% 60% at 15% 0%, color-mix(in srgb, var(--brand) 18%, transparent), transparent 70%),
+    radial-gradient(50% 50% at 100% 20%, color-mix(in srgb, var(--success) 12%, transparent), transparent 70%);
 }
 
-/* 1. Page/view transitions: content settles up 8px. */
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+@keyframes fadeup { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes ruleGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes inkFill { from { transform: scaleX(0); } to { transform: scaleX(var(--fill, 1)); } }
+@keyframes nibTravel { 0% { transform: translateX(0); } 50% { transform: translateX(140px); } 100% { transform: translateX(0); } }
+@keyframes nibLine { 0% { transform: scaleX(0); } 50% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
+@keyframes ringDash { from { stroke-dashoffset: var(--dash-from); } to { stroke-dashoffset: var(--dash-to); } }
+@keyframes checkPop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+
 .page-enter { animation: fadeup 320ms var(--ease) both; }
 
-/* 2. List reveals: rows stagger 40ms apart, each drawing its bottom rule. */
+/* List reveals with a soft slide + brand divider draw */
 .reveal-row {
   position: relative;
   border-bottom: none !important;
   animation: rowIn 260ms var(--ease) both;
-  animation-delay: calc(var(--i, 0) * 40ms);
+  animation-delay: calc(var(--i, 0) * 45ms);
 }
 .reveal-row::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
+  left: 0; right: 0; bottom: -1px;
   height: 1px;
-  background: var(--rule);
+  background: var(--border);
   transform: scaleX(0);
   transform-origin: left center;
   animation: ruleGrow 300ms var(--ease) both;
-  animation-delay: calc(var(--i, 0) * 40ms + 90ms);
+  animation-delay: calc(var(--i, 0) * 45ms + 90ms);
   transition: background-color 140ms ease;
 }
+.ledger-row { transition: background-color 140ms ease; }
+.ledger-row:hover { background: var(--surface-2); }
+.reveal-row:hover::after { background: var(--brand); }
 
-/* 6. Hover: zero lift. The rule darkens; nothing floats. */
-.ledger-row { transition: border-color 140ms ease; }
-.ledger-row:hover { border-bottom-color: var(--rule-strong); }
-.reveal-row:hover::after { background: var(--rule-strong); }
-
-/* 7. Buttons: depress 1px like a physical key, no bounce. */
-.btn {
-  transition: background-color 100ms var(--ease), border-color 100ms var(--ease),
-    transform 100ms var(--ease), box-shadow 100ms var(--ease);
-}
-.btn:active { transform: translateY(1px); }
-.btn-primary:active { box-shadow: none; }
-
-/* 3. The double-rule: draw left-to-right with a subtle ink-bleed settle. */
+/* The "ruled off" mark: a brand double underline that draws in. Kept for the
+   completion moment, now in brand teal instead of ink. */
+.double-rule { position: relative; height: 4px; }
 .double-rule::before,
-.double-rule::after { height: 1px; transform: scaleX(0); }
-.double-rule.is-drawn::before,
-.double-rule.is-drawn::after {
-  animation: ruleInk 320ms var(--ease) forwards;
+.double-rule::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--success);
+  transform: scaleX(0);
+  transform-origin: left center;
+  border-radius: 2px;
 }
+.double-rule::before { top: 0; }
+.double-rule::after { top: 3px; }
+.double-rule.is-drawn::before,
+.double-rule.is-drawn::after { animation: ruleGrow 300ms var(--ease) forwards; }
 .double-rule.is-drawn::after { animation-delay: 70ms; }
 
-/* 5. Ink-fill progress: fills like a pen stroke, not a gradient slide. */
+/* Progress bar fills like a brand sweep */
 .ink-progress {
   position: relative;
-  height: 2px;
-  background: var(--rule);
+  height: 6px;
+  background: var(--surface-2);
   overflow: hidden;
-  border-radius: 1px;
+  border-radius: 9999px;
 }
 .ink-progress > span {
   position: absolute;
   inset: 0;
   transform-origin: left center;
   transform: scaleX(var(--fill, 0));
-  background: var(--cleared);
-  animation: inkFill 520ms var(--ease) both;
+  background: linear-gradient(90deg, var(--brand), var(--success));
+  border-radius: 9999px;
+  animation: inkFill 620ms var(--ease) both;
 }
 
-/* 9. Empty states: a pen nib slowly drawing a rule line. */
+/* Empty state: a nib drawing a line */
 .empty-nib { position: relative; height: 12px; width: 160px; margin: 0 auto; }
 .empty-nib .line {
-  position: absolute;
-  left: 0; right: 0; top: 6px;
-  height: 1px;
-  background: var(--rule);
-  transform-origin: left center;
-  transform: scaleX(0);
-  animation: nibLine 3.4s ease-in-out infinite;
+  position: absolute; left: 0; right: 0; top: 6px; height: 2px;
+  background: var(--border-strong); transform-origin: left center; transform: scaleX(0);
+  border-radius: 2px; animation: nibLine 3.4s ease-in-out infinite;
 }
 .empty-nib .nib {
-  position: absolute;
-  top: 2px; left: 0;
-  width: 2px; height: 9px;
-  background: var(--rule-strong);
-  border-radius: 1px;
-  animation: nibTravel 3.4s ease-in-out infinite;
+  position: absolute; top: 2px; left: 0; width: 3px; height: 9px;
+  background: var(--brand); border-radius: 2px; animation: nibTravel 3.4s ease-in-out infinite;
 }
 
-/* 8. Completion ceremony: one confident ink-draw underline under the headline. */
-.ink-underline {
-  display: block;
-  height: 2px;
-  background: var(--ink);
-  transform-origin: left center;
-  transform: scaleX(0);
-  animation: ruleGrow 360ms var(--ease) 200ms both;
-}
-
-/* Scroll reveals (marketing page): section settles up, children stagger,
-   ruled dividers draw left-to-right as they enter the viewport. */
-.reveal {
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 520ms var(--ease), transform 520ms var(--ease);
-}
+/* Scroll reveals for marketing */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 620ms var(--ease), transform 620ms var(--ease); }
 .reveal-in { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: 80ms; }
+.reveal-d2 { transition-delay: 160ms; }
+.reveal-d3 { transition-delay: 240ms; }
 
-.step {
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 420ms var(--ease), transform 420ms var(--ease);
-}
-.reveal-in .step { opacity: 1; transform: none; }
-
-.ink-rule {
-  display: block;
-  height: 1px;
-  background: var(--rule);
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform 560ms var(--ease) 120ms;
-}
-.reveal-in .ink-rule { transform: scaleX(1); }
-
-/* ─── Craft pass: texture, marginalia, kickers, sticky nav, ink band ─────── */
-
-/* Paper grain: felt, not seen. Fixed overlay over paper sections only; the ink
-   band sits above it (higher z-index) so it stays clean. */
-.paper-grain {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  background-attachment: fixed;
-}
-
-/* Ledger left margin: a thin red rule 48px from the page edge, desktop only. */
-.ledger-margin { display: none; }
-@media (min-width: 1024px) {
-  .ledger-margin {
-    display: block;
-    position: fixed;
-    left: 48px;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: rgba(179, 64, 46, 0.28);
-    z-index: 40;
-    pointer-events: none;
-  }
-}
-
-/* Section kicker: a short Fraunces italic line above the title. */
-/* Eyebrow label, same language as the marketing site's mono labels. Green is
-   reserved for genuinely cleared things, so it is not used here. */
-.kicker {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.22em;
-  line-height: 1;
-  color: var(--ink-muted);
-}
-
-/* Tiny mono folio number, top-right of each section. */
-.folio {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  font-family: var(--font-plex-mono), monospace;
-  font-size: 13px; /* mono-label step */
-  letter-spacing: 0.14em;
-  color: var(--ink-muted);
-}
-
-/* ── Locked modular type scale ───────────────────────────────────────────── */
-.t-display { font-size: clamp(44px, 6.4vw, 88px); line-height: 1.06; }
-.t-h2 { font-size: clamp(30px, 5vw, 48px); line-height: 1.08; }
-.t-ceremony { font-size: clamp(34px, 6vw, 64px); line-height: 1.05; } /* sanctioned exception */
-.t-h3 { font-size: 24px; line-height: 1.25; }
-.t-body-lg { font-size: 18px; line-height: 1.6; }
-.t-body { font-size: 16px; line-height: 1.6; }
-.t-small { font-size: 14px; }
-
-/* ── Section spacing tokens ──────────────────────────────────────────────── */
-.section-y { padding-top: var(--section-y); padding-bottom: var(--section-y); }
-.section-y-hero {
-  padding-top: var(--section-y-hero);
-  padding-bottom: var(--section-y-hero);
-}
-
-/* ── Tap target helper: expands a text link's hit area to >=44px ──────────── */
-.tap {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
-.ink-band .folio { color: rgba(242, 245, 239, 0.5); }
-
-/* Full-bleed ink band. Sits above the grain so no texture bleeds onto it. */
-.ink-band {
-  position: relative;
-  z-index: 2;
-  background: var(--ink);
-  color: var(--paper);
-}
-.ink-band .ink-rule-soft { background: rgba(242, 245, 239, 0.15); }
-
-/* Sticky nav: slides down once you scroll past the hero. */
-.sticky-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  transform: translateY(-100%);
-  transition: transform 260ms var(--ease);
-}
-.sticky-nav.is-visible { transform: translateY(0); }
-
-/* Typing indicator: three dots at rest, gently pulsing. */
-.typing {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.typing span {
-  width: 5px;
-  height: 5px;
-  border-radius: 9999px;
-  background: var(--ink-muted);
-  animation: typingDot 1.3s infinite ease-in-out;
-}
-.typing span:nth-child(2) { animation-delay: 0.16s; }
-.typing span:nth-child(3) { animation-delay: 0.32s; }
-@keyframes typingDot {
-  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
-  30% { opacity: 0.9; transform: translateY(-2px); }
-}
-
-/* ─── L3 signature motion ─────────────────────────────────────────────────── */
-
-/* Hero H1 mask reveal: each line wipes up from behind a clip. */
-.mask-line { display: block; overflow: hidden; padding-bottom: 0.18em; }
-.mask-line > span { display: block; transform: translateY(122%); }
-.mask-reveal.is-in .mask-line > span {
-  animation: maskUp 720ms var(--ease) forwards;
-}
-.mask-reveal.is-in .mask-line:nth-child(2) > span { animation-delay: 90ms; }
-.mask-reveal.is-in .mask-line:nth-child(3) > span { animation-delay: 180ms; }
-@keyframes maskUp { to { transform: translateY(0); } }
-
-/* Section H2: rise + de-blur once on scroll-in (one-shot, then static). */
-.h2-float {
-  opacity: 0;
-  transform: translateY(14px);
-  filter: blur(6px);
-  transition: opacity 640ms var(--ease), transform 640ms var(--ease),
-    filter 640ms var(--ease);
-}
-.reveal-in .h2-float,
-.h2-float.is-in { opacity: 1; transform: none; filter: blur(0); }
-
-/* Cursor spotlight on interactive cards (subtle brass wash, hover only). */
-.spot { position: relative; isolation: isolate; }
-.spot::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 220ms var(--ease);
-  background: radial-gradient(
-    240px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(168, 139, 76, 0.14),
-    transparent 62%
-  );
-  pointer-events: none;
-}
-.spot:hover { box-shadow: var(--elev-2); }
-.spot:hover::before { opacity: 1; }
-
-/* Hero ledger stack: sheets fan in from a pile on load. */
-.fan { opacity: 0; }
-.fan.is-in { animation: fanIn 620ms var(--ease) forwards; }
-@keyframes fanIn {
-  from { opacity: 0; transform: translateY(18px) rotate(-1deg) scale(0.98); }
-  to { opacity: 1; }
-}
+/* Card hover lift for interactive cards */
+.lift { transition: transform 200ms var(--ease), box-shadow 200ms var(--ease), border-color 200ms var(--ease); }
+.lift:hover { transform: translateY(-3px); box-shadow: var(--elev-2); border-color: var(--border-strong); }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .typing span { opacity: 0.5; }
-  .mask-line > span { transform: none !important; }
-  .h2-float { opacity: 1 !important; transform: none !important; filter: none !important; }
-  .fan { opacity: 1 !important; }
-  .spot::before { display: none; }
-  /* Ensure drawn/filled states rest in their final position, not at scale 0. */
-  .reveal-row::after,
-  .double-rule.is-drawn::before,
-  .double-rule.is-drawn::after { transform: scaleX(1) scaleY(1); }
-  .ink-progress > span { transform: scaleX(var(--fill, 0)); }
-  .empty-nib .line { transform: scaleX(1); }
-  .empty-nib .nib { display: none; }
-  .ink-underline { transform: scaleX(1); }
-  .reveal { opacity: 1; transform: none; }
-  .step { opacity: 1; transform: none; }
-  .ink-rule { transform: scaleX(1); }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .double-rule::before, .double-rule::after { transform: scaleX(1) !important; }
+  .ink-progress > span { transform: scaleX(var(--fill, 1)) !important; }
 }

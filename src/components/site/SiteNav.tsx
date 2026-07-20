@@ -1,33 +1,58 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "./Button";
+import { ThemeToggle } from "./ThemeToggle";
+import { Logo } from "./Logo";
 
-/** Minimal editorial top nav. Not sticky: it scrolls away as the page settles. */
+/** Sticky marketing nav with a frosted background once you scroll. */
 export function SiteNav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 lg:py-7">
-      <Link
-        href="/"
-        className="font-editorial text-[22px] font-semibold tracking-tight text-site-ink"
-      >
-        RuledOff
-      </Link>
-      <div className="flex items-center gap-5 sm:gap-7">
-        <Link
-          href="/pricing"
-          className="hidden text-sm text-site-secondary transition-colors hover:text-site-ink sm:block"
-        >
-          Pricing
+    <header
+      className={
+        "sticky top-0 z-50 transition-colors duration-300 " +
+        (scrolled
+          ? "border-b border-line bg-bg/80 backdrop-blur-xl"
+          : "border-b border-transparent")
+      }
+    >
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
+        <Link href="/" className="flex items-center gap-2">
+          <Logo />
         </Link>
-        <Link
-          href="/login"
-          className="text-sm text-site-secondary transition-colors hover:text-site-ink"
-        >
-          Log in
-        </Link>
-        <Button href="/signup" className="min-h-[42px] px-4 text-sm">
-          Start free
-        </Button>
-      </div>
-    </nav>
+
+        <div className="hidden items-center gap-7 md:flex">
+          <a href="#features" className="text-sm text-muted transition-colors hover:text-text">
+            Features
+          </a>
+          <a href="#how" className="text-sm text-muted transition-colors hover:text-text">
+            How it works
+          </a>
+          <Link href="/pricing" className="text-sm text-muted transition-colors hover:text-text">
+            Pricing
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <ThemeToggle />
+          <Link
+            href="/login"
+            className="hidden text-sm font-medium text-muted transition-colors hover:text-text sm:block"
+          >
+            Sign in
+          </Link>
+          <Button href="/signup">Start free</Button>
+        </div>
+      </nav>
+    </header>
   );
 }

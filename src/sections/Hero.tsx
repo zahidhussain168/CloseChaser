@@ -1,179 +1,120 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useReducedMotion,
-  type MotionValue,
-} from "framer-motion";
+import { motion } from "framer-motion";
+import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/site/Button";
-import { MonoLabel } from "@/components/site/MonoLabel";
 import { SiteNav } from "@/components/site/SiteNav";
+import { ProgressRing } from "@/components/site/ProgressRing";
 
-const INK = "#111315";
-const GREEN = "#0E8A5F";
-const SECONDARY = "#6F6E69";
-const RED = "#B94B3D";
+const EASE = [0.22, 1, 0.36, 1] as const;
 
-type Item = {
-  label: string;
-  detail: string;
-  resolveAt: [number, number] | null;
-};
-
-// The hero hints at resolution: the first two items tick off as you scroll in,
-// the rest stay open. The full "Ruled Off" payoff is reserved for the finale.
-const ITEMS: Item[] = [
-  { label: "Chase March bank statement", detail: "MARCH", resolveAt: [0.12, 0.34] },
-  { label: "Categorize transactions", detail: "19", resolveAt: [0.42, 0.64] },
-  { label: "Missing W-9 for Bright Design", detail: "1099", resolveAt: null },
-  { label: "Upload April receipts", detail: "8 LEFT", resolveAt: null },
-  { label: "Reconcile the bank feed", detail: "APR", resolveAt: null },
-  { label: "Confirm the payroll journal", detail: "$14,200", resolveAt: null },
+type Row = { label: string; meta: string; state: "done" | "pending" | "overdue" };
+const ROWS: Row[] = [
+  { label: "March bank statement", meta: "Acme Coffee", state: "done" },
+  { label: "Receipt · Office Depot $128.40", meta: "Uncategorized", state: "done" },
+  { label: "W-9 · Bright Design Co.", meta: "Waiting 2 days", state: "pending" },
+  { label: "April payroll journal", meta: "Overdue", state: "overdue" },
 ];
 
-function ChecklistRow({
-  label,
-  detail,
-  resolveAt,
-  progress,
-  reduced,
-}: Item & { progress: MotionValue<number>; reduced: boolean }) {
-  const resolvable = resolveAt !== null;
-  const t = useTransform(
-    progress,
-    resolveAt ?? [0, 1],
-    resolvable ? [0, 1] : [0, 0],
-    { clamp: true },
-  );
-  const labelOpacity = useTransform(t, [0, 1], [1, 0.5]);
-  const detailColor = useTransform(t, [0, 1], [SECONDARY, GREEN]);
-  // Keep the pen tick fully hidden until it starts drawing (no zero-length dot).
-  const checkOpacity = useTransform(t, [0, 0.04], [0, 1]);
-  const st = reduced && resolvable; // static resolved end state
-
-  return (
-    <li className="grid grid-cols-[1.75rem_1fr_auto] items-center gap-3 border-b border-site-border/70 py-[15px] last:border-b-0">
-      <span
-        className="relative flex h-[26px] w-[26px] items-center justify-center rounded-[5px] border"
-        style={{ borderColor: st ? GREEN : "#D9D4CA" }}
-      >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <motion.path
-            d="M5 12.5 10 17.5 19 6.5"
-            stroke={GREEN}
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            initial={false}
-            style={{ pathLength: st ? 1 : t, opacity: st ? 1 : checkOpacity }}
-          />
-        </svg>
-      </span>
-
-      <span className="relative min-w-0">
-        <motion.span
-          className="block truncate text-[15px] text-site-ink"
-          style={{ opacity: st ? 0.5 : labelOpacity }}
-        >
-          {label}
-        </motion.span>
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-1/2 h-px w-full origin-left"
-          style={{ background: "rgba(17,19,21,0.5)", scaleX: st ? 1 : t }}
-        />
-      </span>
-
-      <motion.span
-        className="font-mono text-[11px] tabular-nums tracking-wide"
-        style={{ color: st ? GREEN : detailColor }}
-      >
-        {detail}
-      </motion.span>
-    </li>
-  );
+function StatePill({ state }: { state: Row["state"] }) {
+  if (state === "done") return <span className="pill pill-success"><Check size={12} /> Ruled off</span>;
+  if (state === "pending") return <span className="pill pill-warning">Pending</span>;
+  return <span className="pill pill-danger">Overdue</span>;
 }
 
-function ChecklistCard({
-  progress,
-  reduced,
-}: {
-  progress: MotionValue<number>;
-  reduced: boolean;
-}) {
-  const openCount = useTransform(progress, [0, 0.34, 0.64], [6, 5, 4], {
-    clamp: true,
-  });
-  const openText = useTransform(openCount, (v) => `${Math.round(v)} open`);
-
+function DashboardMock() {
   return (
-    <div
-      className="w-full rounded-[8px] border border-site-border bg-site-white p-6 sm:p-8"
-      style={{
-        boxShadow:
-          "0 1px 0 rgba(17,19,21,0.03), 0 28px 50px -30px rgba(17,19,21,0.22)",
-      }}
-    >
-      <div className="flex items-baseline justify-between border-b border-site-border pb-4">
-        <span className="font-geist text-[11px] uppercase tracking-[0.2em] text-site-secondary">
-          April close
-        </span>
-        <span className="font-mono text-xs" style={{ color: RED }}>
-          {reduced ? "4 open" : <motion.span>{openText}</motion.span>}
-        </span>
+    <div className="sheet w-full max-w-md overflow-hidden rounded-2xl">
+      <div className="flex items-center justify-between border-b border-line px-5 py-4">
+        <div>
+          <div className="text-[13px] font-semibold text-text">April close</div>
+          <div className="text-[12px] text-muted">Acme Coffee Roasters</div>
+        </div>
+        <ProgressRing value={0.66} label="66%" />
       </div>
-      <ul className="mt-1">
-        {ITEMS.map((it) => (
-          <ChecklistRow key={it.label} {...it} progress={progress} reduced={reduced} />
+      <ul className="divide-y divide-line">
+        {ROWS.map((r, i) => (
+          <motion.li
+            key={r.label}
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: EASE, delay: 0.5 + i * 0.12 }}
+            className="flex items-center gap-3 px-5 py-3.5"
+          >
+            <span
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+              style={{
+                background: r.state === "done" ? "var(--success-tint)" : "var(--surface-2)",
+                color: r.state === "done" ? "var(--success)" : "var(--faint)",
+              }}
+            >
+              {r.state === "done" ? <Check size={13} strokeWidth={3} /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[13.5px] font-medium text-text">{r.label}</span>
+              <span className="block truncate text-[12px] text-muted">{r.meta}</span>
+            </span>
+            <StatePill state={r.state} />
+          </motion.li>
         ))}
       </ul>
+      <div className="flex items-center justify-between bg-surface-2 px-5 py-3">
+        <span className="text-[12px] text-muted">Reminders send automatically</span>
+        <span className="pill pill-brand">Auto-chasing</span>
+      </div>
     </div>
   );
 }
 
 export function Hero() {
-  const ref = useRef<HTMLElement>(null);
-  const rawReduced = useReducedMotion();
-  // Defer the reduced-motion branch until after mount so the first client render
-  // matches the server (no hydration mismatch); then jump to the end state.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const reduced = mounted && !!rawReduced;
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
   return (
-    <section ref={ref} className="relative bg-site-bg">
+    <section className="brand-wash relative overflow-hidden">
       <SiteNav />
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-24 pt-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16 lg:pb-32 lg:pt-14">
-        <div>
-          <MonoLabel>For solo bookkeepers</MonoLabel>
-          <h1 className="mt-5 font-editorial text-[clamp(40px,5.4vw,72px)] font-medium leading-[1.04] tracking-[-0.01em] text-site-ink">
-            Stop chasing clients. Close the month faster.
+      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28 lg:pt-16">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: EASE }}
+        >
+          <span className="pill pill-brand mb-5">
+            <Sparkles size={13} /> Built for solo bookkeepers
+          </span>
+          <h1 className="t-display font-display text-text">
+            Close the month without{" "}
+            <span className="bg-gradient-to-r from-brand to-success bg-clip-text text-transparent">
+              chasing clients
+            </span>
+            .
           </h1>
-          <p className="mt-6 max-w-md text-[17px] leading-relaxed text-site-secondary">
-            RuledOff collects everything blocking your month-end close and follows
-            up with your client for you, automatically, until every item is done.
+          <p className="t-body-lg mt-5 max-w-xl text-muted">
+            RuledOff collects every document, receipt, and answer blocking your close, then
+            chases your client automatically until each item is ruled off. Your client just taps
+            a link. No login, no portal, no app.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-5">
-            <Button href="/signup">Start free</Button>
-            <a
-              href="#how"
-              className="text-sm text-site-secondary underline-offset-4 transition-colors hover:text-site-ink hover:underline"
-            >
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Button href="/signup" size="lg">
+              Start free for 14 days <ArrowRight size={18} />
+            </Button>
+            <Button href="#how" variant="secondary" size="lg">
               See how it works
-            </a>
+            </Button>
           </div>
-        </div>
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-muted">
+            <span className="flex items-center gap-1.5"><Check size={15} className="text-success" /> No card required</span>
+            <span className="flex items-center gap-1.5"><Check size={15} className="text-success" /> Unlimited clients</span>
+            <span className="flex items-center gap-1.5"><Check size={15} className="text-success" /> QuickBooks sync</span>
+          </div>
+        </motion.div>
 
-        <div className="flex items-center">
-          <ChecklistCard progress={scrollYProgress} reduced={reduced} />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: EASE, delay: 0.15 }}
+          className="relative flex justify-center lg:justify-end"
+        >
+          <div className="absolute -right-6 -top-6 hidden h-24 w-24 rounded-2xl bg-brand/10 blur-2xl lg:block" />
+          <DashboardMock />
+        </motion.div>
       </div>
     </section>
   );
