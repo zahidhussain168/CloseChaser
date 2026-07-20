@@ -75,6 +75,33 @@ export async function importFromQboAction(clientId: string): Promise<ImportResul
   return { ok: true, added: rows.length, skipped: txns.length - rows.length };
 }
 
+/**
+ * Record that the bookkeeper sent a reminder by hand from their own phone.
+ *
+ * Logged as channel 'manual_text' so it counts toward the cadence like any
+ * other reminder, which stops the emailer from piling on right after.
+ */
+export async function logManualTextAction(clientId: string): Promise<FormState> {
+  await requireUserId();
+  const supabase = createClient();
+
+  const period = await ensureCurrentPeriod(clientId);
+  if (!period) return { ok: false, error: "Could not open the close period." };
+
+  const { error } = await supabase.from("reminders").insert({
+    client_id: clientId,
+    close_period_id: period.id,
+    level: 4,
+    channel: "manual_text",
+    scheduled_for: new Date().toISOString(),
+    sent_at: new Date().toISOString(),
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath(`/clients/${clientId}`);
+  return { ok: true };
+}
+
 /** Disconnect QuickBooks and revoke the grant with Intuit. */
 export async function disconnectQboAction(): Promise<FormState> {
   await requireUserId();

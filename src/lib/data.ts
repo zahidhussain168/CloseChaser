@@ -11,7 +11,7 @@ import type {
   TemplateItem,
 } from "@/lib/types";
 import { monthKey } from "@/lib/format";
-import { openCount } from "@/lib/state";
+import { openCount, isOpen } from "@/lib/state";
 
 type DB = SupabaseClient<Database>;
 
@@ -92,6 +92,72 @@ export async function listClientsWithBlocking(): Promise<ClientWithBlocking[]> {
   // Sort: most blocking first, then clients with any items, then the rest.
   result.sort((a, b) => b.openCount - a.openCount || b.totalItems - a.totalItems);
   return result;
+}
+
+export type CloseRollup = {
+  documentsOpen: number;
+  transactionsOpen: number;
+  /** Clients with open items whose link has never been opened. */
+  neverOpened: string[];
+  /** Clients with open items where no chase has been started yet. */
+  notChased: string[];
+  /** The single oldest thing still outstanding. */
+  oldest: { client: string; title: string; days: number } | null;
+};
+
+/**
+ * What is actually blocking the close right now, across every client. Built
+ * from the already-loaded client rows so the dashboard makes one extra query
+ * rather than one per client.
+ */
+export async function getCloseRollup(
+  clients: ClientWithBlocking[],
+): Promise<CloseRollup> {
+  const blocking = clients.filter((c) => c.openCount > 0);
+  const rollup: CloseRollup = {
+    documentsOpen: 0,
+    transactionsOpen: 0,
+    neverOpened: blocking.filter((c) => !c.lastOpenedAt).map((c) => c.name),
+    notChased: blocking
+      .filter((c) => c.period?.status !== "chasing")
+      .map((c) => c.name),
+    oldest: null,
+  };
+
+  const periodIds = blocking.map((c) => c.period?.id).filter(Boolean) as string[];
+  if (periodIds.length === 0) return rollup;
+
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("items")
+    .select("title, type, state, created_at, close_period_id")
+    .in("close_period_id", periodIds);
+
+  const nameByPeriod = new Map(
+    blocking.map((c) => [c.period?.id ?? "", c.name] as const),
+  );
+
+  for (const row of (data ?? []) as Pick<
+    Item,
+    "title" | "type" | "state" | "created_at" | "close_period_id"
+  >[]) {
+    if (!isOpen(row.state)) continue;
+    if (row.type === "document") rollup.documentsOpen += 1;
+    else rollup.transactionsOpen += 1;
+
+    const days = Math.floor(
+      (Date.now() - new Date(row.created_at).getTime()) / 86_400_000,
+    );
+    if (!rollup.oldest || days > rollup.oldest.days) {
+      rollup.oldest = {
+        client: nameByPeriod.get(row.close_period_id) ?? "A client",
+        title: row.title,
+        days,
+      };
+    }
+  }
+
+  return rollup;
 }
 
 export type ClientDetail = {

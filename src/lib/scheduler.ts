@@ -2,7 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureMagicToken } from "@/lib/links";
 import { sendChaseEmail } from "@/lib/chase";
-import { dueReminder, levelLabel } from "@/lib/reminders";
+import { dueReminder, levelLabel, normaliseCadence } from "@/lib/reminders";
 import { kindForLevel } from "@/lib/email/templates";
 import { isOpen } from "@/lib/state";
 import type { Client, Firm, Item, ClosePeriod } from "@/lib/types";
@@ -78,10 +78,22 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
       .eq("close_period_id", period.id)
       .not("sent_at", "is", null);
 
+    // The firm is loaded before the due check because it carries the cadence.
+    const { data: firm } = await admin
+      .from("firms")
+      .select("*")
+      .eq("id", clientRow.firm_id)
+      .single();
+    if (!firm) continue;
+
     const due = dueReminder(
       new Date(period.chase_started_at as string),
       sentCount ?? 0,
       now,
+      normaliseCadence({
+        offsets: (firm as { reminder_offsets?: number[] }).reminder_offsets,
+        weeklyStep: (firm as { reminder_weekly_step?: number }).reminder_weekly_step,
+      }),
     );
     if (!due) {
       report.skipped += 1;
@@ -89,12 +101,6 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
     }
 
     try {
-      const { data: firm } = await admin
-        .from("firms")
-        .select("*")
-        .eq("id", clientRow.firm_id)
-        .single();
-      if (!firm) throw new Error("firm missing");
 
       const token = await ensureMagicToken(admin, clientRow.id);
       const result = await sendChaseEmail({

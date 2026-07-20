@@ -11,16 +11,39 @@ import type { ReminderLevel } from "@/lib/types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Fixed early milestones; after these, cadence becomes weekly. */
-const EARLY_OFFSETS = [2, 5, 9] as const;
-const WEEKLY_STEP = 7;
+/** Cadence a firm has not customised: day 2, day 5, day 9, then weekly. */
+export const DEFAULT_CADENCE: Cadence = { offsets: [2, 5, 9], weeklyStep: 7 };
+
+export type Cadence = {
+  /** Day offsets from the chase start for the early milestones. */
+  offsets: number[];
+  /** Spacing once the early milestones are exhausted. */
+  weeklyStep: number;
+};
+
+/** Fall back to the default for anything missing or nonsensical. */
+export function normaliseCadence(input?: Partial<Cadence> | null): Cadence {
+  const offsets = (input?.offsets ?? [])
+    .filter((n) => Number.isFinite(n) && n >= 1)
+    .map((n) => Math.round(n))
+    .sort((a, b) => a - b);
+  const step = input?.weeklyStep;
+  return {
+    offsets: offsets.length ? Array.from(new Set(offsets)) : DEFAULT_CADENCE.offsets,
+    weeklyStep:
+      typeof step === "number" && step >= 3 && step <= 30
+        ? Math.round(step)
+        : DEFAULT_CADENCE.weeklyStep,
+  };
+}
 
 /** Day-offset from chase start for the Nth reminder (0-indexed). */
-export function offsetForIndex(index: number): number {
-  if (index < EARLY_OFFSETS.length) return EARLY_OFFSETS[index];
-  // index 3 → 9 + 7 = 16, index 4 → 23, ...
-  const weeksAfter = index - (EARLY_OFFSETS.length - 1);
-  return EARLY_OFFSETS[EARLY_OFFSETS.length - 1] + weeksAfter * WEEKLY_STEP;
+export function offsetForIndex(index: number, cadence: Cadence = DEFAULT_CADENCE): number {
+  const { offsets, weeklyStep } = normaliseCadence(cadence);
+  if (index < offsets.length) return offsets[index];
+  // Past the early milestones, keep stepping by the weekly interval.
+  const stepsAfter = index - (offsets.length - 1);
+  return offsets[offsets.length - 1] + stepsAfter * weeklyStep;
 }
 
 /** Escalation level of the Nth reminder's copy. */
@@ -48,9 +71,10 @@ export function dueReminder(
   chaseStartedAt: Date,
   sentCount: number,
   now: Date = new Date(),
+  cadence: Cadence = DEFAULT_CADENCE,
 ): DueReminder | null {
   const nextIndex = sentCount;
-  const offsetDays = offsetForIndex(nextIndex);
+  const offsetDays = offsetForIndex(nextIndex, cadence);
   const elapsed = daysBetween(chaseStartedAt, now);
   if (elapsed >= offsetDays) {
     return { index: nextIndex, level: levelForIndex(nextIndex), offsetDays };

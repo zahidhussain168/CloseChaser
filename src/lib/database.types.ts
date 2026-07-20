@@ -24,6 +24,8 @@ export interface Database {
           accent_color: string;
           reply_to: string | null;
           logo_url: string | null;
+          reminder_offsets: number[];
+          reminder_weekly_step: number;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -32,6 +34,8 @@ export interface Database {
           accent_color?: string;
           reply_to?: string | null;
           logo_url?: string | null;
+          reminder_offsets?: number[];
+          reminder_weekly_step?: number;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["firms"]["Insert"]>;

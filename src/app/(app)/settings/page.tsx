@@ -6,7 +6,9 @@ import { loadTemplates } from "@/lib/chase";
 import { BrandingForm, TemplateEditor } from "@/components/app/SettingsForms";
 import { TemplatesManager } from "@/components/app/TemplatesManager";
 import { QboConnectCard } from "@/components/app/QboConnectCard";
+import { CadenceForm } from "@/components/app/CadenceForm";
 import { getQboConnection } from "@/lib/qbo/connection";
+import { normaliseCadence } from "@/lib/reminders";
 import type { EmailKind } from "@/lib/email/templates";
 
 export const metadata: Metadata = { title: "Settings · RuledOff" };
@@ -26,6 +28,11 @@ export default async function SettingsPage({
     listTemplates(),
     getQboConnection(),
   ]);
+
+  const cadence = normaliseCadence({
+    offsets: (firm as { reminder_offsets?: number[] }).reminder_offsets,
+    weeklyStep: (firm as { reminder_weekly_step?: number }).reminder_weekly_step,
+  });
 
   return (
     <div className="flex max-w-2xl flex-col gap-12">
@@ -57,6 +64,16 @@ export default async function SettingsPage({
           status={searchParams.qbo}
           detail={searchParams.detail}
         />
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <div>
+          <h2 className="t-h2 font-display font-semibold">Reminder cadence</h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            When the chase emails go out. The wording of each one is below.
+          </p>
+        </div>
+        <CadenceForm offsets={cadence.offsets} weeklyStep={cadence.weeklyStep} />
       </section>
 
       <section className="flex flex-col gap-4">

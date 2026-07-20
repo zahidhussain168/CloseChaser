@@ -255,6 +255,52 @@ export async function updateBrandingAction(
 
 // ── Request templates ────────────────────────────────────────────────────────
 
+const cadenceSchema = z.object({
+  offsets: z
+    .string()
+    .trim()
+    .min(1, "Enter at least one day, for example 2, 5, 9")
+    .transform((s) => s.split(/[,\s]+/).filter(Boolean).map(Number))
+    .refine((a) => a.length > 0 && a.length <= 6, "Use between one and six days")
+    .refine((a) => a.every((n) => Number.isInteger(n) && n >= 1 && n <= 90), "Days must be whole numbers from 1 to 90"),
+  weeklyStep: z.coerce
+    .number()
+    .int()
+    .min(3, "Keep at least 3 days between later reminders")
+    .max(30, "Use 30 days or fewer between later reminders"),
+});
+
+/** Per-firm reminder timing. The escalation wording is unaffected. */
+export async function updateCadenceAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireUserId();
+  const firm = await getFirm();
+  if (!firm) return { ok: false, error: "No firm found" };
+
+  const parsed = cadenceSchema.safeParse({
+    offsets: formData.get("offsets"),
+    weeklyStep: formData.get("weeklyStep"),
+  });
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const offsets = Array.from(new Set(parsed.data.offsets)).sort((a, b) => a - b);
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("firms")
+    .update({
+      reminder_offsets: offsets,
+      reminder_weekly_step: parsed.data.weeklyStep,
+    })
+    .eq("id", firm.id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
 const templateSchema = z.object({
   name: z.string().trim().min(1, "Name the template"),
 });

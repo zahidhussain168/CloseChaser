@@ -16,6 +16,9 @@ import { ChaseButton } from "@/components/app/ChaseButton";
 import { MagicLinkBar } from "@/components/app/MagicLinkBar";
 import { ItemActions } from "@/components/app/ItemActions";
 import { ImportPanel } from "@/components/app/ImportPanel";
+import { TextChaseCard } from "@/components/app/TextChaseCard";
+import { buildTextMessage, smsHref } from "@/lib/textmessage";
+import { getFirm } from "@/lib/data";
 import { getQboConnection } from "@/lib/qbo/connection";
 import type { Attachment, Item } from "@/lib/types";
 
@@ -68,6 +71,14 @@ export default async function ClientPage({
       : "Not opened yet"
     : null;
   const open = openCount(items);
+  const firm = await getFirm();
+  const textMessage = buildTextMessage({
+    firmName: firm?.name ?? "Your bookkeeper",
+    clientName: client.name,
+    monthLabel: formatMonth(period.month),
+    openItems: items.filter((i) => isOpen(i.state)),
+    url: url ?? "",
+  });
   const templates = (await listTemplates()).map((t) => ({ id: t.id, name: t.name }));
   const done = items.length - open;
   const fill = items.length ? done / items.length : 0;
@@ -244,6 +255,19 @@ export default async function ClientPage({
           </div>
         )}
       </section>
+
+      {url && open > 0 ? (
+        <section className="flex flex-col gap-3">
+          <h2 className="t-h3 font-display font-semibold">Nudge by text</h2>
+          <TextChaseCard
+            clientId={client.id}
+            clientName={client.name}
+            phone={client.phone}
+            message={textMessage}
+            smsUrl={smsHref(client.phone, textMessage)}
+          />
+        </section>
+      ) : null}
 
       <section className="flex flex-col gap-3">
         <h2 className="t-h3 font-display font-semibold">From the books</h2>

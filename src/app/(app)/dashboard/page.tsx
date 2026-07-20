@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { listClientsWithBlocking, getFirm } from "@/lib/data";
+import { listClientsWithBlocking, getFirm, getCloseRollup } from "@/lib/data";
 import { AddClientForm } from "@/components/app/AddClientForm";
+import { BlockingRollup } from "@/components/app/BlockingRollup";
 import { Counter } from "@/components/marketing/Counter";
 import { formatMonth, monthKey, timeAgo } from "@/lib/format";
 
@@ -50,6 +51,7 @@ export default async function DashboardPage() {
   const totalOpen = clients.reduce((n, c) => n + c.openCount, 0);
   const chasing = clients.filter((c) => c.period?.status === "chasing").length;
   const ruledOff = clients.filter((c) => c.period?.status === "closed").length;
+  const rollup = await getCloseRollup(clients);
 
   return (
     <div className="flex flex-col gap-10">
@@ -85,6 +87,8 @@ export default async function DashboardPage() {
           />
         </div>
       )}
+
+      {totalOpen > 0 && <BlockingRollup rollup={rollup} />}
 
       {clients.length === 0 ? (
         <div className="sheet px-6 py-14 text-center">
