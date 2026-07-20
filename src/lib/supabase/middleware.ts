@@ -18,6 +18,7 @@ const PUBLIC_PREFIXES = [
   "/api/cron",
   "/api/client",
   "/api/qbo/callback",
+  "/api/paddle/webhook", // Paddle authenticates via signature, not a session
 ];
 
 function isPublic(pathname: string): boolean {
