@@ -77,11 +77,14 @@ export function BillingCard(props: Props) {
     props.hasSubscription &&
     (props.status === "active" || props.status === "trialing" || props.status === "past_due");
 
+  // Format in UTC so the server render and the client hydration agree on the
+  // calendar day; a local-timezone format would mismatch and break hydration.
   const renewLabel = props.currentPeriodEnd
     ? new Date(props.currentPeriodEnd).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",
+        timeZone: "UTC",
       })
     : null;
 
