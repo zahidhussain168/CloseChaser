@@ -45,6 +45,7 @@ export interface Database {
           email: string;
           phone: string | null;
           qbo_realm_id: string | null;
+          default_template_id: string | null;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -53,9 +54,37 @@ export interface Database {
           email: string;
           phone?: string | null;
           qbo_realm_id?: string | null;
+          default_template_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["clients"]["Insert"]>;
+        Relationships: [];
+      };
+      request_templates: {
+        Row: { id: string; firm_id: string; name: string } & Timestamps;
+        Insert: { id?: string; firm_id: string; name: string; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["request_templates"]["Insert"]>;
+        Relationships: [];
+      };
+      template_items: {
+        Row: {
+          id: string;
+          template_id: string;
+          type: "transaction" | "document";
+          title: string;
+          note: string | null;
+          position: number;
+        } & Timestamps;
+        Insert: {
+          id?: string;
+          template_id: string;
+          type?: "transaction" | "document";
+          title: string;
+          note?: string | null;
+          position?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["template_items"]["Insert"]>;
         Relationships: [];
       };
       close_periods: {

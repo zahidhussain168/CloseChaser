@@ -35,6 +35,24 @@ export type Client = {
   email: string;
   phone: string | null;
   qbo_realm_id: string | null;
+  default_template_id: string | null;
+  created_at: string;
+};
+
+export type RequestTemplate = {
+  id: string;
+  firm_id: string;
+  name: string;
+  created_at: string;
+};
+
+export type TemplateItem = {
+  id: string;
+  template_id: string;
+  type: ItemType;
+  title: string;
+  note: string | null;
+  position: number;
   created_at: string;
 };
 

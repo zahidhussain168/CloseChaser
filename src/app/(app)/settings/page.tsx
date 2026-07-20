@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getFirm } from "@/lib/data";
+import { getFirm, listTemplates } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { loadTemplates } from "@/lib/chase";
 import { BrandingForm, TemplateEditor } from "@/components/app/SettingsForms";
+import { TemplatesManager } from "@/components/app/TemplatesManager";
 import type { EmailKind } from "@/lib/email/templates";
 
 export const metadata: Metadata = { title: "Settings · RuledOff" };
@@ -14,13 +15,16 @@ export default async function SettingsPage() {
   const firm = await getFirm();
   if (!firm) redirect("/login");
 
-  const templates = await loadTemplates(createClient(), firm.id);
+  const [emails, requestTemplates] = await Promise.all([
+    loadTemplates(createClient(), firm.id),
+    listTemplates(),
+  ]);
 
   return (
-    <div className="flex max-w-2xl flex-col gap-10">
+    <div className="flex max-w-2xl flex-col gap-12">
       <section className="flex flex-col gap-4">
         <div>
-          <h1 className="font-display text-2xl font-semibold">Branding</h1>
+          <h1 className="t-h2 font-display font-semibold">Branding</h1>
           <p className="mt-1 text-sm text-ink-muted">
             How your firm appears to clients on the link and in emails.
           </p>
@@ -34,7 +38,18 @@ export default async function SettingsPage() {
 
       <section className="flex flex-col gap-4">
         <div>
-          <h2 className="font-display text-2xl font-semibold">Chase emails</h2>
+          <h2 className="t-h2 font-display font-semibold">Request templates</h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            Save the requests you send every month. Assign a template to a client
+            and its items appear automatically in each new close.
+          </p>
+        </div>
+        <TemplatesManager templates={requestTemplates} />
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <div>
+          <h2 className="t-h2 font-display font-semibold">Chase emails</h2>
           <p className="mt-1 text-sm text-ink-muted">
             The escalation ladder: friendly, then specific, then consequence.
             Edit the wording; the checklist button is added automatically.
@@ -45,8 +60,8 @@ export default async function SettingsPage() {
             <TemplateEditor
               key={kind}
               kind={kind}
-              subject={templates[kind].subject}
-              body={templates[kind].body}
+              subject={emails[kind].subject}
+              body={emails[kind].body}
             />
           ))}
         </div>

@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { getClientDetail } from "@/lib/data";
+import { getClientDetail, listTemplates } from "@/lib/data";
 import { getActiveToken } from "@/lib/links";
+import { ClientTemplatePicker } from "@/components/app/ClientTemplatePicker";
 import { createClient } from "@/lib/supabase/server";
 import { magicLinkUrl } from "@/lib/tokens";
 import { serverEnv } from "@/lib/env";
@@ -58,6 +59,7 @@ export default async function ClientPage({
   const token = await getActiveToken(supabase, client.id);
   const url = token ? magicLinkUrl(serverEnv.appUrl, token) : null;
   const open = openCount(items);
+  const templates = (await listTemplates()).map((t) => ({ id: t.id, name: t.name }));
   const done = items.length - open;
   const fill = items.length ? done / items.length : 0;
   const closed = period.status === "closed";
@@ -227,6 +229,15 @@ export default async function ClientPage({
             })}
           </div>
         )}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="t-h3 font-display font-semibold">Templates</h2>
+        <ClientTemplatePicker
+          clientId={client.id}
+          templates={templates}
+          defaultTemplateId={client.default_template_id}
+        />
       </section>
 
       <section className="flex flex-col gap-3">

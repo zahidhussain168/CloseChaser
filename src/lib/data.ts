@@ -1,8 +1,19 @@
 import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import type { Client, Firm, Item, ClosePeriod } from "@/lib/types";
+import type { Database } from "@/lib/database.types";
+import type {
+  Client,
+  Firm,
+  Item,
+  ClosePeriod,
+  RequestTemplate,
+  TemplateItem,
+} from "@/lib/types";
 import { monthKey } from "@/lib/format";
 import { openCount } from "@/lib/state";
+
+type DB = SupabaseClient<Database>;
 
 /** The signed-in bookkeeper's firm (one per user). */
 export async function getFirm(): Promise<Firm | null> {
@@ -131,5 +142,69 @@ export async function ensureCurrentPeriod(
     .insert({ client_id: clientId, month, status: "open" })
     .select("*")
     .single();
-  return (created as unknown as ClosePeriod | null) ?? null;
+  const period = (created as unknown as ClosePeriod | null) ?? null;
+
+  // A brand-new month's period auto-seeds from the client's default template.
+  if (period) {
+    const { data: client } = await supabase
+      .from("clients")
+      .select("default_template_id")
+      .eq("id", clientId)
+      .maybeSingle();
+    const templateId = (client as { default_template_id: string | null } | null)
+      ?.default_template_id;
+    if (templateId) await seedPeriodFromTemplate(supabase, templateId, period.id);
+  }
+  return period;
+}
+
+export type TemplateWithItems = RequestTemplate & { items: TemplateItem[] };
+
+/** All request templates for the firm, with their items. */
+export async function listTemplates(): Promise<TemplateWithItems[]> {
+  const supabase = createClient();
+  const firm = await getFirm();
+  if (!firm) return [];
+  const { data: templates } = await supabase
+    .from("request_templates")
+    .select("*")
+    .eq("firm_id", firm.id)
+    .order("created_at", { ascending: true });
+
+  const result: TemplateWithItems[] = [];
+  for (const t of (templates as RequestTemplate[]) ?? []) {
+    const { data: items } = await supabase
+      .from("template_items")
+      .select("*")
+      .eq("template_id", t.id)
+      .order("position", { ascending: true });
+    result.push({ ...t, items: (items as TemplateItem[]) ?? [] });
+  }
+  return result;
+}
+
+/** Insert a template's items into a close period as manual requests. */
+export async function seedPeriodFromTemplate(
+  supabase: DB,
+  templateId: string,
+  periodId: string,
+): Promise<number> {
+  const { data: tItems } = await supabase
+    .from("template_items")
+    .select("*")
+    .eq("template_id", templateId)
+    .order("position", { ascending: true });
+  const items = (tItems as TemplateItem[]) ?? [];
+  if (items.length === 0) return 0;
+
+  const rows = items.map((t) => ({
+    close_period_id: periodId,
+    type: t.type,
+    source: "manual" as const,
+    title: t.title,
+    details: t.note ? { note: t.note } : {},
+    state: "requested" as const,
+  }));
+  const { error } = await supabase.from("items").insert(rows);
+  return error ? 0 : rows.length;
 }

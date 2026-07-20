@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { getFirm, ensureCurrentPeriod } from "@/lib/data";
+import {
+  getFirm,
+  ensureCurrentPeriod,
+  seedPeriodFromTemplate,
+} from "@/lib/data";
 import { ensureMagicToken, regenerateToken } from "@/lib/links";
 import { sendChaseEmail } from "@/lib/chase";
 import type { FormState } from "@/lib/forms";
@@ -255,6 +259,110 @@ export async function updateBrandingAction(
     .eq("id", firm.id);
   revalidatePath("/settings");
   return { ok: true };
+}
+
+// ── Request templates ────────────────────────────────────────────────────────
+
+const templateSchema = z.object({
+  name: z.string().trim().min(1, "Name the template"),
+});
+
+export async function createTemplateAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireUserId();
+  const firm = await getFirm();
+  if (!firm) redirect("/login");
+  const parsed = templateSchema.safeParse({ name: formData.get("name") });
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("request_templates")
+    .insert({ firm_id: firm.id, name: parsed.data.name });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
+const templateItemSchema = z.object({
+  templateId: z.string().uuid(),
+  type: z.enum(["transaction", "document"]),
+  title: z.string().trim().min(1, "Describe the request"),
+  note: z.string().trim().optional().or(z.literal("")),
+});
+
+export async function addTemplateItemAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireUserId();
+  const parsed = templateItemSchema.safeParse({
+    templateId: formData.get("templateId"),
+    type: formData.get("type"),
+    title: formData.get("title"),
+    note: formData.get("note"),
+  });
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  const supabase = createClient();
+  const { count } = await supabase
+    .from("template_items")
+    .select("id", { count: "exact", head: true })
+    .eq("template_id", parsed.data.templateId);
+  const { error } = await supabase.from("template_items").insert({
+    template_id: parsed.data.templateId,
+    type: parsed.data.type,
+    title: parsed.data.title,
+    note: parsed.data.note || null,
+    position: count ?? 0,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
+export async function deleteTemplateItemAction(id: string) {
+  await requireUserId();
+  const supabase = createClient();
+  await supabase.from("template_items").delete().eq("id", id);
+  revalidatePath("/settings");
+}
+
+export async function deleteTemplateAction(id: string) {
+  await requireUserId();
+  const supabase = createClient();
+  await supabase.from("request_templates").delete().eq("id", id);
+  revalidatePath("/settings");
+}
+
+/** Apply a template's items to a client's current close now. */
+export async function applyTemplateAction(
+  clientId: string,
+  templateId: string,
+): Promise<{ ok: boolean; error?: string; added?: number }> {
+  await requireUserId();
+  const period = await ensureCurrentPeriod(clientId);
+  if (!period) return { ok: false, error: "Could not open the close period" };
+  const supabase = createClient();
+  const added = await seedPeriodFromTemplate(supabase, templateId, period.id);
+  revalidatePath(`/clients/${clientId}`);
+  return { ok: true, added };
+}
+
+/** Set (or clear) the template a client auto-applies every month. */
+export async function setClientDefaultTemplateAction(
+  clientId: string,
+  templateId: string | null,
+) {
+  await requireUserId();
+  const supabase = createClient();
+  await supabase
+    .from("clients")
+    .update({ default_template_id: templateId || null })
+    .eq("id", clientId);
+  revalidatePath(`/clients/${clientId}`);
 }
 
 export async function updateTemplateAction(
