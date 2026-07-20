@@ -12,6 +12,8 @@ import {
 import { ensureMagicToken, regenerateToken } from "@/lib/links";
 import { sendChaseEmail } from "@/lib/chase";
 import { requireUserId } from "@/lib/auth";
+import { getQboConnection } from "@/lib/qbo/connection";
+import { syncItemToQbo } from "@/lib/qbo/writeback";
 import type { FormState } from "@/lib/forms";
 import type { Client, Firm, Item } from "@/lib/types";
 
@@ -107,7 +109,13 @@ export async function deleteItemAction(itemId: string, clientId: string) {
   revalidatePath(`/clients/${clientId}`);
 }
 
-/** Bookkeeper accepts an answered item, which rules it off. */
+/**
+ * Bookkeeper accepts an answered item, which rules it off.
+ *
+ * If the item came from QuickBooks, the answer and any receipts are pushed back
+ * afterwards. That push is best effort: a QuickBooks outage records an error on
+ * the item rather than blocking the close.
+ */
 export async function acceptItemAction(itemId: string, clientId: string) {
   await requireUserId();
   const supabase = createClient();
@@ -116,6 +124,8 @@ export async function acceptItemAction(itemId: string, clientId: string) {
     .update({ state: "accepted", accepted_at: new Date().toISOString() })
     .eq("id", itemId)
     .eq("state", "answered");
+
+  await syncAcceptedItem(itemId);
 
   // If every item in the period is accepted, mark the period closed.
   const period = await ensureCurrentPeriod(clientId);
@@ -132,6 +142,28 @@ export async function acceptItemAction(itemId: string, clientId: string) {
         .eq("id", period.id);
     }
   }
+  revalidatePath(`/clients/${clientId}`);
+}
+
+/** Push one accepted item's answer and receipts into QuickBooks, if it came from there. */
+async function syncAcceptedItem(itemId: string): Promise<void> {
+  const supabase = createClient();
+  const { data: item } = await supabase
+    .from("items")
+    .select("*")
+    .eq("id", itemId)
+    .maybeSingle();
+  if (!item || (item as Item).source !== "qbo") return;
+
+  const conn = await getQboConnection();
+  if (!conn) return;
+  await syncItemToQbo(item as Item, conn);
+}
+
+/** Retry a write-back that failed, from the item row. */
+export async function retryQboSyncAction(itemId: string, clientId: string) {
+  await requireUserId();
+  await syncAcceptedItem(itemId);
   revalidatePath(`/clients/${clientId}`);
 }
 

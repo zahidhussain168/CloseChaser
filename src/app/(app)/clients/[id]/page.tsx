@@ -239,6 +239,8 @@ export default async function ClientPage({
                         itemId={item.id}
                         clientId={client.id}
                         state={item.state}
+                        qboSyncedAt={item.source === "qbo" ? item.qbo_synced_at : null}
+                        qboSyncError={item.source === "qbo" ? item.qbo_sync_error : null}
                       />
                     </span>
                     <span
