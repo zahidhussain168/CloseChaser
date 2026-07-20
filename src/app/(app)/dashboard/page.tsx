@@ -5,38 +5,24 @@ import { listClientsWithBlocking, getFirm, getCloseRollup } from "@/lib/data";
 import { AddClientForm } from "@/components/app/AddClientForm";
 import { BlockingRollup } from "@/components/app/BlockingRollup";
 import { Counter } from "@/components/marketing/Counter";
+import { ProgressRing } from "@/components/site/ProgressRing";
 import { formatMonth, monthKey, timeAgo } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Clients · RuledOff" };
 
-function StatCard({
-  label,
+function Stat({
   value,
-  tone,
-  hint,
+  label,
+  color,
 }: {
-  label: string;
   value: number;
-  tone: "pending" | "cleared" | "ink";
-  hint: string;
+  label: string;
+  color: string;
 }) {
-  const color =
-    tone === "pending"
-      ? "var(--pending)"
-      : tone === "cleared"
-        ? "var(--cleared)"
-        : "var(--ink)";
   return (
-    <div className="sheet spot flex flex-col justify-between p-5">
-      <div className="text-xs uppercase tracking-widest text-ink-muted">
-        {label}
-      </div>
-      <Counter
-        to={value}
-        className="num mt-3 block text-4xl"
-        style={{ color: value === 0 && tone === "pending" ? "var(--cleared)" : color }}
-      />
-      <div className="mt-1 text-xs text-ink-muted">{hint}</div>
+    <div>
+      <Counter to={value} className="num block text-3xl font-bold" style={{ color }} />
+      <div className="mt-0.5 text-xs text-ink-muted">{label}</div>
     </div>
   );
 }
@@ -56,10 +42,14 @@ export default async function DashboardPage({
   const totalOpen = clients.reduce((n, c) => n + c.openCount, 0);
   const chasing = clients.filter((c) => c.period?.status === "chasing").length;
   const ruledOff = clients.filter((c) => c.period?.status === "closed").length;
+  const totalItems = clients.reduce((n, c) => n + c.totalItems, 0);
+  const totalDone = clients.reduce((n, c) => n + (c.totalItems - c.openCount), 0);
+  const overallFill = totalItems ? totalDone / totalItems : 0;
+  const overallPct = Math.round(overallFill * 100);
   const rollup = await getCloseRollup(clients);
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-6">
       {justSubscribed ? (
         <div
           className="flex items-center gap-3 rounded-xl border px-5 py-3.5 text-sm"
@@ -77,43 +67,17 @@ export default async function DashboardPage({
         </div>
       ) : null}
 
+      {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="kicker">{firm?.name ?? "Your firm"}</p>
-          <h1 className="t-h2 mt-2 font-display font-semibold">
-            The {month} close
-          </h1>
+          <h1 className="t-h2 mt-2 font-display font-semibold">The {month} close</h1>
         </div>
         <AddClientForm />
       </div>
 
-      {clients.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard
-            label="Open items"
-            value={totalOpen}
-            tone="pending"
-            hint={totalOpen ? "waiting on clients" : "nothing blocking"}
-          />
-          <StatCard
-            label="Chasing"
-            value={chasing}
-            tone="ink"
-            hint={`client${chasing === 1 ? "" : "s"} being reminded`}
-          />
-          <StatCard
-            label="Ruled off"
-            value={ruledOff}
-            tone="cleared"
-            hint={`closed this month`}
-          />
-        </div>
-      )}
-
-      {totalOpen > 0 && <BlockingRollup rollup={rollup} />}
-
       {clients.length === 0 ? (
-        <div className="sheet px-6 py-14 text-center">
+        <div className="sheet px-6 py-16 text-center">
           <div className="empty-nib mb-5" aria-hidden="true">
             <span className="line" />
             <span className="nib" />
@@ -124,98 +88,85 @@ export default async function DashboardPage({
           </p>
         </div>
       ) : (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between">
-            <h2 className="t-h3 font-display font-semibold">
-              Sorted by most blocking
-            </h2>
-            <span className="num text-xs text-ink-muted">
-              {clients.length} client{clients.length === 1 ? "" : "s"}
-            </span>
+        <>
+          {/* The month, at a glance */}
+          <div className="sheet flex flex-wrap items-center gap-x-8 gap-y-5 p-6">
+            <div className="flex items-center gap-4">
+              <ProgressRing value={overallFill} size={84} stroke={8} label={`${overallPct}%`} />
+              <div>
+                <div className="text-sm font-semibold text-text">of {month} ruled off</div>
+                <div className="mt-0.5 text-xs text-ink-muted">
+                  {totalDone} of {totalItems} item{totalItems === 1 ? "" : "s"} across {clients.length} client{clients.length === 1 ? "" : "s"}
+                </div>
+              </div>
+            </div>
+            <div className="ml-auto flex items-center gap-7 border-l border-line pl-7 sm:gap-9 sm:pl-9">
+              <Stat value={totalOpen} label="Open items" color={totalOpen ? "var(--warning)" : "var(--success)"} />
+              <Stat value={chasing} label="Chasing" color="var(--brand)" />
+              <Stat value={ruledOff} label="Ruled off" color="var(--success)" />
+            </div>
           </div>
 
-          <div className="sheet overflow-hidden">
-            {/* column header */}
-            <div
-              className="grid grid-cols-[1.5rem_1fr_10rem_5rem] items-center gap-3 px-4 py-3 text-[11px] uppercase tracking-widest text-ink-muted"
-              style={{ borderBottom: "2px solid var(--rule)" }}
-            >
-              <span />
-              <span>Client</span>
-              <span className="hidden sm:block">Progress</span>
-              <span className="text-right">Status</span>
+          {/* Needs you this week */}
+          {totalOpen > 0 && <BlockingRollup rollup={rollup} />}
+
+          {/* Clients */}
+          <section className="flex flex-col gap-3">
+            <div className="flex items-baseline justify-between px-1">
+              <h2 className="t-h3 font-display font-semibold">Clients</h2>
+              <span className="num text-xs text-ink-muted">
+                sorted by what is blocking · {clients.length} client{clients.length === 1 ? "" : "s"}
+              </span>
             </div>
 
-            {clients.map((c, idx) => {
-              const done = c.totalItems - c.openCount;
-              const fill = c.totalItems ? done / c.totalItems : 0;
-              const label =
-                c.period?.status === "closed"
-                  ? "ruled off"
+            <div className="flex flex-col gap-2.5">
+              {clients.map((c, idx) => {
+                const done = c.totalItems - c.openCount;
+                const fill = c.totalItems ? done / c.totalItems : 0;
+                const isDone = c.period?.status === "closed" || (!c.openCount && c.totalItems);
+                const st = isDone
+                  ? { pill: "pill pill-success", label: "ruled off", tint: "var(--success-tint)", ink: "var(--success)" }
                   : c.openCount
-                    ? `${c.openCount} open`
-                    : c.totalItems
-                      ? "clear"
-                      : "no items";
-              const isDone = c.period?.status === "closed" || (!c.openCount && c.totalItems);
-              const tone = isDone
-                ? "var(--cleared)"
-                : c.openCount
-                  ? "var(--pending)"
-                  : "var(--ink-muted)";
-              const pillClass = isDone
-                ? "pill pill-success"
-                : c.openCount
-                  ? "pill pill-warning"
-                  : "pill pill-brand";
-              return (
-                <Link
-                  key={c.id}
-                  href={`/clients/${c.id}`}
-                  className="reveal-row grid grid-cols-[1.5rem_1fr_10rem_5rem] items-center gap-3 px-4"
-                  style={{ ["--i"]: idx } as CSSProperties}
-                >
-                  <span className="flex justify-center">
+                    ? { pill: "pill pill-warning", label: `${c.openCount} open`, tint: "var(--warning-tint)", ink: "#b45309" }
+                    : { pill: "pill pill-brand", label: "no items", tint: "var(--brand-tint)", ink: "var(--brand-darker)" };
+                const initials = c.name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+                return (
+                  <Link
+                    key={c.id}
+                    href={`/clients/${c.id}`}
+                    className="sheet lift reveal-row flex items-center gap-4 p-4"
+                    style={{ ["--i"]: idx } as CSSProperties}
+                  >
                     <span
-                      aria-hidden="true"
-                      className="inline-block h-2.5 w-2.5 rounded-full"
-                      style={{ background: tone }}
-                    />
-                  </span>
-                  <span className="min-w-0 py-4">
-                    <span className="block truncate font-medium">{c.name}</span>
-                    <span className="num block truncate text-xs text-ink-muted">
-                      {c.email}
-                      {c.qbo_realm_id ? " · QBO linked" : " · manual"}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[13px] font-bold"
+                      style={{ background: st.tint, color: st.ink }}
+                    >
+                      {initials}
                     </span>
-                    {c.period?.status === "chasing" && c.openCount > 0 && (
-                      <span className="mt-1 flex items-center gap-1.5 text-[11px]">
-                        <span
-                          aria-hidden="true"
-                          className="inline-block h-1.5 w-1.5 rounded-full"
-                          style={{
-                            background: c.lastOpenedAt
-                              ? "var(--cleared)"
-                              : "var(--pending)",
-                          }}
-                        />
-                        <span
-                          style={{
-                            color: c.lastOpenedAt
-                              ? "var(--ink-muted)"
-                              : "var(--pending)",
-                          }}
-                        >
-                          {c.lastOpenedAt
-                            ? `Opened ${timeAgo(c.lastOpenedAt)}`
-                            : "Link not opened yet"}
-                        </span>
+
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-semibold text-text">{c.name}</span>
+                      <span className="num block truncate text-xs text-ink-muted">
+                        {c.email}
+                        {c.qbo_realm_id ? " · QuickBooks" : " · manual"}
                       </span>
-                    )}
-                  </span>
-                  <span className="hidden sm:block">
+                      {c.period?.status === "chasing" && c.openCount > 0 ? (
+                        <span className="mt-1 flex items-center gap-1.5 text-[11px]">
+                          <span
+                            aria-hidden="true"
+                            className="inline-block h-1.5 w-1.5 rounded-full"
+                            style={{ background: c.lastOpenedAt ? "var(--cleared)" : "var(--pending)" }}
+                          />
+                          <span style={{ color: c.lastOpenedAt ? "var(--ink-muted)" : "var(--pending)" }}>
+                            {c.lastOpenedAt ? `Opened ${timeAgo(c.lastOpenedAt)}` : "Link not opened yet"}
+                          </span>
+                        </span>
+                      ) : null}
+                    </span>
+
                     {c.totalItems > 0 ? (
-                      <span className="flex items-center gap-2">
+                      <span className="hidden w-32 items-center gap-2 sm:flex">
                         <span
                           className="ink-progress block flex-1"
                           style={{ ["--fill"]: fill } as CSSProperties}
@@ -227,20 +178,17 @@ export default async function DashboardPage({
                           {done}/{c.totalItems}
                         </span>
                       </span>
-                    ) : (
-                      <span className="num text-[11px] text-ink-muted">
-                        no items
-                      </span>
-                    )}
-                  </span>
-                  <span className="flex justify-end">
-                    <span className={pillClass + " num"}>{label}</span>
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+                    ) : null}
+
+                    <span className="flex justify-end">
+                      <span className={st.pill + " num"}>{st.label}</span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        </>
       )}
     </div>
   );
