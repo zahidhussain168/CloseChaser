@@ -47,11 +47,11 @@ export async function prepareCheckoutAction(): Promise<
 export async function openBillingPortalAction(): Promise<void> {
   await requireUserId();
   const firm = await getFirm();
-  if (!firm?.paddle_customer_id) redirect("/settings?billing=none");
+  if (!firm?.paddle_customer_id) redirect("/settings/plan?billing=none");
 
   const url = await createPortalSession(
     firm.paddle_customer_id,
     firm.paddle_subscription_id ? [firm.paddle_subscription_id] : [],
   );
-  redirect(url ?? "/settings?billing=portal_error");
+  redirect(url ?? "/settings/plan?billing=portal_error");
 }

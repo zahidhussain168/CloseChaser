@@ -118,7 +118,7 @@ export async function disconnectQboAction(): Promise<FormState> {
   const { error } = await supabase.from("qbo_connections").delete().eq("id", conn.id);
   if (error) return { ok: false, error: error.message };
 
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
   return { ok: true };
 }
 

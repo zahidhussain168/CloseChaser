@@ -281,7 +281,7 @@ export async function updateBrandingAction(
       reply_to: parsed.data.reply_to || null,
     })
     .eq("id", firm.id);
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
   return { ok: true };
 }
 
@@ -329,7 +329,7 @@ export async function updateCadenceAction(
     .eq("id", firm.id);
   if (error) return { ok: false, error: error.message };
 
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
   return { ok: true };
 }
 
@@ -352,7 +352,7 @@ export async function createTemplateAction(
     .from("request_templates")
     .insert({ firm_id: firm.id, name: parsed.data.name });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
   return { ok: true };
 }
 
@@ -389,7 +389,7 @@ export async function addTemplateItemAction(
     position: count ?? 0,
   });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
   return { ok: true };
 }
 
@@ -397,14 +397,14 @@ export async function deleteTemplateItemAction(id: string) {
   await requireUserId();
   const supabase = createClient();
   await supabase.from("template_items").delete().eq("id", id);
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
 }
 
 export async function deleteTemplateAction(id: string) {
   await requireUserId();
   const supabase = createClient();
   await supabase.from("request_templates").delete().eq("id", id);
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
 }
 
 /** Apply a template's items to a client's current close now. */
@@ -462,6 +462,6 @@ export async function updateTemplateAction(
     },
     { onConflict: "firm_id,kind" },
   );
-  revalidatePath("/settings");
+  revalidatePath("/settings", "layout");
   return { ok: true };
 }

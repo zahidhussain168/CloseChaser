@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
  */
 function back(request: NextRequest, status: string, detail?: string) {
   // Return to the host the request actually arrived on, not a configured URL.
-  const url = new URL("/settings", request.nextUrl.origin);
+  const url = new URL("/settings/connections", request.nextUrl.origin);
   url.searchParams.set("qbo", status);
   if (detail) url.searchParams.set("detail", detail.slice(0, 140));
   return NextResponse.redirect(url);
