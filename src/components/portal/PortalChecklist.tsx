@@ -99,22 +99,27 @@ export function PortalChecklist({
   }
 
   return (
-    <div className="flex flex-col">
-      <p className="mb-5 text-[15px] text-ink-muted">
-        A few things to wrap up <span className="num">{monthLabel}</span>. Answer
-        what you can. It saves as you go, and you can come back anytime.
-        {doneCount > 0 && (
-          <>
-            {" "}
-            <span className="num" style={{ color: "var(--cleared)" }}>
-              {doneCount}
-            </span>{" "}
-            of <span className="num">{items.length}</span> done.
-          </>
-        )}
-      </p>
+    <div className="flex flex-col gap-5">
+      <div>
+        <p className="text-[15px] leading-relaxed text-ink-muted">
+          A few things to wrap up <span className="num">{monthLabel}</span>.
+          Answer what you can. It saves as you go, and you can come back anytime.
+        </p>
+        <div className="mt-4 flex items-center gap-3">
+          <span
+            className="ink-progress block h-1.5 flex-1"
+            style={{ ["--fill"]: items.length ? doneCount / items.length : 0 } as CSSProperties}
+            aria-hidden="true"
+          >
+            <span />
+          </span>
+          <span className="num text-xs text-ink-muted">
+            {doneCount}/{items.length} done
+          </span>
+        </div>
+      </div>
 
-      <div className="border-t" style={{ borderColor: "var(--rule)" }}>
+      <div className="sheet overflow-hidden px-4 sm:px-5">
         {items.map((item, idx) => (
           <PortalRow
             key={item.id}
@@ -215,10 +220,15 @@ function PortalRow({
           )}
 
           {item.attachments.length > 0 && (
-            <ul className="mt-2 flex flex-col gap-1">
+            <ul className="mt-2 flex flex-wrap gap-2">
               {item.attachments.map((a, i) => (
-                <li key={i} className="num text-sm" style={{ color: "var(--cleared)" }}>
-                  ✓ {a.name}
+                <li
+                  key={i}
+                  className="num inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs"
+                  style={{ background: "rgba(47,107,79,0.1)", color: "var(--cleared)" }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                  {a.name}
                 </li>
               ))}
             </ul>

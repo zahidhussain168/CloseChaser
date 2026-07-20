@@ -23,6 +23,14 @@ const STATE_LABEL: Record<string, string> = {
   accepted: "ruled off",
 };
 
+function pillStyle(state: string): CSSProperties {
+  if (state === "accepted")
+    return { color: "var(--cleared)", background: "rgba(47,107,79,0.1)" };
+  if (state === "answered")
+    return { color: "var(--brass)", background: "rgba(168,139,76,0.12)" };
+  return { color: "var(--pending)", background: "rgba(179,64,46,0.1)" };
+}
+
 function TxnMeta({ details }: { details: Record<string, unknown> }) {
   const amount = typeof details.amount === "number" ? details.amount : null;
   const date = typeof details.date === "string" ? details.date : null;
@@ -50,47 +58,72 @@ export default async function ClientPage({
   const token = await getActiveToken(supabase, client.id);
   const url = token ? magicLinkUrl(serverEnv.appUrl, token) : null;
   const open = openCount(items);
+  const done = items.length - open;
+  const fill = items.length ? done / items.length : 0;
+  const closed = period.status === "closed";
+  const statusText = closed
+    ? "ruled off"
+    : open
+      ? `${open} open`
+      : items.length
+        ? "clear"
+        : "no items";
+  const statusColor = closed || (!open && items.length)
+    ? "var(--cleared)"
+    : open
+      ? "var(--pending)"
+      : "var(--ink-muted)";
 
   return (
     <div className="flex flex-col gap-8">
       <div>
         <Link
           href="/dashboard"
-          className="text-sm text-ink-muted underline-offset-2 hover:text-ink hover:underline"
+          className="tap inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
         >
-          ← Clients
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          Clients
         </Link>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl font-semibold">{client.name}</h1>
-            <p className="num mt-1 text-sm text-ink-muted">
+            <h1 className="t-h2 font-display font-semibold">{client.name}</h1>
+            <p className="num mt-1.5 text-sm text-ink-muted">
               {client.email}
               {client.phone ? ` · ${client.phone}` : ""}
             </p>
           </div>
-          <div className="text-right">
-            <div className="num text-sm text-ink-muted">
+          <div className="flex flex-col items-end gap-2">
+            <span className="num text-xs text-ink-muted">
               {formatMonth(period.month)} close
-            </div>
-            <div
-              className="num text-sm"
+            </span>
+            <span
+              className="num rounded-full px-3 py-1 text-xs"
               style={{
-                color:
-                  period.status === "closed"
-                    ? "var(--cleared)"
-                    : open
-                      ? "var(--pending)"
-                      : "var(--cleared)",
+                color: statusColor,
+                background:
+                  statusColor === "var(--pending)"
+                    ? "rgba(179,64,46,0.1)"
+                    : statusColor === "var(--cleared)"
+                      ? "rgba(47,107,79,0.1)"
+                      : "var(--paper-deep)",
               }}
             >
-              {period.status === "closed"
-                ? "ruled off"
-                : open
-                  ? `${open} open`
-                  : items.length
-                    ? "clear"
-                    : "no items"}
-            </div>
+              {statusText}
+            </span>
+            {items.length > 0 && (
+              <span className="flex items-center gap-2">
+                <span
+                  className="ink-progress block w-28"
+                  style={{ ["--fill"]: fill } as CSSProperties}
+                  aria-hidden="true"
+                >
+                  <span />
+                </span>
+                <span className="num text-[11px] text-ink-muted">
+                  {done}/{items.length}
+                </span>
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -104,31 +137,31 @@ export default async function ClientPage({
         />
       </div>
 
-      <section>
-        <h2 className="mb-1 font-display text-lg font-semibold">Close checklist</h2>
+      <section className="flex flex-col gap-3">
+        <h2 className="t-h3 font-display font-semibold">Close checklist</h2>
         {items.length === 0 ? (
-          <div className="sheet px-5 py-10 text-center">
+          <div className="sheet px-5 py-12 text-center">
             <div className="empty-nib mb-5" aria-hidden="true">
               <span className="line" />
               <span className="nib" />
             </div>
-            <p className="font-display">No open items.</p>
+            <p className="t-h3 font-display font-semibold">No open items.</p>
             <p className="mt-1 text-sm text-ink-muted">
               Nothing is blocking this close. Add a request below to start one.
             </p>
           </div>
         ) : (
-          <div className="border-t" style={{ borderColor: "var(--rule)" }}>
+          <div className="sheet overflow-hidden px-4 sm:px-5">
             {items.map((item: Item, idx) => {
               const attachments = (item.attachments ?? []) as Attachment[];
               const accepted = item.state === "accepted";
               return (
                 <div key={item.id} className="relative">
                   <div
-                    className="ledger-row reveal-row"
+                    className="reveal-row grid grid-cols-[2rem_1fr_auto] items-start gap-3 py-4"
                     style={{ ["--i"]: idx } as CSSProperties}
                   >
-                    <span className="flex justify-center">
+                    <span className="flex justify-center pt-0.5">
                       <StatusMark state={item.state} />
                     </span>
                     <span className="min-w-0">
@@ -149,23 +182,27 @@ export default async function ClientPage({
                       )}
                       {item.answer_text && (
                         <span
-                          className="mt-1 block rounded-[4px] px-2 py-1 text-sm"
+                          className="mt-2 block rounded-[10px] px-3 py-2 text-sm"
                           style={{ background: "var(--paper-deep)" }}
                         >
-                          “{item.answer_text}”
+                          &ldquo;{item.answer_text}&rdquo;
                         </span>
                       )}
                       {attachments.length > 0 && (
-                        <span className="mt-1 flex flex-wrap gap-2">
+                        <span className="mt-2 flex flex-wrap gap-2">
                           {attachments.map((a, i) => (
                             <a
                               key={i}
                               href={`/api/attachments/${item.id}/${i}`}
                               target="_blank"
                               rel="noopener"
-                              className="num text-xs underline underline-offset-2"
-                              style={{ color: "var(--cleared)" }}
+                              className="num inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors hover:text-ink"
+                              style={{
+                                borderColor: "var(--rule-strong)",
+                                color: "var(--cleared)",
+                              }}
                             >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
                               {a.name}
                             </a>
                           ))}
@@ -178,19 +215,13 @@ export default async function ClientPage({
                       />
                     </span>
                     <span
-                      className="num text-right text-xs"
-                      style={{
-                        color: isOpen(item.state)
-                          ? "var(--pending)"
-                          : "var(--cleared)",
-                      }}
+                      className="num shrink-0 rounded-full px-2.5 py-1 text-xs"
+                      style={pillStyle(item.state)}
                     >
                       {STATE_LABEL[item.state]}
                     </span>
                   </div>
-                  {accepted && (
-                    <DoubleRule drawn className="mx-1 -mt-px mb-1" />
-                  )}
+                  {accepted && <DoubleRule drawn className="ml-8 mr-1 -mt-1 mb-1.5" />}
                 </div>
               );
             })}
@@ -199,7 +230,7 @@ export default async function ClientPage({
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="font-display text-lg font-semibold">Add a request</h2>
+        <h2 className="t-h3 font-display font-semibold">Add a request</h2>
         <AddItemForm clientId={client.id} />
       </section>
     </div>

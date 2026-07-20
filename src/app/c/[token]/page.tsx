@@ -28,7 +28,7 @@ function InvalidLink({ kind }: { kind: "not_found" | "expired" | "revoked" }) {
   }[kind];
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 text-center">
-      <h1 className="font-display text-2xl font-semibold">{copy.h}</h1>
+      <h1 className="t-h3 font-display font-semibold">{copy.h}</h1>
       <p className="mt-2 text-sm text-ink-muted">{copy.p}</p>
     </main>
   );
@@ -44,6 +44,12 @@ export default async function PortalPage({
 
   const { firm, period, items } = result.data;
   const monthLabel = formatMonth(period.month);
+  const initials = firm.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
 
   const mapped = items.map((i: Item) => {
     const d = (i.details ?? {}) as {
@@ -83,15 +89,21 @@ export default async function PortalPage({
       className="page-enter mx-auto min-h-dvh max-w-md px-5 py-8"
       style={brandStyle}
     >
-      <header
-        className="mb-6 border-b pb-4"
-        style={{ borderColor: "var(--rule)", borderBottomWidth: 2 }}
-      >
-        <div
-          className="font-display text-2xl font-semibold"
-          style={{ color: "var(--ink)" }}
+      <header className="mb-6 flex items-center gap-3">
+        <span
+          className="num flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+          style={{ background: "var(--paper-sheet)", color: "var(--ink)", boxShadow: "var(--elev-1)" }}
         >
-          {firm.name}
+          {initials}
+        </span>
+        <div className="min-w-0">
+          <div
+            className="truncate font-display text-xl font-semibold"
+            style={{ color: "var(--ink)" }}
+          >
+            {firm.name}
+          </div>
+          <div className="num text-xs text-ink-muted">{monthLabel} close</div>
         </div>
       </header>
 
