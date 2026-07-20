@@ -18,10 +18,10 @@ export function ChaseButton({
   if (openCount === 0) return null;
 
   return (
-    <div className="flex flex-col items-start gap-2 sm:items-end">
+    <div className="flex flex-col gap-2">
       <button
         disabled={pending}
-        className="btn btn-primary px-6 text-base"
+        className="btn btn-primary w-full justify-center text-base"
         onClick={() =>
           start(async () => {
             setMsg(null);
@@ -48,13 +48,13 @@ export function ChaseButton({
       </button>
       {msg ? (
         <p
-          className="text-xs sm:text-right"
+          className="text-xs"
           style={{ color: msg.ok ? "var(--cleared)" : "var(--pending)" }}
         >
           {msg.text}
         </p>
       ) : (
-        <p className="text-xs text-ink-muted sm:text-right">
+        <p className="text-xs text-ink-muted">
           Reminders run automatically on day 2, 5, 9.
         </p>
       )}
