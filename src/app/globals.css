@@ -48,14 +48,6 @@
     background-color: var(--paper);
     color: var(--ink);
     font-feature-settings: "kern";
-    /* faint horizontal ruling, like columnar ledger paper */
-    background-image: linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 31px,
-      rgba(201, 214, 198, 0.35) 32px
-    );
-    background-size: 100% 32px;
   }
 
   /* Every amount, date, and count renders in tabular mono — core identity. */
@@ -68,7 +60,7 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-fraunces), Georgia, serif;
+    font-family: var(--font-display), Inter, system-ui, sans-serif;
     color: var(--ink);
   }
 
@@ -96,24 +88,24 @@
     position: relative;
   }
 
-  /* Flat "sheet" — the only card allowed, 1px rule border, radius <= 6px. */
+  /* Soft sheet card: 1px rule border, generous rounding, one soft shadow. */
   .sheet {
     background: var(--paper-sheet);
     border: 1px solid var(--rule);
-    border-radius: 6px;
+    border-radius: 14px;
     box-shadow: var(--elev-1);
   }
 
-  /* Quiet, ledger-styled button. */
+  /* Soft pill button. */
   .btn {
     font-family: var(--font-inter), system-ui, sans-serif;
-    font-weight: 500;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
+    padding: 0.6rem 1.25rem;
+    border-radius: 9999px;
     border: 1px solid var(--rule-strong);
     background: var(--paper-sheet);
     color: var(--ink);
@@ -140,10 +132,10 @@
   .field {
     font-family: var(--font-inter), system-ui, sans-serif;
     width: 100%;
-    padding: 0.65rem 0.75rem;
+    padding: 0.7rem 0.9rem;
     background: var(--paper-sheet);
     border: 1px solid var(--rule-strong);
-    border-radius: 6px;
+    border-radius: 10px;
     color: var(--ink);
   }
   .field::placeholder {
@@ -372,7 +364,7 @@
 
 /* Section kicker: a short Fraunces italic line above the title. */
 .kicker {
-  font-family: var(--font-fraunces), Georgia, serif;
+  font-family: var(--font-display), Inter, system-ui, sans-serif;
   font-style: italic;
   font-size: 18px;
   line-height: 1;

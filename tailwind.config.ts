@@ -39,12 +39,12 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-fraunces)", "Georgia", "serif"],
+        display: ["var(--font-display)", "var(--font-inter)", "system-ui", "sans-serif"],
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         mono: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
-        sheet: "6px", // max radius per brief
+        sheet: "14px", // softened toward a modern SaaS look
       },
       fontVariantNumeric: {
         tabular: "tabular-nums",
