@@ -50,7 +50,11 @@ export function SidebarNav({ orientation = "vertical" }: { orientation?: "vertic
               />
             )}
             <Icon />
-            <span className="font-medium">{label}</span>
+            {/* Full label in the desktop sidebar; icon-only in the compact
+                mobile top bar (label kept for screen readers). */}
+            <span className={orientation === "horizontal" ? "sr-only" : "font-medium"}>
+              {label}
+            </span>
           </Link>
         );
       })}
