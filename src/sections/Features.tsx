@@ -44,12 +44,12 @@ export function Features() {
           </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-3.5 sm:mt-12 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
           {FEATURES.map((f, i) => {
             const Icon = f.icon;
             return (
               <Reveal key={f.title} delay={i * 0.06}>
-                <div className="sheet lift h-full rounded-2xl p-6">
+                <div className="sheet lift h-full rounded-2xl p-5 sm:p-6">
                   <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand dark:bg-brand-tint">
                     <Icon size={22} strokeWidth={2} />
                   </span>

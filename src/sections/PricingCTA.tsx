@@ -10,7 +10,7 @@ export function PricingCTA() {
       <div className="mx-auto max-w-6xl px-5">
         <Reveal>
           <div className="brand-wash relative overflow-hidden rounded-3xl border border-line bg-surface p-8 sm:p-14">
-            <div className="relative grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="relative grid gap-7 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
               <div>
                 <p className="kicker">One flat price</p>
                 <h2 className="t-h2 mt-3 font-display text-text">

@@ -29,11 +29,11 @@ export function HowItWorks() {
           <h2 className="t-h2 mt-3 font-display text-text">Three steps to a closed month.</h2>
         </Reveal>
 
-        <div className="relative mt-12 grid gap-6 md:grid-cols-3">
+        <div className="relative mt-8 grid gap-3.5 sm:mt-12 sm:gap-6 md:grid-cols-3">
           <div className="absolute left-0 right-0 top-8 hidden h-px bg-gradient-to-r from-brand/40 via-line to-success/40 md:block" />
           {STEPS.map((s, i) => (
             <Reveal key={s.n} delay={i * 0.1}>
-              <div className="sheet relative h-full rounded-2xl p-7">
+              <div className="sheet relative h-full rounded-2xl p-6 sm:p-7">
                 <span className="num flex h-11 w-11 items-center justify-center rounded-xl bg-brand text-[15px] font-bold text-white shadow-brand">
                   {s.n}
                 </span>

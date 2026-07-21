@@ -55,10 +55,10 @@ function PhoneScreen() {
 export function MobileShowcase() {
   return (
     <section className="section-y bg-surface-2/60">
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 sm:gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
         <Reveal className="order-2 flex justify-center lg:order-1 lg:justify-start">
-          <div className="w-[290px] rounded-[42px] border border-line-strong bg-text p-[10px] shadow-elev2">
-            <div className="relative h-[600px] overflow-hidden rounded-[33px] bg-bg">
+          <div className="w-[248px] sm:w-[290px] rounded-[42px] border border-line-strong bg-text p-[10px] shadow-elev2">
+            <div className="relative h-[512px] sm:h-[600px] overflow-hidden rounded-[33px] bg-bg">
               <div className="pointer-events-none absolute left-1/2 top-2 z-10 h-[22px] w-[84px] -translate-x-1/2 rounded-full bg-text" />
               <PhoneScreen />
             </div>

@@ -70,7 +70,7 @@ export function Hero() {
   return (
     <section className="brand-wash relative overflow-hidden">
       <SiteNav />
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28 lg:pt-16">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 pb-12 pt-6 sm:gap-14 sm:pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28 lg:pt-16">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

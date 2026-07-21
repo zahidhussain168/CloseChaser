@@ -18,7 +18,7 @@ function dot(status: string) {
 export function AppShowcase() {
   return (
     <section className="section-y">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-2 lg:gap-16">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 sm:gap-12 lg:grid-cols-2 lg:gap-16">
         <Reveal>
           <p className="kicker">The bookkeeper&apos;s view</p>
           <h2 className="t-h2 mt-3 font-display text-text">
