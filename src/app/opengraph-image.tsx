@@ -34,11 +34,11 @@ export default function OpengraphImage() {
               alignItems: "center",
               justifyContent: "center",
               color: "#ffffff",
-              fontSize: 46,
+              fontSize: 44,
               fontWeight: 700,
             }}
           >
-            ✓
+            R
           </div>
           <div style={{ display: "flex", marginLeft: 20, fontSize: 44, fontWeight: 700, color: "#0F172A" }}>
             RuledOff
