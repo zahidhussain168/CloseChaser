@@ -98,10 +98,10 @@
 
 @media (max-width: 640px) {
   :root {
-    /* Mobile runs a tighter vertical scale, roughly 60% of desktop, so stacked
+    /* Mobile runs a tighter vertical scale, roughly 55% of desktop, so stacked
        sections do not balloon the page height. */
-    --section-y: 40px;
-    --section-y-hero: 48px;
+    --section-y: 32px;
+    --section-y-hero: 40px;
   }
 }
 
