@@ -35,7 +35,7 @@ export function Finale() {
         </motion.p>
 
         <motion.h2
-          className="font-display text-[clamp(64px,15vw,124px)] font-extrabold leading-[0.92] tracking-[-0.03em]"
+          className="font-display text-[clamp(64px,15vw,124px)] font-extrabold leading-[0.92] tracking-[-0.03em] text-white"
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={vp}
