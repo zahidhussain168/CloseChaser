@@ -4,10 +4,11 @@ import { HowItWorks } from "./HowItWorks";
 import { AppShowcase } from "./AppShowcase";
 import { MobileShowcase } from "./MobileShowcase";
 import { PricingCTA } from "./PricingCTA";
+import { Finale } from "./Finale";
 import { SiteFooter } from "@/components/site/SiteFooter";
 
 /** 2026 fintech landing page: hero, features, how-it-works, product and mobile
- *  showcases, pricing CTA, footer. */
+ *  showcases, pricing CTA, the "Ruled off" climax, footer. */
 export function MarketingContent() {
   return (
     <main>
@@ -17,6 +18,7 @@ export function MarketingContent() {
       <AppShowcase />
       <MobileShowcase />
       <PricingCTA />
+      <Finale />
       <SiteFooter />
     </main>
   );
