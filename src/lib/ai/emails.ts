@@ -2,8 +2,8 @@ import "server-only";
 
 /**
  * Generate the full chase-email ladder from a firm's own voice, so a
- * non-technical bookkeeper never edits raw templates. Uses the Anthropic
- * Messages API directly (no SDK). Gated on ANTHROPIC_API_KEY.
+ * non-technical bookkeeper never edits raw templates. Uses OpenRouter's
+ * OpenAI-compatible chat API. Gated on OPENROUTER_API_KEY.
  */
 
 export type EmailKind = "initial" | "level1" | "level2" | "level3" | "level4";
@@ -12,8 +12,11 @@ export type GeneratedSet = Record<EmailKind, GeneratedTemplate>;
 
 const KINDS: EmailKind[] = ["initial", "level1", "level2", "level3", "level4"];
 
+// Cheap and strong at instruction-following; overridable via env.
+const DEFAULT_MODEL = "google/gemini-2.5-flash-lite";
+
 export function isAiConfigured(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return Boolean(process.env.OPENROUTER_API_KEY);
 }
 
 /** No em/en dashes anywhere, per the product copy rule. Backstop the model. */
@@ -65,21 +68,24 @@ export async function generateChaseEmails(params: {
   voice: string;
   tone: string;
 }): Promise<GeneratedSet> {
-  const key = process.env.ANTHROPIC_API_KEY;
+  const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new Error("AI is not configured yet.");
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "x-api-key": key,
-      "anthropic-version": "2023-06-01",
+      Authorization: `Bearer ${key}`,
       "content-type": "application/json",
+      "X-Title": "RuledOff",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
+      model: process.env.OPENROUTER_MODEL || DEFAULT_MODEL,
       max_tokens: 2000,
-      system: SYSTEM,
-      messages: [{ role: "user", content: buildPrompt(params.firmName, params.voice, params.tone) }],
+      temperature: 0.7,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: buildPrompt(params.firmName, params.voice, params.tone) },
+      ],
     }),
     cache: "no-store",
   });
@@ -88,8 +94,8 @@ export async function generateChaseEmails(params: {
     throw new Error(`AI request failed (${res.status}): ${(await res.text()).slice(0, 200)}`);
   }
 
-  const json = (await res.json()) as { content?: { type: string; text?: string }[] };
-  const text = json.content?.find((c) => c.type === "text")?.text ?? "";
+  const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const text = json.choices?.[0]?.message?.content ?? "";
 
   // The model is told to return bare JSON; still, defensively extract the object.
   const start = text.indexOf("{");
