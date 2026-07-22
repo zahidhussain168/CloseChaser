@@ -11,8 +11,10 @@ import { formatMonth, formatMoney, formatDate, timeAgo } from "@/lib/format";
 import { openCount, isOpen } from "@/lib/state";
 import { StatusMark } from "@/components/StatusMark";
 import { DoubleRule } from "@/components/DoubleRule";
+import { FileText, Receipt, ListChecks } from "lucide-react";
 import { AddItemForm } from "@/components/app/AddItemForm";
 import { ItemActions } from "@/components/app/ItemActions";
+import { ItemRemoveButton } from "@/components/app/ItemRemoveButton";
 import { ImportPanel } from "@/components/app/ImportPanel";
 import { TextChaseCard } from "@/components/app/TextChaseCard";
 import { CloseCockpit } from "@/components/app/CloseCockpit";
@@ -54,21 +56,44 @@ function TxnMeta({ details }: { details: Record<string, unknown> }) {
   );
 }
 
+const TYPE_META: Record<string, { Icon: typeof FileText; label: string }> = {
+  document: { Icon: FileText, label: "Document" },
+  transaction: { Icon: Receipt, label: "Transaction" },
+  questionnaire: { Icon: ListChecks, label: "Questions" },
+};
+
 function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: number }) {
   const attachments = (item.attachments ?? []) as Attachment[];
   const accepted = item.state === "accepted";
+  const answered = item.state === "answered";
+  const type = TYPE_META[item.type] ?? TYPE_META.document;
+  const TypeIcon = type.Icon;
+  const age = item.created_at ? timeAgo(item.created_at) : null;
   return (
-    <div className="relative">
+    <div className="group relative -mx-2 rounded-xl px-2 transition-colors hover:bg-[var(--paper-deep)]">
       <div
-        className="reveal-row grid grid-cols-[2rem_1fr_auto] items-start gap-3 py-4"
+        className="reveal-row grid grid-cols-[2.25rem_1fr_auto] items-start gap-3 py-3.5"
         style={{ ["--i"]: idx } as CSSProperties}
       >
         <span className="flex justify-center pt-0.5">
-          <StatusMark state={item.state} />
+          {accepted || answered ? (
+            <StatusMark state={item.state} />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 items-center justify-center rounded-lg"
+              style={{ background: "var(--paper-sheet)", border: "1px solid var(--rule)", color: "var(--ink-muted)" }}
+            >
+              <TypeIcon size={15} />
+            </span>
+          )}
         </span>
         <span className="min-w-0">
           <span className="block font-medium" style={accepted ? { color: "var(--cleared)" } : undefined}>
             {item.title}
+          </span>
+          <span className="mt-0.5 block text-[11px] font-medium uppercase tracking-wide text-faint">
+            {type.label}
           </span>
           {item.type === "transaction" && <TxnMeta details={item.details as Record<string, unknown>} />}
           {typeof (item.details as { note?: string })?.note === "string" && (
@@ -117,7 +142,11 @@ function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: n
             qboSyncError={item.source === "qbo" ? item.qbo_sync_error : null}
           />
         </span>
-        <span className={pillClass(item.state) + " num shrink-0"}>{STATE_LABEL[item.state]}</span>
+        <span className="flex shrink-0 flex-col items-end gap-1.5">
+          <span className={pillClass(item.state) + " num"}>{STATE_LABEL[item.state]}</span>
+          {!accepted && age && <span className="num text-[11px] text-faint">{age}</span>}
+          {!accepted && <ItemRemoveButton itemId={item.id} clientId={clientId} />}
+        </span>
       </div>
       {accepted && <DoubleRule drawn className="ml-8 mr-1 -mt-1 mb-1.5" />}
     </div>

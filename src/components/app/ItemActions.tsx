@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import {
   acceptItemAction,
   sendBackItemAction,
-  deleteItemAction,
   retryQboSyncAction,
 } from "@/app/(app)/actions";
 import type { ItemState } from "@/lib/types";
@@ -24,6 +23,10 @@ export function ItemActions({
   qboSyncError?: string | null;
 }) {
   const [pending, start] = useTransition();
+
+  // Nothing to act on for a plain waiting item, so render no row (keeps the
+  // checklist tight; Remove now lives in the row's corner).
+  if (state !== "answered" && !qboSyncError && !qboSyncedAt) return null;
 
   return (
     <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
@@ -62,19 +65,6 @@ export function ItemActions({
             Send back
           </button>
         </>
-      )}
-      {state !== "accepted" && (
-        <button
-          disabled={pending}
-          onClick={() => {
-            if (confirm("Remove this item?")) {
-              start(() => deleteItemAction(itemId, clientId));
-            }
-          }}
-          className="text-ink-muted underline-offset-2 hover:text-ink hover:underline"
-        >
-          Remove
-        </button>
       )}
     </div>
   );
