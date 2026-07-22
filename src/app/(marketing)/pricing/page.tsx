@@ -1,14 +1,24 @@
+import type { Metadata } from "next";
 import { Button } from "@/components/site/Button";
 import { Reveal } from "@/components/site/Reveal";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteNav } from "@/components/site/SiteNav";
 
-export const metadata = {
-  title: "Pricing: RuledOff",
-  description: "One flat price. Unlimited clients. Every close, ruled off.",
+const PRICING_DESC =
+  "One flat price of $39 a month. Unlimited clients, unlimited closes, every feature, and a 14-day free trial. No seats, no per-client fees.";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description: PRICING_DESC,
+  alternates: { canonical: "/pricing" },
+  openGraph: {
+    title: "RuledOff pricing: one flat price, unlimited clients",
+    description: PRICING_DESC,
+    url: "/pricing",
+  },
 };
 
-const GREEN = "#10B981";
+const GREEN = "#16A34A";
 
 function Tick() {
   return (
@@ -63,7 +73,7 @@ const FAQ = [
   },
   {
     q: "Do you charge per client?",
-    a: "No. It is 29 dollars a month, flat, for unlimited clients and unlimited closes.",
+    a: "No. It is 39 dollars a month, flat, for unlimited clients and unlimited closes.",
   },
   {
     q: "Do my clients need an account?",
@@ -89,7 +99,7 @@ export default function PricingPage() {
       <SiteNav />
 
       {/* Price */}
-      <section className="mx-auto max-w-5xl px-6 pb-24 pt-8 lg:pt-14">
+      <section className="mx-auto max-w-5xl px-6 sm:px-8 pb-24 pt-8 lg:pt-14">
         <div className="text-center">
           <p className="kicker">Pricing</p>
           <h1 className="mt-5 font-editorial text-[clamp(40px,5.4vw,72px)] font-medium leading-[1.04] tracking-[-0.01em] text-site-ink">
@@ -111,7 +121,7 @@ export default function PricingPage() {
           >
             <div className="flex items-baseline justify-center gap-1.5 border-b border-site-border pb-7">
               <span className="font-mono text-[56px] leading-none tabular-nums text-site-ink">
-                $29
+                $39
               </span>
               <span className="text-[17px] text-site-secondary">/month</span>
             </div>
@@ -138,7 +148,7 @@ export default function PricingPage() {
 
       {/* Why flat */}
       <section className="border-t border-site-border bg-site-paper">
-        <div className="mx-auto max-w-6xl px-6 py-24">
+        <div className="mx-auto max-w-6xl px-6 sm:px-8 py-24">
           <Reveal>
             <p className="kicker">Why flat</p>
             <h2 className="mt-5 max-w-2xl font-editorial text-[clamp(28px,4vw,46px)] font-medium leading-[1.08] tracking-[-0.01em] text-site-ink">
@@ -164,7 +174,7 @@ export default function PricingPage() {
 
       {/* FAQ */}
       <section className="border-t border-site-border bg-site-bg">
-        <div className="mx-auto max-w-3xl px-6 py-24">
+        <div className="mx-auto max-w-3xl px-6 sm:px-8 py-24">
           <Reveal>
             <p className="kicker">Questions</p>
             <h2 className="mt-5 font-editorial text-[clamp(28px,4vw,46px)] font-medium leading-[1.08] tracking-[-0.01em] text-site-ink">
@@ -190,7 +200,7 @@ export default function PricingPage() {
 
       {/* Close */}
       <section className="border-t border-site-border bg-site-paper">
-        <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <div className="mx-auto max-w-3xl px-6 sm:px-8 py-24 text-center">
           <Reveal>
             <h2 className="font-editorial text-[clamp(30px,4.4vw,52px)] font-medium leading-[1.06] tracking-[-0.01em] text-site-ink">
               Run one close on us.

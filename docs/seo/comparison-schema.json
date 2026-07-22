@@ -1,0 +1,47 @@
+{
+  "_comment": "JSON-LD for the comparison pages. Pricing as of July 2026. No aggregateRating is included because RuledOff has no verified public review count; do not fabricate one. Emit the relevant block per page inside a <script type=application/ld+json> (reuse components/site/JsonLd.tsx).",
+
+  "vs_uncat_page": {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ruledoff.vercel.app/" },
+          { "@type": "ListItem", "position": 2, "name": "Compare", "item": "https://ruledoff.vercel.app/compare" },
+          { "@type": "ListItem", "position": 3, "name": "RuledOff vs Uncat", "item": "https://ruledoff.vercel.app/compare/uncat" }
+        ]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "RuledOff",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://ruledoff.vercel.app",
+        "offers": { "@type": "Offer", "price": "29.00", "priceCurrency": "USD", "category": "subscription" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Uncat",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://www.uncat.com/",
+        "offers": { "@type": "Offer", "price": "9.00", "priceCurrency": "USD", "category": "subscription" }
+      }
+    ]
+  },
+
+  "best_tools_roundup_page": {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Best Client Document Collection Tools for Bookkeepers (2026)",
+    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+    "numberOfItems": 4,
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "RuledOff", "url": "https://ruledoff.vercel.app" },
+      { "@type": "ListItem", "position": 2, "name": "Uncat", "url": "https://www.uncat.com/" },
+      { "@type": "ListItem", "position": 3, "name": "Content Snare", "url": "https://contentsnare.com/" },
+      { "@type": "ListItem", "position": 4, "name": "Client Hub", "url": "https://www.clienthub.app/" }
+    ]
+  }
+}

@@ -1,22 +1,33 @@
 import { Hero } from "./Hero";
-import { Features } from "./Features";
 import { HowItWorks } from "./HowItWorks";
-import { AppShowcase } from "./AppShowcase";
 import { MobileShowcase } from "./MobileShowcase";
+import { AppShowcase } from "./AppShowcase";
 import { PricingCTA } from "./PricingCTA";
 import { Finale } from "./Finale";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { JsonLd } from "@/components/site/JsonLd";
+import { homeStructuredData } from "@/lib/seo";
 
-/** 2026 fintech landing page: hero, features, how-it-works, product and mobile
- *  showcases, pricing CTA, the "Ruled off" climax, footer. */
+/**
+ * Six-section landing page, built as a deliberate light/dark rhythm rather than
+ * a scroll of similar blocks:
+ *   1. Hero              light  (brand-wash gradient)
+ *   2. How it works      light  (flat paper) + merged product capabilities
+ *   3. Client experience DARK   (deep navy stage for the phone mockup)
+ *   4. Bookkeeper view   light  (ivory) with the client-list mockup as focal point
+ *   5. Pricing           light  (flat paper, gradient card)
+ *   6. Ruled off finale  DARKEST (near-black, near-empty payoff)
+ * FAQ moved to /faq; structured data (Organization, WebSite, SoftwareApplication)
+ * for search and AI engines.
+ */
 export function MarketingContent() {
   return (
     <main>
+      <JsonLd data={homeStructuredData()} />
       <Hero />
-      <Features />
       <HowItWorks />
-      <AppShowcase />
       <MobileShowcase />
+      <AppShowcase />
       <PricingCTA />
       <Finale />
       <SiteFooter />

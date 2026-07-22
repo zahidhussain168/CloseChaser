@@ -108,7 +108,7 @@ export function BillingCard(props: Props) {
 
   const subline = subscribed
     ? props.status === "trialing" && renewLabel
-      ? `Your free trial runs to ${renewLabel}, then $29 a month.`
+      ? `Your free trial runs to ${renewLabel}, then $39 a month.`
       : props.status === "past_due"
         ? "Your last payment did not go through. Update your card to stay active."
         : renewLabel
@@ -122,14 +122,14 @@ export function BillingCard(props: Props) {
         <div>
           <h3 className="text-lg">RuledOff plan</h3>
           <p className="mt-1 text-sm text-ink-muted">
-            Flat 29 dollars a month. Unlimited clients. Cancel anytime.
+            Flat 39 dollars a month. Unlimited clients. Cancel anytime.
           </p>
         </div>
         <span className={pillClass}>{statusLabel}</span>
       </div>
 
       <div className="mt-5 flex items-baseline gap-1.5 border-t border-line pt-5">
-        <span className="num text-4xl font-extrabold text-text">$29</span>
+        <span className="num text-4xl font-extrabold text-text">$39</span>
         <span className="text-sm text-muted">/month</span>
       </div>
 

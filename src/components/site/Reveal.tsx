@@ -2,33 +2,38 @@
 
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
-import { EASE, DUR } from "@/animations/motion";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
- * Fade + short upward settle when scrolled into view. IntersectionObserver
- * under the hood (framer-motion whileInView), never scroll-jacking. Under
- * prefers-reduced-motion the marketing page's MotionConfig snaps transforms.
+ * Scroll reveal: content rises 64px, scales up from 0.94, and fades in as it
+ * enters the viewport. Uses framer-motion's whileInView (IntersectionObserver),
+ * which reveals reliably in the browser. The marketing MotionProvider forces
+ * this to run even under reduced-motion, since the motion is a deliberate part
+ * of the page. `animation`/`duration` are accepted for source compatibility.
  */
 export function Reveal({
   children,
   className,
   delay = 0,
-  y = 14,
-  amount = 0.3,
+  y = 64,
+  amount = 0.2,
 }: {
   children: ReactNode;
   className?: string;
   delay?: number;
   y?: number;
   amount?: number;
+  animation?: string;
+  duration?: number;
 }) {
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y, scale: 0.94 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, amount }}
-      transition={{ duration: DUR.base, ease: EASE, delay }}
+      transition={{ duration: 0.8, ease: EASE, delay }}
     >
       {children}
     </motion.div>

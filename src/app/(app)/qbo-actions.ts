@@ -10,6 +10,9 @@ import { findBlockingTransactions, titleForTxn } from "@/lib/qbo/sync";
 import { revokeToken } from "@/lib/qbo/oauth";
 import { decryptSecret } from "@/lib/crypto";
 import type { FormState } from "@/lib/forms";
+import { isApiEnabled } from "@/lib/api/config";
+import { getServerToken } from "@/lib/api/server";
+import { qboApi } from "@/lib/api/resources";
 
 type ImportResult = FormState & { added?: number; skipped?: number };
 
@@ -20,6 +23,18 @@ type ImportResult = FormState & { added?: number; skipped?: number };
  */
 export async function importFromQboAction(clientId: string): Promise<ImportResult> {
   await requireUserId();
+
+  if (isApiEnabled()) {
+    try {
+      const result = await qboApi.import(await getServerToken(), clientId);
+      revalidatePath(`/clients/${clientId}`);
+      revalidatePath("/dashboard");
+      return { ok: true, added: result.added, skipped: 0 };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "QuickBooks sync failed." };
+    }
+  }
+
   const conn = await getQboConnection();
   if (!conn) return { ok: false, error: "QuickBooks is not connected yet." };
 

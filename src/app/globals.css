@@ -13,33 +13,33 @@
 :root {
   --font-inter: "Inter", system-ui, -apple-system, sans-serif;
   --font-plex-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
-  --font-newsreader: "Plus Jakarta Sans", system-ui, sans-serif; /* legacy alias */
+  --font-display: "DM Serif Display", "Georgia", "Times New Roman", serif;
+  --font-newsreader: "DM Serif Display", Georgia, serif; /* legacy alias */
 
-  /* Brand */
-  --brand: #0ea5e9;
-  --brand-dark: #0284c7;
-  --brand-darker: #0369a1;
-  --brand-tint: #e0f2fe;
-  --brand-tint-2: #f0f9ff;
+  /* Brand: institutional navy (primary actions, headers, nav) */
+  --brand: #1e3a5f;
+  --brand-dark: #162d4a;
+  --brand-darker: #12253c;
+  --brand-tint: #e8eef5;
+  --brand-tint-2: #f4f7fa;
 
   /* Semantic */
-  --success: #10b981;
-  --success-tint: #d1fae5;
-  --warning: #f59e0b;
-  --warning-tint: #fef3c7;
-  --danger: #ef4444;
+  --success: #16a34a;
+  --success-tint: #dcfce7;
+  --warning: #ca8a04;
+  --warning-tint: #fef9c3;
+  --danger: #dc2626;
   --danger-tint: #fee2e2;
 
-  /* Neutrals (light) */
-  --bg: #f8fafc;
+  /* Neutrals (light): warm ivory foundations */
+  --bg: #fffdf7;
   --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --border: #e8edf3;
-  --border-strong: #d3dbe6;
-  --text: #0f172a;
-  --muted: #64748b;
-  --faint: #94a3b8;
+  --surface-2: #f9f7f2;
+  --border: #e2dfd5;
+  --border-strong: #cbc6b8;
+  --text: #1e293b;
+  --muted: #475569;
+  --faint: #9ca3af;
 
   /* Legacy aliases used by the app screens */
   --paper: var(--bg);
@@ -50,50 +50,60 @@
   --rule: var(--border);
   --rule-strong: var(--border-strong);
   --pending: var(--warning);
-  --pending-bright: #fbbf24;
+  --pending-bright: #eab308;
   --cleared: var(--success);
-  --brass: var(--brand);
+  /* Gold is the reserved accent (firm color, premium emphasis) */
+  --brass: #c49a2a;
+  --gold: #c49a2a;
+  --gold-tint: #f6edcf;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --elev-1: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.05);
-  --elev-2: 0 4px 12px rgba(15, 23, 42, 0.06), 0 16px 40px rgba(15, 23, 42, 0.1);
-  --elev-brand: 0 8px 24px -8px rgba(14, 165, 233, 0.5);
+  /* Conservative, navy-tinted shadows: solid and grounded, not floating */
+  --elev-1: 0 1px 2px rgba(30, 41, 59, 0.03), 0 1px 3px rgba(30, 41, 59, 0.04);
+  --elev-2: 0 4px 8px rgba(30, 41, 59, 0.06), 0 2px 4px rgba(30, 41, 59, 0.03);
+  --elev-brand: 0 4px 12px -4px rgba(30, 58, 95, 0.35);
 
-  --radius: 14px;
-  --radius-sm: 10px;
-  --radius-lg: 20px;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --radius-lg: 12px;
 
   --section-y: 96px;
   --section-y-hero: 120px;
 }
 
 .dark {
-  --brand: #38bdf8;
-  --brand-dark: #0ea5e9;
-  --brand-darker: #0284c7;
-  --brand-tint: #0c2a3d;
-  --brand-tint-2: #0a2233;
+  /* Lighter steel-navy so primary actions stay legible on a dark ground */
+  --brand: #5b8bc0;
+  --brand-dark: #4a76a8;
+  --brand-darker: #3b6090;
+  --brand-tint: #16283a;
+  --brand-tint-2: #12202f;
 
-  --success: #34d399;
+  --success: #22c55e;
   --success-tint: #06331f;
-  --warning: #fbbf24;
+  --warning: #eab308;
   --warning-tint: #3a2c07;
   --danger: #f87171;
   --danger-tint: #3a1414;
 
-  --bg: #0b1120;
-  --surface: #131c2e;
-  --surface-2: #1a2436;
-  --border: #26314a;
-  --border-strong: #35415c;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --faint: #64748b;
+  --bg: #0e1620;
+  --surface: #16212f;
+  --surface-2: #1d2937;
+  --border: #2a3646;
+  --border-strong: #3a4a5c;
+  --text: #f2f0ea;
+  --muted: #a2aec0;
+  --faint: #6b7688;
 
-  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.35);
+  /* Gold reads brighter on dark surfaces */
+  --brass: #d4af4a;
+  --gold: #d4af4a;
+  --gold-tint: #2c2411;
+
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.35);
   --elev-2: 0 8px 30px rgba(0, 0, 0, 0.5);
-  --elev-brand: 0 8px 24px -8px rgba(56, 189, 248, 0.45);
+  --elev-brand: 0 4px 14px -4px rgba(91, 139, 192, 0.4);
 }
 
 @media (max-width: 640px) {
@@ -153,10 +163,13 @@ html {
     letter-spacing: -0.01em;
   }
   h1, h2, h3, h4 {
-    font-family: var(--font-display);
+    /* Default headings are sans (Inter). Serif is applied deliberately, only via
+       .font-display / .font-editorial / .guide, so small UI labels stay clean and
+       the serif is reserved for large display headlines (VaultLine guidance). */
+    font-family: var(--font-inter);
     color: var(--text);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
   :focus-visible {
     outline: 2px solid var(--brand);
@@ -284,6 +297,60 @@ html {
   .dark .pill-brand { color: var(--brand); }
 }
 
+/* ROI calculator range slider: brand fill left of the thumb, neutral track right. */
+.roi-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--brand) 0%,
+    var(--brand) var(--pct, 0%),
+    var(--surface-2) var(--pct, 0%),
+    var(--surface-2) 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+.dark .roi-range {
+  background: linear-gradient(
+    to right,
+    var(--brand) 0%,
+    var(--brand) var(--pct, 0%),
+    var(--border-strong) var(--pct, 0%),
+    var(--border-strong) 100%
+  );
+}
+.roi-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--brand);
+  box-shadow: var(--elev-1);
+  transition: transform 0.1s ease;
+}
+.roi-range::-webkit-slider-thumb:active { transform: scale(1.12); }
+.roi-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--brand);
+  box-shadow: var(--elev-1);
+}
+.roi-range:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+/* FAQ accordion: hide the native disclosure triangle across browsers. */
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::marker { content: ""; }
+
 /* Eyebrow label */
 .kicker {
   font-family: var(--font-inter);
@@ -296,6 +363,53 @@ html {
 }
 
 /* Type scale */
+/* Long-form guide/article prose (Resources pages). Serif subheads, readable
+   body measure, tidy lists. */
+.guide h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-top: 8px;
+}
+.guide h3 {
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text);
+  margin-top: 4px;
+}
+.guide p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.guide ul,
+.guide ol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 22px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.guide ul { list-style: disc; }
+.guide ol { list-style: decimal; }
+.guide li::marker { color: var(--brass); }
+.guide strong { color: var(--text); font-weight: 600; }
+.guide a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Serif display headings always render at 400 (DM Serif Display has one weight).
+   Unlayered, so it wins over Tailwind's font-bold/font-semibold utilities that
+   remain in the markup without editing every call site. */
+.font-display,
+.font-editorial {
+  font-weight: 400;
+}
+
 .t-display { font-size: clamp(40px, 6vw, 76px); line-height: 1.05; letter-spacing: -0.03em; }
 .t-h2 { font-size: clamp(28px, 4.5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; }
 .t-h3 { font-size: 22px; line-height: 1.3; }

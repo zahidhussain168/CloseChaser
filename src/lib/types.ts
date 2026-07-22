@@ -1,6 +1,6 @@
 /** Shared domain types for RuledOff (Phase 1). */
 
-export type ItemType = "transaction" | "document";
+export type ItemType = "transaction" | "document" | "questionnaire";
 export type ItemSource = "qbo" | "manual";
 
 /** The item lifecycle: requested → nudged → answered → accepted. */

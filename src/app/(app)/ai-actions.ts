@@ -7,6 +7,9 @@ import { getFirm } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { generateChaseEmails, isAiConfigured, type GeneratedSet, type EmailKind } from "@/lib/ai/emails";
 import type { FormState } from "@/lib/forms";
+import { isApiEnabled } from "@/lib/api/config";
+import { getServerToken } from "@/lib/api/server";
+import { aiApi } from "@/lib/api/resources";
 
 const KINDS: EmailKind[] = ["initial", "level1", "level2", "level3", "level4"];
 
@@ -20,13 +23,23 @@ export async function generateChaseEmailsAction(
   tone: string,
 ): Promise<GenerateResult> {
   await requireUserId();
+
+  const cleanVoice = voice.trim().slice(0, 2000);
+  const cleanTone = ["Warm", "Balanced", "Firm"].includes(tone) ? tone : "Warm";
+
+  if (isApiEnabled()) {
+    try {
+      const templates = await aiApi.generate(await getServerToken(), cleanVoice, cleanTone);
+      return { ok: true, templates };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not generate the emails." };
+    }
+  }
+
   if (!isAiConfigured()) return { ok: false, error: "AI writing is not set up yet." };
 
   const firm = await getFirm();
   if (!firm) return { ok: false, error: "No firm found." };
-
-  const cleanVoice = voice.trim().slice(0, 2000);
-  const cleanTone = ["Warm", "Balanced", "Firm"].includes(tone) ? tone : "Warm";
 
   try {
     const templates = await generateChaseEmails({
@@ -58,6 +71,16 @@ export async function saveChaseEmailsAction(templates: unknown): Promise<FormSta
   if (!parsed.success) return { ok: false, error: "Those templates were not valid." };
   for (const k of KINDS) {
     if (!parsed.data[k]) return { ok: false, error: "The set is missing an email." };
+  }
+
+  if (isApiEnabled()) {
+    try {
+      await aiApi.save(await getServerToken(), parsed.data as GeneratedSet);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save the emails." };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
   }
 
   const supabase = createClient();

@@ -1,8 +1,14 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/site/Button";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -14,13 +20,43 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  */
 export function Finale() {
   const vp = { once: true, amount: 0.5 } as const;
+  const scope = useRef<HTMLElement>(null);
+
+  // The double-rule draws itself as you scroll into the finale: each line's
+  // scaleX is scrubbed 0 -> 1 across the approach, the second trailing the
+  // first, so the mark inks in under your scroll rather than on a timer.
+  // Disabled entirely under prefers-reduced-motion, where the lines sit drawn.
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        "[data-rule]",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          ease: "none",
+          stagger: 0.18,
+          scrollTrigger: {
+            trigger: "[data-rule-wrap]",
+            start: "top 85%",
+            end: "top 42%",
+            scrub: 0.6,
+          },
+        },
+      );
+      ScrollTrigger.refresh();
+    },
+    { scope },
+  );
 
   return (
-    <section className="relative overflow-hidden bg-[#0B1120] px-5 py-28 text-white sm:py-36">
-      {/* soft brand glow behind the mark */}
+    <section
+      ref={scope}
+      className="relative overflow-hidden bg-[#05070c] px-5 sm:px-8 py-32 text-white sm:py-40"
+    >
+      {/* faint brass glow behind the mark, kept low so the section stays quiet */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/15 blur-[130px]"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brass/10 blur-[150px]"
       />
 
       <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
@@ -44,21 +80,15 @@ export function Finale() {
           Ruled off.
         </motion.h2>
 
-        {/* The double-rule, drawing left to right */}
-        <div className="mt-9 w-[min(380px,78vw)] space-y-[7px]">
-          <motion.div
-            className="h-[3px] w-full origin-left rounded-full bg-gradient-to-r from-brand to-emerald-400"
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={vp}
-            transition={{ duration: 0.42, ease: EASE, delay: 0.55 }}
+        {/* The double-rule, scrubbed left-to-right by GSAP as the section nears */}
+        <div data-rule-wrap className="mt-9 w-[min(380px,78vw)] space-y-[7px]">
+          <div
+            data-rule
+            className="h-[3px] w-full origin-left rounded-full bg-gradient-to-r from-brass to-emerald-400"
           />
-          <motion.div
-            className="h-[3px] w-full origin-left rounded-full bg-gradient-to-r from-brand to-emerald-400"
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={vp}
-            transition={{ duration: 0.42, ease: EASE, delay: 0.66 }}
+          <div
+            data-rule
+            className="h-[3px] w-full origin-left rounded-full bg-gradient-to-r from-brass to-emerald-400"
           />
         </div>
 

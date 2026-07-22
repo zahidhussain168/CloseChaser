@@ -6,8 +6,8 @@ import { Reveal } from "@/components/site/Reveal";
 
 export function PricingCTA() {
   return (
-    <section className="section-y">
-      <div className="mx-auto max-w-6xl px-5">
+    <section className="section-y bg-surface-2">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal>
           <div className="brand-wash relative overflow-hidden rounded-3xl border border-line bg-surface p-8 sm:p-14">
             <div className="relative grid gap-7 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -32,7 +32,7 @@ export function PricingCTA() {
 
               <div className="sheet rounded-2xl p-7">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="num text-[52px] font-extrabold leading-none text-text">$29</span>
+                  <span className="num text-[52px] font-extrabold leading-none text-text">$39</span>
                   <span className="text-[16px] text-muted">/month</span>
                 </div>
                 <p className="mt-2 text-[13px] text-muted">Flat. Unlimited clients. 14-day free trial.</p>

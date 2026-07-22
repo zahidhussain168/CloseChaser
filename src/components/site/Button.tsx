@@ -12,16 +12,19 @@ export function Button({
   variant = "primary",
   size = "md",
   className,
+  onClick,
 }: {
   href: string;
   children: ReactNode;
   variant?: "primary" | "secondary";
   size?: "md" | "lg";
   className?: string;
+  onClick?: () => void;
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={clsx(
         "inline-flex items-center justify-center gap-2 rounded-xl font-semibold",
         "transition-[transform,background-color,box-shadow,border-color] duration-150 [transition-timing-function:cubic-bezier(.22,1,.36,1)]",

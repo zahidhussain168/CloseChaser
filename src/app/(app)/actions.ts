@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/database.types";
 import {
   getFirm,
   ensureCurrentPeriod,
@@ -14,6 +15,10 @@ import { sendChaseEmail } from "@/lib/chase";
 import { requireUserId } from "@/lib/auth";
 import { getQboConnection } from "@/lib/qbo/connection";
 import { syncItemToQbo } from "@/lib/qbo/writeback";
+import { STARTER_TEMPLATES } from "@/lib/seasonalTemplates";
+import { isApiEnabled } from "@/lib/api/config";
+import { getServerToken } from "@/lib/api/server";
+import { clientsApi, closeApi, itemsApi, firmApi, templatesApi } from "@/lib/api/resources";
 import type { FormState } from "@/lib/forms";
 import type { Client, Firm, Item } from "@/lib/types";
 
@@ -44,22 +49,41 @@ export async function createClientAction(
     return { ok: false, error: parsed.error.issues[0].message };
   }
 
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("clients")
-    .insert({
-      firm_id: firm.id,
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone || null,
-      qbo_realm_id: parsed.data.qbo_realm_id || null,
-    })
-    .select("id")
-    .single();
+  // Migration path: when the standalone API is configured, route the write
+  // through it (RLS-scoped by the caller's token). Otherwise keep the built-in
+  // DB write. Both revalidate + redirect the same way.
+  let newClientId: string;
+  if (isApiEnabled()) {
+    try {
+      const token = await getServerToken();
+      const client = await clientsApi.create(token, {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone || null,
+      });
+      newClientId = client.id;
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the client" };
+    }
+  } else {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("clients")
+      .insert({
+        firm_id: firm.id,
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone || null,
+        qbo_realm_id: parsed.data.qbo_realm_id || null,
+      })
+      .select("id")
+      .single();
+    if (error) return { ok: false, error: error.message };
+    newClientId = data!.id;
+  }
 
-  if (error) return { ok: false, error: error.message };
   revalidatePath("/dashboard");
-  redirect(`/clients/${data!.id}`);
+  redirect(`/clients/${newClientId}`);
 }
 
 export async function addItemAction(
@@ -71,12 +95,43 @@ export async function addItemAction(
     clientId: formData.get("clientId"),
     type: formData.get("type"),
     title: formData.get("title"),
-    details: formData.get("details"),
+    // The questionnaire form has no "details" field, so getAll returns null,
+    // which z.optional() rejects. Treat absent as undefined.
+    details: formData.get("details") ?? undefined,
   });
-  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Check the form and try again" };
+  }
+
+  // A questionnaire carries several short questions the client answers at once.
+  const questions =
+    parsed.data.type === "questionnaire"
+      ? formData.getAll("question").map((q) => String(q).trim()).filter(Boolean)
+      : [];
+  if (parsed.data.type === "questionnaire" && questions.length === 0) {
+    return { ok: false, error: "Add at least one question" };
+  }
+
+  if (isApiEnabled()) {
+    try {
+      await closeApi.addItem(await getServerToken(), parsed.data.clientId, {
+        type: parsed.data.type,
+        title: parsed.data.title,
+        note: parsed.data.details || undefined,
+        questions: parsed.data.type === "questionnaire" ? questions : undefined,
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the item" };
+    }
+    revalidatePath(`/clients/${parsed.data.clientId}`);
+    return { ok: true };
+  }
 
   const period = await ensureCurrentPeriod(parsed.data.clientId);
   if (!period) return { ok: false, error: "Could not open the close period" };
+  const details: Record<string, Json> = {};
+  if (parsed.data.details) details.note = parsed.data.details;
+  if (parsed.data.type === "questionnaire") details.questions = questions;
 
   const supabase = createClient();
   const { error } = await supabase.from("items").insert({
@@ -84,7 +139,7 @@ export async function addItemAction(
     type: parsed.data.type,
     source: "manual",
     title: parsed.data.title,
-    details: parsed.data.details ? { note: parsed.data.details } : {},
+    details,
     state: "requested",
   });
   if (error) return { ok: false, error: error.message };
@@ -97,15 +152,19 @@ export async function addItemAction(
 
 const itemSchema = z.object({
   clientId: z.string().uuid(),
-  type: z.enum(["transaction", "document"]),
+  type: z.enum(["transaction", "document", "questionnaire"]),
   title: z.string().trim().min(1, "Describe what you need"),
   details: z.string().trim().optional().or(z.literal("")),
 });
 
 export async function deleteItemAction(itemId: string, clientId: string) {
   await requireUserId();
-  const supabase = createClient();
-  await supabase.from("items").delete().eq("id", itemId);
+  if (isApiEnabled()) {
+    await itemsApi.remove(await getServerToken(), itemId);
+  } else {
+    const supabase = createClient();
+    await supabase.from("items").delete().eq("id", itemId);
+  }
   revalidatePath(`/clients/${clientId}`);
 }
 
@@ -118,6 +177,15 @@ export async function deleteItemAction(itemId: string, clientId: string) {
  */
 export async function acceptItemAction(itemId: string, clientId: string) {
   await requireUserId();
+
+  // The API accept endpoint rules the item off, pushes QBO write-back, and
+  // closes the period if everything is accepted, all in one call.
+  if (isApiEnabled()) {
+    await itemsApi.accept(await getServerToken(), itemId);
+    revalidatePath(`/clients/${clientId}`);
+    return;
+  }
+
   const supabase = createClient();
   await supabase
     .from("items")
@@ -170,12 +238,16 @@ export async function retryQboSyncAction(itemId: string, clientId: string) {
 /** Send an answered item back to the client for another pass. */
 export async function sendBackItemAction(itemId: string, clientId: string) {
   await requireUserId();
-  const supabase = createClient();
-  await supabase
-    .from("items")
-    .update({ state: "requested", answered_at: null })
-    .eq("id", itemId)
-    .eq("state", "answered");
+  if (isApiEnabled()) {
+    await itemsApi.reopen(await getServerToken(), itemId);
+  } else {
+    const supabase = createClient();
+    await supabase
+      .from("items")
+      .update({ state: "requested", answered_at: null })
+      .eq("id", itemId)
+      .eq("state", "answered");
+  }
   revalidatePath(`/clients/${clientId}`);
 }
 
@@ -183,6 +255,19 @@ export async function sendBackItemAction(itemId: string, clientId: string) {
 
 export async function fireChaseAction(clientId: string) {
   await requireUserId();
+
+  if (isApiEnabled()) {
+    try {
+      const result = await closeApi.chase(await getServerToken(), clientId);
+      revalidatePath(`/clients/${clientId}`);
+      revalidatePath("/dashboard");
+      if (!result.ok) return { ok: false, error: `Email failed: ${result.error}` };
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not start the chase" };
+    }
+  }
+
   const firm = (await getFirm()) as Firm | null;
   if (!firm) redirect("/login");
 
@@ -237,15 +322,23 @@ export async function fireChaseAction(clientId: string) {
 
 export async function ensureLinkAction(clientId: string) {
   await requireUserId();
-  const supabase = createClient();
-  await ensureMagicToken(supabase, clientId);
+  if (isApiEnabled()) {
+    await closeApi.link(await getServerToken(), clientId);
+  } else {
+    const supabase = createClient();
+    await ensureMagicToken(supabase, clientId);
+  }
   revalidatePath(`/clients/${clientId}`);
 }
 
 export async function regenerateLinkAction(clientId: string) {
   await requireUserId();
-  const supabase = createClient();
-  await regenerateToken(supabase, clientId);
+  if (isApiEnabled()) {
+    await closeApi.regenerateLink(await getServerToken(), clientId);
+  } else {
+    const supabase = createClient();
+    await regenerateToken(supabase, clientId);
+  }
   revalidatePath(`/clients/${clientId}`);
 }
 
@@ -271,6 +364,20 @@ export async function updateBrandingAction(
     reply_to: formData.get("reply_to"),
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+
+  if (isApiEnabled()) {
+    try {
+      await firmApi.updateBranding(await getServerToken(), {
+        name: parsed.data.name,
+        accent_color: parsed.data.accent_color,
+        reply_to: parsed.data.reply_to || undefined,
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save branding" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
 
   const supabase = createClient();
   await supabase
@@ -319,6 +426,16 @@ export async function updateCadenceAction(
 
   const offsets = Array.from(new Set(parsed.data.offsets)).sort((a, b) => a - b);
 
+  if (isApiEnabled()) {
+    try {
+      await firmApi.updateCadence(await getServerToken(), { offsets, weeklyStep: parsed.data.weeklyStep });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save the cadence" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
+
   const supabase = createClient();
   const { error } = await supabase
     .from("firms")
@@ -347,11 +464,66 @@ export async function createTemplateAction(
   const parsed = templateSchema.safeParse({ name: formData.get("name") });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
+  if (isApiEnabled()) {
+    try {
+      await templatesApi.create(await getServerToken(), parsed.data.name);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not create the template" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
+
   const supabase = createClient();
   const { error } = await supabase
     .from("request_templates")
     .insert({ firm_id: firm.id, name: parsed.data.name });
   if (error) return { ok: false, error: error.message };
+  revalidatePath("/settings", "layout");
+  return { ok: true };
+}
+
+/** Drop in a ready-made starter pack as a new template for this firm. */
+export async function addStarterTemplateAction(
+  key: string,
+): Promise<{ ok: boolean; error?: string }> {
+  await requireUserId();
+  const firm = await getFirm();
+  if (!firm) redirect("/login");
+
+  const pack = STARTER_TEMPLATES.find((t) => t.key === key);
+  if (!pack) return { ok: false, error: "Unknown starter pack" };
+
+  if (isApiEnabled()) {
+    try {
+      await templatesApi.addStarter(await getServerToken(), key);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the pack" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
+
+  const supabase = createClient();
+  const { data: tpl, error: tplError } = await supabase
+    .from("request_templates")
+    .insert({ firm_id: firm.id, name: pack.name })
+    .select("id")
+    .single();
+  if (tplError || !tpl) {
+    return { ok: false, error: tplError?.message ?? "Could not create the template" };
+  }
+
+  const rows = pack.items.map((item, i) => ({
+    template_id: tpl.id,
+    type: item.type,
+    title: item.title,
+    note: item.note ?? null,
+    position: i,
+  }));
+  const { error: itemsError } = await supabase.from("template_items").insert(rows);
+  if (itemsError) return { ok: false, error: itemsError.message };
+
   revalidatePath("/settings", "layout");
   return { ok: true };
 }
@@ -376,6 +548,20 @@ export async function addTemplateItemAction(
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
+  if (isApiEnabled()) {
+    try {
+      await templatesApi.addItem(await getServerToken(), parsed.data.templateId, {
+        type: parsed.data.type,
+        title: parsed.data.title,
+        note: parsed.data.note || undefined,
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the item" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
+
   const supabase = createClient();
   const { count } = await supabase
     .from("template_items")
@@ -395,15 +581,23 @@ export async function addTemplateItemAction(
 
 export async function deleteTemplateItemAction(id: string) {
   await requireUserId();
-  const supabase = createClient();
-  await supabase.from("template_items").delete().eq("id", id);
+  if (isApiEnabled()) {
+    await templatesApi.removeItem(await getServerToken(), id);
+  } else {
+    const supabase = createClient();
+    await supabase.from("template_items").delete().eq("id", id);
+  }
   revalidatePath("/settings", "layout");
 }
 
 export async function deleteTemplateAction(id: string) {
   await requireUserId();
-  const supabase = createClient();
-  await supabase.from("request_templates").delete().eq("id", id);
+  if (isApiEnabled()) {
+    await templatesApi.remove(await getServerToken(), id);
+  } else {
+    const supabase = createClient();
+    await supabase.from("request_templates").delete().eq("id", id);
+  }
   revalidatePath("/settings", "layout");
 }
 
@@ -413,6 +607,15 @@ export async function applyTemplateAction(
   templateId: string,
 ): Promise<{ ok: boolean; error?: string; added?: number }> {
   await requireUserId();
+  if (isApiEnabled()) {
+    try {
+      const result = await templatesApi.apply(await getServerToken(), templateId, clientId);
+      revalidatePath(`/clients/${clientId}`);
+      return { ok: true, added: result.added };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not apply the template" };
+    }
+  }
   const period = await ensureCurrentPeriod(clientId);
   if (!period) return { ok: false, error: "Could not open the close period" };
   const supabase = createClient();
@@ -427,11 +630,15 @@ export async function setClientDefaultTemplateAction(
   templateId: string | null,
 ) {
   await requireUserId();
-  const supabase = createClient();
-  await supabase
-    .from("clients")
-    .update({ default_template_id: templateId || null })
-    .eq("id", clientId);
+  if (isApiEnabled()) {
+    await templatesApi.setDefault(await getServerToken(), clientId, templateId || null);
+  } else {
+    const supabase = createClient();
+    await supabase
+      .from("clients")
+      .update({ default_template_id: templateId || null })
+      .eq("id", clientId);
+  }
   revalidatePath(`/clients/${clientId}`);
 }
 
@@ -446,9 +653,19 @@ export async function updateTemplateAction(
   const kind = String(formData.get("kind"));
   const subject = String(formData.get("subject") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
-  const allowed = ["initial", "level1", "level2", "level3", "level4"];
-  if (!allowed.includes(kind) || !subject || !body) {
+  const allowed = ["initial", "level1", "level2", "level3", "level4"] as const;
+  if (!(allowed as readonly string[]).includes(kind) || !subject || !body) {
     return { ok: false, error: "Subject and body are required" };
+  }
+
+  if (isApiEnabled()) {
+    try {
+      await firmApi.updateEmailTemplate(await getServerToken(), kind as (typeof allowed)[number], { subject, body });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save the template" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
   }
 
   const supabase = createClient();

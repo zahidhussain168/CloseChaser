@@ -11,6 +11,6 @@ export const config = {
      * Match all request paths except static assets and image files, so auth
      * cookies stay fresh and protected routes are guarded.
      */
-    "/((?!_next/static|_next/image|favicon.ico|opengraph-image|twitter-image|icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|opengraph-image|twitter-image|icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

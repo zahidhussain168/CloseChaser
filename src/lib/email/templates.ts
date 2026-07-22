@@ -97,7 +97,16 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
-export type EmailItem = { title: string; type: "transaction" | "document" };
+export type EmailItem = {
+  title: string;
+  type: "transaction" | "document" | "questionnaire";
+};
+
+function itemKindLabel(type: EmailItem["type"]): string {
+  if (type === "document") return "upload";
+  if (type === "questionnaire") return "a few questions";
+  return "quick answer";
+}
 
 /** Ledger-styled HTML email. Inline styles only (email clients strip <style>). */
 export function buildEmailHtml(opts: {
@@ -112,7 +121,7 @@ export function buildEmailHtml(opts: {
     .split(/\n\n+/)
     .map(
       (p) =>
-        `<p style="margin:0 0 16px;line-height:1.55;color:#0F172A;font-size:15px;">${escapeHtml(
+        `<p style="margin:0 0 16px;line-height:1.55;color:#1E293B;font-size:15px;">${escapeHtml(
           p,
         ).replace(/\n/g, "<br/>")}</p>`,
     )
@@ -122,10 +131,10 @@ export function buildEmailHtml(opts: {
     .map(
       (it) => `
       <tr>
-        <td style="padding:10px 0;border-bottom:1px solid #E8EDF3;font-size:14px;color:#0F172A;">
-          <span style="color:#F59E0B;font-family:'IBM Plex Mono',Menlo,monospace;">•</span>
+        <td style="padding:10px 0;border-bottom:1px solid #E2DFD5;font-size:14px;color:#1E293B;">
+          <span style="color:#C49A2A;font-family:'IBM Plex Mono',Menlo,monospace;">•</span>
           &nbsp; ${escapeHtml(it.title)}
-          <span style="color:#64748B;font-size:12px;"> (${it.type === "document" ? "upload" : "quick answer"})</span>
+          <span style="color:#475569;font-size:12px;"> (${itemKindLabel(it.type)})</span>
         </td>
       </tr>`,
     )
@@ -133,12 +142,12 @@ export function buildEmailHtml(opts: {
 
   return `<!doctype html>
 <html>
-  <body style="margin:0;background:#F8FAFC;padding:24px 0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;">
+  <body style="margin:0;background:#FFFDF7;padding:24px 0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr><td align="center">
-        <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#FFFFFF;border:1px solid #E8EDF3;border-radius:14px;overflow:hidden;">
+        <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#FFFFFF;border:1px solid #E2DFD5;border-radius:8px;overflow:hidden;">
           <tr><td style="padding:22px 28px 18px;border-bottom:3px solid ${accent};">
-            <div style="font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#0F172A;">${escapeHtml(
+            <div style="font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#1E293B;">${escapeHtml(
               firmName,
             )}</div>
           </td></tr>
@@ -148,17 +157,17 @@ export function buildEmailHtml(opts: {
           ${
             items.length
               ? `<tr><td style="padding:4px 28px 8px;">
-                  <div style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#64748B;margin-bottom:4px;">Open items</div>
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E8EDF3;">${itemRows}</table>
+                  <div style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#475569;margin-bottom:4px;">Open items</div>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E2DFD5;">${itemRows}</table>
                 </td></tr>`
               : ""
           }
           <tr><td style="padding:18px 28px 28px;">
-            <a href="${ctaUrl}" style="display:inline-block;background:#0EA5E9;color:#FFFFFF;text-decoration:none;padding:14px 26px;border-radius:10px;font-weight:700;font-size:15px;">Open your checklist</a>
-            <div style="margin-top:12px;font-size:12px;color:#64748B;">No login required. This private link is just for you.</div>
+            <a href="${ctaUrl}" style="display:inline-block;background:#1E3A5F;color:#FFFFFF;text-decoration:none;padding:14px 26px;border-radius:10px;font-weight:700;font-size:15px;">Open your checklist</a>
+            <div style="margin-top:12px;font-size:12px;color:#475569;">No login required. This private link is just for you.</div>
           </td></tr>
         </table>
-        <div style="max-width:520px;margin:14px auto 0;font-size:11px;color:#94A3B8;">Sent by ${escapeHtml(
+        <div style="max-width:520px;margin:14px auto 0;font-size:11px;color:#9CA3AF;">Sent by ${escapeHtml(
           firmName,
         )} via RuledOff</div>
       </td></tr>

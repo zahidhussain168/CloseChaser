@@ -84,7 +84,7 @@ export interface Database {
         Row: {
           id: string;
           template_id: string;
-          type: "transaction" | "document";
+          type: "transaction" | "document" | "questionnaire";
           title: string;
           note: string | null;
           position: number;
@@ -92,7 +92,7 @@ export interface Database {
         Insert: {
           id?: string;
           template_id: string;
-          type?: "transaction" | "document";
+          type?: "transaction" | "document" | "questionnaire";
           title: string;
           note?: string | null;
           position?: number;
@@ -124,7 +124,7 @@ export interface Database {
         Row: {
           id: string;
           close_period_id: string;
-          type: "transaction" | "document";
+          type: "transaction" | "document" | "questionnaire";
           source: "qbo" | "manual";
           qbo_txn_id: string | null;
           title: string;
@@ -140,7 +140,7 @@ export interface Database {
         Insert: {
           id?: string;
           close_period_id: string;
-          type: "transaction" | "document";
+          type: "transaction" | "document" | "questionnaire";
           source?: "qbo" | "manual";
           qbo_txn_id?: string | null;
           title: string;

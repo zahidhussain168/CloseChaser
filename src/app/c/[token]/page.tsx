@@ -57,6 +57,7 @@ export default async function PortalPage({
       amount?: number;
       date?: string;
       payee?: string;
+      questions?: string[];
     };
     let meta: string | null = null;
     if (i.type === "transaction") {
@@ -72,6 +73,7 @@ export default async function PortalPage({
       title: i.title,
       note: d.note ?? null,
       meta,
+      questions: Array.isArray(d.questions) ? d.questions : null,
       state: i.state,
       answer_text: i.answer_text,
       attachments: ((i.attachments ?? []) as Attachment[]).map((a) => ({
@@ -81,7 +83,7 @@ export default async function PortalPage({
   });
 
   const brandStyle = {
-    ["--brass"]: firm.accent_color || "#C59B3A",
+    ["--brass"]: firm.accent_color || "#C49A2A",
   } as CSSProperties;
 
   return (

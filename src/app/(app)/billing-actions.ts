@@ -10,6 +10,9 @@ import {
   isBillingConfigured,
 } from "@/lib/paddle/server";
 import type { FormState } from "@/lib/forms";
+import { isApiEnabled } from "@/lib/api/config";
+import { getServerToken } from "@/lib/api/server";
+import { billingApi } from "@/lib/api/resources";
 
 /**
  * Ensure the firm has a Paddle customer id and return it, so the client-side
@@ -19,6 +22,15 @@ export async function prepareCheckoutAction(): Promise<
   { ok: true; customerId: string; firmId: string; email: string } | FormState
 > {
   await requireUserId();
+
+  if (isApiEnabled()) {
+    try {
+      return await billingApi.checkout(await getServerToken());
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not start checkout." };
+    }
+  }
+
   if (!isBillingConfigured()) return { ok: false, error: "Billing is not set up yet." };
 
   const firm = await getFirm();
@@ -46,6 +58,17 @@ export async function prepareCheckoutAction(): Promise<
 /** Open the Paddle-hosted customer portal to manage or cancel the subscription. */
 export async function openBillingPortalAction(): Promise<void> {
   await requireUserId();
+
+  if (isApiEnabled()) {
+    let url: string;
+    try {
+      url = await billingApi.portal(await getServerToken());
+    } catch {
+      redirect("/settings/plan?billing=portal_error");
+    }
+    redirect(url);
+  }
+
   const firm = await getFirm();
   if (!firm?.paddle_customer_id) redirect("/settings/plan?billing=none");
 

@@ -76,9 +76,20 @@ function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: n
               {(item.details as { note?: string }).note}
             </span>
           )}
+          {item.type === "questionnaire" &&
+            !item.answer_text &&
+            Array.isArray((item.details as { questions?: string[] }).questions) && (
+              <span className="mt-1.5 block">
+                <ol className="list-decimal space-y-0.5 pl-5 text-xs text-ink-muted">
+                  {((item.details as { questions?: string[] }).questions ?? []).map((q, i) => (
+                    <li key={i}>{q}</li>
+                  ))}
+                </ol>
+              </span>
+            )}
           {item.answer_text && (
-            <span className="mt-2 block rounded-[10px] px-3 py-2 text-sm" style={{ background: "var(--paper-deep)" }}>
-              &ldquo;{item.answer_text}&rdquo;
+            <span className="mt-2 block whitespace-pre-wrap rounded-[10px] px-3 py-2 text-sm" style={{ background: "var(--paper-deep)" }}>
+              {item.type === "questionnaire" ? item.answer_text : `“${item.answer_text}”`}
             </span>
           )}
           {attachments.length > 0 && (

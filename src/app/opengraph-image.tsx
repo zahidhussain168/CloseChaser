@@ -20,7 +20,7 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: 80,
-          background: "linear-gradient(135deg, #F0F9FF 0%, #FFFFFF 55%, #ECFDF5 100%)",
+          background: "linear-gradient(135deg, #FFFDF7 0%, #FFFFFF 55%, #F4F7FA 100%)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -28,8 +28,8 @@ export default function OpengraphImage() {
             style={{
               width: 72,
               height: 72,
-              borderRadius: 18,
-              background: "#0EA5E9",
+              borderRadius: 10,
+              background: "#1E3A5F",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -40,33 +40,33 @@ export default function OpengraphImage() {
           >
             R
           </div>
-          <div style={{ display: "flex", marginLeft: 20, fontSize: 44, fontWeight: 700, color: "#0F172A" }}>
+          <div style={{ display: "flex", marginLeft: 20, fontSize: 44, fontWeight: 700, color: "#1E293B" }}>
             RuledOff
           </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
-          <div style={{ display: "flex", fontSize: 66, fontWeight: 700, letterSpacing: "-0.03em", color: "#0F172A" }}>
+          <div style={{ display: "flex", fontSize: 66, fontWeight: 700, letterSpacing: "-0.03em", color: "#1E293B" }}>
             Close the month without
           </div>
-          <div style={{ display: "flex", fontSize: 66, fontWeight: 700, letterSpacing: "-0.03em", color: "#0EA5E9" }}>
+          <div style={{ display: "flex", fontSize: 66, fontWeight: 700, letterSpacing: "-0.03em", color: "#C49A2A" }}>
             chasing clients.
           </div>
         </div>
 
-        <div style={{ display: "flex", marginTop: 26, fontSize: 29, color: "#64748B", maxWidth: 860 }}>
+        <div style={{ display: "flex", marginTop: 26, fontSize: 29, color: "#475569", maxWidth: 860 }}>
           RuledOff chases your client for every document and receipt blocking your month-end close. No logins, no portals.
         </div>
 
         <div style={{ display: "flex", marginTop: 40 }}>
-          {["No-login portal", "QuickBooks sync", "Flat $29/mo"].map((t) => (
+          {["No-login portal", "QuickBooks sync", "Flat $39/mo"].map((t) => (
             <div
               key={t}
               style={{
                 display: "flex",
                 marginRight: 14,
-                background: "#E0F2FE",
-                color: "#0369A1",
+                background: "#E8EEF5",
+                color: "#1E3A5F",
                 padding: "10px 20px",
                 borderRadius: 999,
                 fontSize: 24,

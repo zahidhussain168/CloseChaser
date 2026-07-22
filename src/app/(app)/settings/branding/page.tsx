@@ -14,7 +14,7 @@ export default async function BrandingSettings() {
     >
       <BrandingForm
         name={firm.name}
-        accentColor={firm.accent_color || "#C59B3A"}
+        accentColor={firm.accent_color || "#C49A2A"}
         replyTo={firm.reply_to ?? ""}
       />
     </SettingsSection>

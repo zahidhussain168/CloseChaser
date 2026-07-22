@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { listClientsWithBlocking, getFirm, getCloseRollup } from "@/lib/data";
+import { getDashboard, getFirm } from "@/lib/data";
 import { AddClientForm } from "@/components/app/AddClientForm";
 import { BlockingRollup } from "@/components/app/BlockingRollup";
 import { Counter } from "@/components/marketing/Counter";
@@ -32,10 +32,7 @@ export default async function DashboardPage({
 }: {
   searchParams: { subscribed?: string };
 }) {
-  const [clients, firm] = await Promise.all([
-    listClientsWithBlocking(),
-    getFirm(),
-  ]);
+  const [{ clients, rollup }, firm] = await Promise.all([getDashboard(), getFirm()]);
   const month = formatMonth(monthKey());
   const justSubscribed = searchParams.subscribed === "1";
 
@@ -46,7 +43,6 @@ export default async function DashboardPage({
   const totalDone = clients.reduce((n, c) => n + (c.totalItems - c.openCount), 0);
   const overallFill = totalItems ? totalDone / totalItems : 0;
   const overallPct = Math.round(overallFill * 100);
-  const rollup = await getCloseRollup(clients);
 
   return (
     <div className="flex flex-col gap-6">
@@ -62,7 +58,7 @@ export default async function DashboardPage({
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5 10 17.5 19 6.5" /></svg>
           </span>
           <span className="font-medium text-text">
-            You are subscribed. Your 14-day free trial is running, then it is $29 a month.
+            You are subscribed. Your 14-day free trial is running, then it is $39 a month.
           </span>
         </div>
       ) : null}

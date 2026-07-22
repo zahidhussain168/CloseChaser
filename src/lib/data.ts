@@ -12,11 +12,27 @@ import type {
 } from "@/lib/types";
 import { monthKey } from "@/lib/format";
 import { openCount, isOpen } from "@/lib/state";
+import { isApiEnabled } from "@/lib/api/config";
+import { getServerToken } from "@/lib/api/server";
+import { closeApi, dashboardApi, templatesApi, firmApi } from "@/lib/api/resources";
+import { ApiError } from "@/lib/api/http";
 
 type DB = SupabaseClient<Database>;
 
 /** The signed-in bookkeeper's firm (one per user). */
 export async function getFirm(): Promise<Firm | null> {
+  if (isApiEnabled()) {
+    const token = await getServerToken();
+    if (!token) return null;
+    try {
+      return await firmApi.get(token);
+    } catch (e) {
+      // No session / no firm on the API returns 401/404; treat as "no firm".
+      if (e instanceof ApiError && (e.status === 401 || e.status === 404)) return null;
+      throw e;
+    }
+  }
+
   const supabase = createClient();
   const {
     data: { user },
@@ -167,9 +183,32 @@ export type ClientDetail = {
   hasLink: boolean;
 };
 
+/** Combined dashboard payload (clients + rollup), switch-aware. */
+export async function getDashboard(): Promise<{
+  clients: ClientWithBlocking[];
+  rollup: CloseRollup;
+}> {
+  if (isApiEnabled()) {
+    return dashboardApi.get(await getServerToken());
+  }
+  const clients = await listClientsWithBlocking();
+  const rollup = await getCloseRollup(clients);
+  return { clients, rollup };
+}
+
 export async function getClientDetail(
   clientId: string,
 ): Promise<ClientDetail | null> {
+  if (isApiEnabled()) {
+    try {
+      const c = await closeApi.checklist(await getServerToken(), clientId);
+      return { client: c.client, period: c.period, items: c.items, hasLink: Boolean(c.link) };
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 404) return null;
+      throw e;
+    }
+  }
+
   const supabase = createClient();
   const { data: client } = await supabase
     .from("clients")
@@ -243,6 +282,9 @@ export type TemplateWithItems = RequestTemplate & { items: TemplateItem[] };
 
 /** All request templates for the firm, with their items. */
 export async function listTemplates(): Promise<TemplateWithItems[]> {
+  if (isApiEnabled()) {
+    return templatesApi.list(await getServerToken());
+  }
   const supabase = createClient();
   const firm = await getFirm();
   if (!firm) return [];

@@ -6,10 +6,11 @@ import { DoubleRule } from "@/components/DoubleRule";
 
 type PortalItem = {
   id: string;
-  type: "transaction" | "document";
+  type: "transaction" | "document" | "questionnaire";
   title: string;
   note: string | null;
   meta: string | null;
+  questions: string[] | null;
   state: "requested" | "nudged" | "answered" | "accepted";
   answer_text: string | null;
   attachments: { name: string }[];
@@ -19,6 +20,31 @@ type RowState = PortalItem & { saving: boolean; error: string | null; ruled: boo
 
 function isDone(s: string) {
   return s === "answered" || s === "accepted";
+}
+
+// A questionnaire's answers are compiled into one readable block so the
+// bookkeeper reads them in context, and parsed back when the client returns.
+const NOT_ANSWERED = "(not answered yet)";
+
+function compileAnswers(questions: string[], answers: string[]): string {
+  return questions
+    .map((q, i) => `${i + 1}. ${q}\n${(answers[i] ?? "").trim() || NOT_ANSWERED}`)
+    .join("\n\n");
+}
+
+function parseAnswers(questions: string[], answerText: string | null): string[] {
+  const out = questions.map(() => "");
+  if (!answerText) return out;
+  for (const block of answerText.split(/\n\n+/)) {
+    const m = block.match(/^(\d+)\.\s/);
+    if (!m) continue;
+    const idx = Number(m[1]) - 1;
+    if (idx < 0 || idx >= questions.length) continue;
+    const nl = block.indexOf("\n");
+    const a = nl === -1 ? "" : block.slice(nl + 1).trim();
+    out[idx] = a === NOT_ANSWERED ? "" : a;
+  }
+  return out;
 }
 
 export function PortalChecklist({
@@ -147,8 +173,18 @@ function PortalRow({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState(item.answer_text ?? "");
+  const questions = item.questions ?? [];
+  const isQ = item.type === "questionnaire" && questions.length > 0;
+  const [answers, setAnswers] = useState<string[]>(() =>
+    parseAnswers(questions, item.answer_text),
+  );
   const done = isDone(item.state);
   const locked = item.state === "accepted";
+
+  function submitQuestionnaire() {
+    if (!answers.some((a) => a.trim())) return;
+    onAnswer(compileAnswers(questions, answers));
+  }
 
   return (
     <div
@@ -173,7 +209,51 @@ function PortalRow({
             <div className="mt-0.5 text-sm text-ink-muted">{item.note}</div>
           )}
 
-          {!locked && (
+          {isQ && !locked && (
+            <div className="mt-3 flex flex-col gap-4">
+              {questions.map((q, qi) => (
+                <div key={qi} className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor={`${item.id}-q${qi}`}
+                    className="text-[15px] font-medium leading-snug"
+                  >
+                    {q}
+                  </label>
+                  <textarea
+                    id={`${item.id}-q${qi}`}
+                    value={answers[qi] ?? ""}
+                    onChange={(e) =>
+                      setAnswers((prev) =>
+                        prev.map((v, idx) => (idx === qi ? e.target.value : v)),
+                      )
+                    }
+                    onBlur={submitQuestionnaire}
+                    rows={2}
+                    placeholder="Type your answer"
+                    className="field text-[16px]"
+                  />
+                </div>
+              ))}
+              {item.saving && (
+                <span className="text-sm text-ink-muted">Saving…</span>
+              )}
+            </div>
+          )}
+
+          {isQ && locked && (
+            <div className="mt-3 flex flex-col gap-3">
+              {questions.map((q, qi) => (
+                <div key={qi}>
+                  <div className="text-[15px] font-medium leading-snug">{q}</div>
+                  <div className="mt-0.5 text-sm text-ink-muted">
+                    {answers[qi]?.trim() || "No answer"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!isQ && !locked && (
             <div className="mt-3 flex flex-col gap-2">
               <textarea
                 value={text}
