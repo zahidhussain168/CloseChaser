@@ -11,10 +11,13 @@ import { formatMonth, formatMoney, formatDate, timeAgo } from "@/lib/format";
 import { openCount, isOpen } from "@/lib/state";
 import { StatusMark } from "@/components/StatusMark";
 import { DoubleRule } from "@/components/DoubleRule";
-import { FileText, Receipt, ListChecks } from "lucide-react";
+import { FileText, Receipt, ListChecks, Bell, Eye, Clock } from "lucide-react";
 import { AddItemForm } from "@/components/app/AddItemForm";
 import { ItemActions } from "@/components/app/ItemActions";
 import { ItemRemoveButton } from "@/components/app/ItemRemoveButton";
+import { ClientEditForm } from "@/components/app/ClientEditForm";
+import { BulkAcceptButton, CopyLastMonthButton } from "@/components/app/ClientQuickActions";
+import { buildActivity, nextReminderInfo } from "@/lib/activity";
 import { ImportPanel } from "@/components/app/ImportPanel";
 import { TextChaseCard } from "@/components/app/TextChaseCard";
 import { CloseCockpit } from "@/components/app/CloseCockpit";
@@ -33,6 +36,13 @@ function pillClass(state: string): string {
   if (state === "accepted") return "pill pill-success";
   if (state === "answered") return "pill pill-brand";
   return "pill pill-warning";
+}
+
+function toneColor(tone: string): string {
+  if (tone === "success") return "var(--success)";
+  if (tone === "brand") return "var(--brand)";
+  if (tone === "warning") return "var(--warning)";
+  return "var(--faint)";
 }
 
 // The checklist reads as a workflow, not a flat list.
@@ -174,6 +184,32 @@ export default async function ClientPage({ params }: { params: { id: string } })
     url: url ?? "",
   });
   const templates = (await listTemplates()).map((t) => ({ id: t.id, name: t.name }));
+
+  const { data: reminderRows } = await supabase
+    .from("reminders")
+    .select("sent_at, channel")
+    .eq("close_period_id", period.id);
+  const sentCount = (reminderRows ?? []).filter((r) => r.sent_at).length;
+  const activity = buildActivity({
+    chaseStartedAt: period.chase_started_at ?? null,
+    lastOpenedAt: link?.lastOpenedAt ?? null,
+    items: items.map((i) => ({ title: i.title, answered_at: i.answered_at, accepted_at: i.accepted_at })),
+    reminders: reminderRows ?? [],
+  });
+  const fcad = firm as { reminder_offsets?: number[]; reminder_weekly_step?: number } | null;
+  const nextRem =
+    period.status === "chasing"
+      ? nextReminderInfo({
+          chaseStartedAt: period.chase_started_at ?? null,
+          sentCount,
+          cadence: {
+            offsets: fcad?.reminder_offsets ?? [2, 5, 9],
+            weeklyStep: fcad?.reminder_weekly_step ?? 7,
+          },
+        })
+      : null;
+  const answeredCount = items.filter((i) => i.state === "answered").length;
+
   const done = items.length - open;
   const fill = items.length ? done / items.length : 0;
   const pct = Math.round(fill * 100);
@@ -247,6 +283,49 @@ export default async function ClientPage({ params }: { params: { id: string } })
         }
       />
 
+      {/* Detail strip: next nudge, preview, edit, private note */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-muted">
+            {nextRem && (
+              <span className="inline-flex items-center gap-1.5">
+                <Bell size={14} />
+                Next nudge{" "}
+                {nextRem.inDays === 0 ? "today" : `in ${nextRem.inDays} day${nextRem.inDays === 1 ? "" : "s"}`}{" "}
+                <span className="text-faint">({nextRem.label})</span>
+              </span>
+            )}
+            {url && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener"
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-ink"
+              >
+                <Eye size={14} /> Preview client view
+              </a>
+            )}
+          </div>
+          <ClientEditForm
+            client={{
+              id: client.id,
+              name: client.name,
+              email: client.email,
+              phone: client.phone,
+              notes: client.notes,
+            }}
+          />
+        </div>
+        {client.notes ? (
+          <div className="rounded-xl px-4 py-3" style={{ background: "var(--paper-deep)" }}>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-faint">
+              Private note
+            </span>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{client.notes}</p>
+          </div>
+        ) : null}
+      </div>
+
       {/* Completion moment */}
       {allDone ? (
         <div
@@ -275,9 +354,15 @@ export default async function ClientPage({ params }: { params: { id: string } })
           <p className="mt-1 text-sm text-ink-muted">
             Use <span className="font-medium text-text">Add</span> above to start this close: a request, a QuickBooks pull, or a template.
           </p>
+          <div className="mt-5 flex justify-center">
+            <CopyLastMonthButton clientId={client.id} />
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-6">
+          <div className="-mb-3 flex justify-end">
+            <CopyLastMonthButton clientId={client.id} />
+          </div>
           {GROUPS.map((g) => {
             const groupItems = items.filter((it) => g.match(it.state));
             if (groupItems.length === 0) return null;
@@ -287,6 +372,11 @@ export default async function ClientPage({ params }: { params: { id: string } })
                   <span className="h-2 w-2 rounded-full" style={{ background: g.dot }} />
                   <h2 className="text-sm font-semibold text-text">{g.label}</h2>
                   <span className="num text-xs text-faint">{groupItems.length}</span>
+                  {g.key === "review" && groupItems.length >= 2 && (
+                    <span className="ml-auto">
+                      <BulkAcceptButton clientId={client.id} count={groupItems.length} />
+                    </span>
+                  )}
                 </div>
                 <div className="sheet overflow-hidden px-4 sm:px-5">
                   {groupItems.map((item, i) => (
@@ -298,6 +388,31 @@ export default async function ClientPage({ params }: { params: { id: string } })
           })}
         </div>
       )}
+
+      {activity.length > 0 ? (
+        <section className="flex flex-col gap-2.5">
+          <div className="flex items-center gap-2 px-1">
+            <Clock size={15} className="text-ink-muted" />
+            <h2 className="text-sm font-semibold text-text">Activity</h2>
+          </div>
+          <div className="sheet px-4 sm:px-5">
+            <ul className="flex flex-col">
+              {activity.slice(0, 8).map((e, i) => (
+                <li
+                  key={i}
+                  className="flex items-center justify-between gap-3 border-b border-rule py-2.5 text-sm last:border-0"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: toneColor(e.tone) }} />
+                    <span className="text-ink">{e.label}</span>
+                  </span>
+                  <span className="num shrink-0 text-xs text-faint">{timeAgo(e.at)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

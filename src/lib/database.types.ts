@@ -60,6 +60,7 @@ export interface Database {
           phone: string | null;
           qbo_realm_id: string | null;
           default_template_id: string | null;
+          notes: string | null;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -69,6 +70,7 @@ export interface Database {
           phone?: string | null;
           qbo_realm_id?: string | null;
           default_template_id?: string | null;
+          notes?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["clients"]["Insert"]>;

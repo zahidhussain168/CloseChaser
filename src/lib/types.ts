@@ -41,6 +41,7 @@ export type Client = {
   phone: string | null;
   qbo_realm_id: string | null;
   default_template_id: string | null;
+  notes: string | null;
   created_at: string;
 };
 
