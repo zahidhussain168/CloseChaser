@@ -6,7 +6,7 @@ export async function POST(
   req: Request,
   { params }: { params: { token: string } },
 ) {
-  const limit = rateLimit(`answer:${clientIp(req)}`, 60, 60_000);
+  const limit = await rateLimit(`answer:${clientIp(req)}`, 60, 60_000);
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests" },

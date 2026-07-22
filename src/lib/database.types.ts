@@ -188,6 +188,7 @@ export interface Database {
           scheduled_for: string;
           sent_at: string | null;
           stopped_reason: string | null;
+          day: string | null;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -198,6 +199,7 @@ export interface Database {
           scheduled_for?: string;
           sent_at?: string | null;
           stopped_reason?: string | null;
+          day?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["reminders"]["Insert"]>;

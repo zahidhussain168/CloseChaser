@@ -114,15 +114,21 @@ export async function logManualTextAction(clientId: string): Promise<FormState> 
   const period = await ensureCurrentPeriod(clientId);
   if (!period) return { ok: false, error: "Could not open the close period." };
 
+  const now = new Date();
   const { error } = await supabase.from("reminders").insert({
     client_id: clientId,
     close_period_id: period.id,
     level: 4,
     channel: "manual_text",
-    scheduled_for: new Date().toISOString(),
-    sent_at: new Date().toISOString(),
+    scheduled_for: now.toISOString(),
+    day: now.toISOString().slice(0, 10),
+    sent_at: now.toISOString(),
   });
-  if (error) return { ok: false, error: error.message };
+  // Unique (period, day): a reminder already went out today. That is fine, the
+  // client was contacted, so report success rather than surfacing a DB error.
+  if (error && (error as { code?: string }).code !== "23505") {
+    return { ok: false, error: error.message };
+  }
 
   revalidatePath(`/clients/${clientId}`);
   return { ok: true };

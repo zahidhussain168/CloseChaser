@@ -64,46 +64,60 @@ export async function listClientsWithBlocking(): Promise<ClientWithBlocking[]> {
   if (!clients || clients.length === 0) return [];
 
   const month = monthKey();
-  const result: ClientWithBlocking[] = [];
+  const clientRows = clients as Client[];
+  const ids = clientRows.map((c) => c.id);
 
-  for (const c of clients as Client[]) {
-    const { data: period } = await supabase
-      .from("close_periods")
-      .select("*")
-      .eq("client_id", c.id)
-      .eq("month", month)
-      .maybeSingle();
+  // Batched to a constant number of queries (was 3N+1). Current-month periods
+  // for every client at once...
+  const { data: periodRows } = await supabase
+    .from("close_periods")
+    .select("*")
+    .in("client_id", ids)
+    .eq("month", month);
+  const periodByClient = new Map<string, ClosePeriod>();
+  for (const p of (periodRows as ClosePeriod[]) ?? []) periodByClient.set(p.client_id, p);
 
-    let items: Pick<Item, "state">[] = [];
-    if (period) {
-      const { data: itemRows } = await supabase
-        .from("items")
-        .select("state")
-        .eq("close_period_id", (period as ClosePeriod).id);
-      items = (itemRows as Pick<Item, "state">[]) ?? [];
+  // ...all items across those periods in one query...
+  const periodIds = [...periodByClient.values()].map((p) => p.id);
+  const itemsByPeriod = new Map<string, Pick<Item, "state">[]>();
+  if (periodIds.length) {
+    const { data: itemRows } = await supabase
+      .from("items")
+      .select("state, close_period_id")
+      .in("close_period_id", periodIds);
+    for (const it of (itemRows as (Pick<Item, "state"> & { close_period_id: string })[]) ?? []) {
+      const arr = itemsByPeriod.get(it.close_period_id) ?? [];
+      arr.push({ state: it.state });
+      itemsByPeriod.set(it.close_period_id, arr);
     }
+  }
 
-    const { data: linkRow } = await supabase
-      .from("magic_links")
-      .select("last_opened_at, expires_at")
-      .eq("client_id", c.id)
-      .is("revoked_at", null)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+  // ...and the latest live magic link per client in one query.
+  const { data: linkRows } = await supabase
+    .from("magic_links")
+    .select("client_id, last_opened_at, expires_at")
+    .in("client_id", ids)
+    .is("revoked_at", null)
+    .order("created_at", { ascending: false });
+  const linkByClient = new Map<string, { last_opened_at: string | null; expires_at: string }>();
+  for (const l of (linkRows as { client_id: string; last_opened_at: string | null; expires_at: string }[]) ?? []) {
+    if (!linkByClient.has(l.client_id)) linkByClient.set(l.client_id, l); // first row = most recent
+  }
+
+  const result: ClientWithBlocking[] = clientRows.map((c) => {
+    const period = periodByClient.get(c.id) ?? null;
+    const items = period ? itemsByPeriod.get(period.id) ?? [] : [];
+    const link = linkByClient.get(c.id);
     const lastOpenedAt =
-      linkRow && new Date(linkRow.expires_at).getTime() > Date.now()
-        ? linkRow.last_opened_at
-        : null;
-
-    result.push({
+      link && new Date(link.expires_at).getTime() > Date.now() ? link.last_opened_at : null;
+    return {
       ...c,
-      period: (period as ClosePeriod) ?? null,
+      period,
       openCount: openCount(items),
       totalItems: items.length,
       lastOpenedAt,
-    });
-  }
+    };
+  });
 
   // Sort: most blocking first, then clients with any items, then the rest.
   result.sort((a, b) => b.openCount - a.openCount || b.totalItems - a.totalItems);

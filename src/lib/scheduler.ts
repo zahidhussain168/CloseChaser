@@ -101,6 +101,28 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
     }
 
     try {
+      // Claim today's slot BEFORE sending. The unique (period, day) index means
+      // a second overlapping run (or a same-day manual text) loses the race, so
+      // we skip rather than double-contacting the client.
+      const day = now.toISOString().slice(0, 10);
+      const { data: claim, error: claimErr } = await admin
+        .from("reminders")
+        .insert({
+          client_id: clientRow.id,
+          close_period_id: period.id,
+          level: due.level,
+          channel: "email",
+          scheduled_for: now.toISOString(),
+          day,
+          sent_at: null,
+        })
+        .select("id")
+        .maybeSingle();
+      if (claimErr || !claim) {
+        // Already a reminder for this period today → do not send.
+        report.skipped += 1;
+        continue;
+      }
 
       const token = await ensureMagicToken(admin, clientRow.id);
       const result = await sendChaseEmail({
@@ -113,15 +135,13 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
         monthISO: period.month,
       });
 
-      await admin.from("reminders").insert({
-        client_id: clientRow.id,
-        close_period_id: period.id,
-        level: due.level,
-        channel: "email",
-        scheduled_for: now.toISOString(),
-        sent_at: result.ok ? now.toISOString() : null,
-        stopped_reason: result.ok ? null : `send failed: ${result.error}`,
-      });
+      await admin
+        .from("reminders")
+        .update({
+          sent_at: result.ok ? now.toISOString() : null,
+          stopped_reason: result.ok ? null : `send failed: ${result.error}`,
+        })
+        .eq("id", claim.id);
 
       // Bump requested → nudged so the UI reflects that we've reached out.
       await admin
