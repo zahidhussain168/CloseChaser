@@ -81,7 +81,7 @@ function PhoneScreen() {
  *  like product photography against a backdrop. */
 export function MobileShowcase() {
   return (
-    <section className="relative overflow-hidden bg-[#101f36]/80 py-24 text-white sm:py-32">
+    <section className="relative overflow-hidden bg-[#101f36] py-24 text-white sm:py-32">
       {/* drifting stage glow behind the phone */}
       <Aurora variant="dark" />
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 sm:px-8 sm:gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">

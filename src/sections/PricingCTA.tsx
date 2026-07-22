@@ -6,7 +6,7 @@ import { Reveal } from "@/components/site/Reveal";
 
 export function PricingCTA() {
   return (
-    <section className="section-y bg-surface-2/70">
+    <section className="section-y bg-surface-2">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal>
           <div className="brand-wash relative overflow-hidden rounded-3xl border border-line bg-surface p-8 sm:p-14">
