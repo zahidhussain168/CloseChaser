@@ -51,7 +51,7 @@ export function Finale() {
   return (
     <section
       ref={scope}
-      className="relative overflow-hidden bg-[#05070c] px-5 sm:px-8 py-32 text-white sm:py-40"
+      className="relative overflow-hidden bg-[#05070c]/80 px-5 sm:px-8 py-32 text-white sm:py-40"
     >
       {/* faint brass glow behind the mark, kept low so the section stays quiet */}
       <div

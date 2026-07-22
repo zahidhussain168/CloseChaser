@@ -101,7 +101,7 @@ export function Hero() {
   );
 
   return (
-    <section ref={scope} className="brand-wash relative overflow-hidden">
+    <section ref={scope} className="relative overflow-hidden">
       <Aurora variant="brand" />
       <SiteNav />
       <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-8 px-5 sm:px-8 pb-12 pt-6 sm:gap-14 sm:pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28 lg:pt-16">

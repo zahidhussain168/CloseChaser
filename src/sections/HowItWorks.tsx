@@ -85,7 +85,7 @@ const viewport = { once: true, amount: 0.4 } as const;
 
 export function HowItWorks() {
   return (
-    <section id="how" className="section-y bg-surface-2">
+    <section id="how" className="section-y bg-surface-2/70">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="max-w-2xl">
           <p className="kicker">How it works</p>
