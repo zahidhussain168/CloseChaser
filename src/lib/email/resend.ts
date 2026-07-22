@@ -24,8 +24,11 @@ export async function sendEmail(input: SendEmailInput): Promise<SendResult> {
   try {
     // Sandbox redirect: with an unverified Resend sender, deliver everything to
     // the account owner so the demo works. The real recipient is shown in the
-    // subject so it's clear who each chase was meant for.
-    const testTo = serverEnv.resendTestRecipient;
+    // subject so it's clear who each chase was meant for. NEVER redirect in
+    // production, so a leftover RESEND_TEST_RECIPIENT env can't silently divert
+    // every client's magic link away from them on the live site.
+    const testTo =
+      process.env.NODE_ENV === "production" ? null : serverEnv.resendTestRecipient;
     const redirecting = testTo && testTo !== input.to;
     const to = redirecting ? testTo : input.to;
     const subject = redirecting ? `[to ${input.to}] ${input.subject}` : input.subject;

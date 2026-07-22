@@ -12,10 +12,17 @@ export const maxDuration = 60;
  */
 function authorized(req: Request): boolean {
   const secret = serverEnv.cronSecret;
+  if (!secret) return false;
   const auth = req.headers.get("authorization");
   if (auth === `Bearer ${secret}`) return true;
-  const url = new URL(req.url);
-  return url.searchParams.get("key") === secret;
+  // A query-string key is handy for local/manual runs but would leak the secret
+  // into access logs, so it is only accepted outside production. Vercel Cron
+  // always sends the Authorization header.
+  if (process.env.NODE_ENV !== "production") {
+    const url = new URL(req.url);
+    return url.searchParams.get("key") === secret;
+  }
+  return false;
 }
 
 async function handle(req: Request) {

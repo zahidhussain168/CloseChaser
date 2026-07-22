@@ -12,6 +12,32 @@ import type {
 const BUCKET = "attachments";
 const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB
 
+// Clients only ever send receipts, statements, and forms: images and PDFs. We
+// never trust the browser-supplied file.type (trivially forged); instead we
+// sniff the leading magic bytes and store a server-chosen safe content-type, so
+// an uploaded .html/.svg can't later execute as script when the bookkeeper
+// opens it from a signed storage URL.
+const ALLOWED_MIME = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "application/pdf",
+]);
+
+function sniffMime(buf: Buffer): string | null {
+  if (buf.length < 12) return null;
+  if (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) return "application/pdf"; // %PDF
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return "image/jpeg";
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return "image/png";
+  if (buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 && buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50) return "image/webp"; // RIFF....WEBP
+  if (buf[4] === 0x66 && buf[5] === 0x74 && buf[6] === 0x79 && buf[7] === 0x70) {
+    const brand = buf.slice(8, 12).toString("ascii");
+    if (["heic", "heix", "hevc", "heim", "heis", "hevm", "hevs", "mif1", "msf1", "heif"].includes(brand)) return "image/heic";
+  }
+  return null;
+}
+
 export type PortalData = {
   firm: Pick<Firm, "name" | "accent_color">;
   client: Pick<Client, "id" | "name">;
@@ -67,12 +93,14 @@ export async function loadPortal(
     .from("clients")
     .select("id, name, firm_id")
     .eq("id", link.client_id)
-    .single();
+    .maybeSingle();
+  if (!client) return { error: { kind: "not_found" } };
   const { data: firm } = await admin
     .from("firms")
     .select("name, accent_color")
-    .eq("id", client!.firm_id)
-    .single();
+    .eq("id", client.firm_id)
+    .maybeSingle();
+  if (!firm) return { error: { kind: "not_found" } };
 
   // The client sees the current calendar month's close.
   const month = monthKey();
@@ -100,7 +128,7 @@ export async function loadPortal(
   return {
     data: {
       firm: firm as Pick<Firm, "name" | "accent_color">,
-      client: { id: client!.id, name: client!.name },
+      client: { id: client.id, name: client.name },
       period: period as ClosePeriod,
       items: (items as Item[]) ?? [],
     },
@@ -182,14 +210,23 @@ export async function saveUpload(
   }
 
   const admin = createAdminClient();
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Server-side type enforcement by content sniffing (the accept="" attribute is
+  // client-only and bypassable). Only real images/PDFs are stored, and the
+  // stored content-type is our sniffed value, never the client's.
+  const mime = sniffMime(buffer);
+  if (!mime || !ALLOWED_MIME.has(mime)) {
+    return { ok: false, error: "Only images and PDF files are allowed" };
+  }
+
   const safeName = file.name.replace(/[^\w.\-]+/g, "_").slice(-80) || "upload";
   const path = `${found.clientId}/${itemId}/${Date.now()}-${safeName}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
 
   const { error: upErr } = await admin.storage
     .from(BUCKET)
     .upload(path, buffer, {
-      contentType: file.type || "application/octet-stream",
+      contentType: mime,
       upsert: false,
     });
   if (upErr) return { ok: false, error: upErr.message };
@@ -198,7 +235,7 @@ export async function saveUpload(
     path,
     name: file.name.slice(0, 120),
     size: file.size,
-    mime: file.type || "application/octet-stream",
+    mime,
     uploaded_at: new Date().toISOString(),
   };
   const next = [...(found.item.attachments as Attachment[]), attachment];

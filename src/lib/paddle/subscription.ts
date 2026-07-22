@@ -43,8 +43,12 @@ export function getSubscriptionState(firm: Firm & BillingFields, now = new Date(
   const trialDaysLeft = Math.max(0, Math.ceil(trialMs / 86_400_000));
 
   let active = false;
-  if (status === "active" || status === "trialing" || status === "past_due") {
-    active = true;
+  if (status === "active" || status === "past_due") {
+    active = true; // paying (or in a short grace period after a failed charge)
+  } else if (status === "trialing") {
+    // A Paddle-managed trial (has a subscription) stays active; our own free
+    // trial is active only while the window is open, so it can actually expire.
+    active = hasSubscription || inTrialWindow;
   } else if (!hasSubscription && inTrialWindow) {
     active = true; // still inside the free trial, no subscription yet
   }

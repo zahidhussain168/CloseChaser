@@ -66,10 +66,22 @@ export async function POST(request: NextRequest) {
     ? query.eq("id", firmId)
     : query.eq("paddle_customer_id", sub.customer_id);
 
-  const { error } = await query;
+  const { data: updated, error } = await query.select("id");
   if (error) {
     // Return 500 so Paddle retries rather than dropping the event.
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  if (!updated || updated.length === 0) {
+    // A real subscription event that matches no firm means a paying customer was
+    // not provisioned. Never 200 that away (it would be lost silently): log it
+    // and 500 so Paddle keeps retrying while we reconcile.
+    console.error("[paddle-webhook] no firm matched for subscription event", {
+      type,
+      subscriptionId: sub.id,
+      customerId: sub.customer_id,
+      firmId,
+    });
+    return NextResponse.json({ error: "No matching firm" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true, type });
