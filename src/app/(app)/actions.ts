@@ -187,28 +187,33 @@ export async function acceptItemAction(itemId: string, clientId: string) {
   }
 
   const supabase = createClient();
-  await supabase
+  const { data: accepted } = await supabase
     .from("items")
     .update({ state: "accepted", accepted_at: new Date().toISOString() })
     .eq("id", itemId)
-    .eq("state", "answered");
+    .eq("state", "answered")
+    .select("id, close_period_id")
+    .maybeSingle();
+
+  // Nothing changed (already accepted, or not answered): stop here so we do not
+  // re-push to QuickBooks or touch an unrelated period.
+  if (!accepted) {
+    revalidatePath(`/clients/${clientId}`);
+    return;
+  }
 
   await syncAcceptedItem(itemId);
 
-  // If every item in the period is accepted, mark the period closed.
-  const period = await ensureCurrentPeriod(clientId);
-  if (period) {
-    const { data: items } = await supabase
-      .from("items")
-      .select("state")
-      .eq("close_period_id", period.id);
-    const all = items ?? [];
-    if (all.length > 0 && all.every((i) => i.state === "accepted")) {
-      await supabase
-        .from("close_periods")
-        .update({ status: "closed" })
-        .eq("id", period.id);
-    }
+  // Close the item's OWN period when all of its items are accepted, not the
+  // current calendar month (the item may belong to a prior month's close).
+  const periodId = accepted.close_period_id as string;
+  const { data: items } = await supabase
+    .from("items")
+    .select("state")
+    .eq("close_period_id", periodId);
+  const all = items ?? [];
+  if (all.length > 0 && all.every((i) => i.state === "accepted")) {
+    await supabase.from("close_periods").update({ status: "closed" }).eq("id", periodId);
   }
   revalidatePath(`/clients/${clientId}`);
 }

@@ -16,7 +16,11 @@ export type QboConnection = {
   last_synced_at: string | null;
 };
 
-/** The signed-in firm's QuickBooks connection, if it has one. */
+/**
+ * The signed-in firm's most-recent QuickBooks connection, if any. A firm may
+ * connect several QuickBooks companies (one per client realm), so this must not
+ * assume a single row, or it errors the moment a second company is linked.
+ */
 export async function getQboConnection(): Promise<QboConnection | null> {
   const firm = await getFirm();
   if (!firm) return null;
@@ -25,6 +29,34 @@ export async function getQboConnection(): Promise<QboConnection | null> {
     .from("qbo_connections")
     .select("*")
     .eq("firm_id", firm.id)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+  return ((data?.[0] as QboConnection | undefined) ?? null);
+}
+
+/** Every QuickBooks company this firm has connected. */
+export async function listQboConnections(): Promise<QboConnection[]> {
+  const firm = await getFirm();
+  if (!firm) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("qbo_connections")
+    .select("*")
+    .eq("firm_id", firm.id)
+    .order("updated_at", { ascending: false });
+  return (data as QboConnection[] | null) ?? [];
+}
+
+/** The connection for a specific QuickBooks company (a client's realm). */
+export async function getQboConnectionByRealm(realmId: string): Promise<QboConnection | null> {
+  const firm = await getFirm();
+  if (!firm) return null;
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("qbo_connections")
+    .select("*")
+    .eq("firm_id", firm.id)
+    .eq("realm_id", realmId)
     .maybeSingle();
   return (data as QboConnection | null) ?? null;
 }

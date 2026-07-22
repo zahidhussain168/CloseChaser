@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ensureCurrentPeriod, getFirm } from "@/lib/data";
 import { requireUserId } from "@/lib/auth";
 import { parseTransactionCsv } from "@/lib/csv";
-import { getQboConnection } from "@/lib/qbo/connection";
+import { getQboConnection, getQboConnectionByRealm } from "@/lib/qbo/connection";
 import { findBlockingTransactions, titleForTxn } from "@/lib/qbo/sync";
 import { revokeToken } from "@/lib/qbo/oauth";
 import { decryptSecret } from "@/lib/crypto";
@@ -35,9 +35,6 @@ export async function importFromQboAction(clientId: string): Promise<ImportResul
     }
   }
 
-  const conn = await getQboConnection();
-  if (!conn) return { ok: false, error: "QuickBooks is not connected yet." };
-
   const supabase = createClient();
   const { data: client } = await supabase
     .from("clients")
@@ -45,6 +42,20 @@ export async function importFromQboAction(clientId: string): Promise<ImportResul
     .eq("id", clientId)
     .maybeSingle();
   if (!client) return { ok: false, error: "Client not found." };
+
+  // Use the connection for THIS client's QuickBooks company. Falls back to the
+  // firm's connection for clients linked before per-realm mapping existed.
+  const conn = client.qbo_realm_id
+    ? await getQboConnectionByRealm(client.qbo_realm_id)
+    : await getQboConnection();
+  if (!conn) {
+    return {
+      ok: false,
+      error: client.qbo_realm_id
+        ? "That client's QuickBooks company is not connected."
+        : "QuickBooks is not connected yet.",
+    };
+  }
 
   const period = await ensureCurrentPeriod(clientId);
   if (!period) return { ok: false, error: "Could not open the close period." };

@@ -203,6 +203,22 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["reminders"]["Insert"]>;
         Relationships: [];
       };
+      integration_requests: {
+        Row: {
+          id: string;
+          firm_id: string;
+          integration_key: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          firm_id: string;
+          integration_key: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["integration_requests"]["Insert"]>;
+        Relationships: [];
+      };
       email_templates: {
         Row: {
           id: string;
