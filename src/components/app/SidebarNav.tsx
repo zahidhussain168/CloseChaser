@@ -30,19 +30,34 @@ function PlugIcon() {
     </svg>
   );
 }
+function StackIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m12 2 9 5-9 5-9-5 9-5Z" />
+      <path d="m3 12 9 5 9-5" />
+      <path d="m3 17 9 5 9-5" />
+    </svg>
+  );
+}
 
 const ITEMS = [
   { href: "/dashboard", label: "Clients", Icon: UsersIcon },
   { href: "/integrations", label: "Integrations", Icon: PlugIcon },
+  { href: "/settings/templates", label: "Templates", Icon: StackIcon },
   { href: "/settings", label: "Settings", Icon: GearIcon },
 ];
 
 export function SidebarNav({ orientation = "vertical" }: { orientation?: "vertical" | "horizontal" }) {
   const path = usePathname();
+  // Highlight only the most specific matching item (so /settings/templates
+  // lights up Templates, not Settings).
+  const activeHref = ITEMS.filter(
+    (it) => path === it.href || (it.href !== "/dashboard" && path.startsWith(it.href)),
+  ).sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return (
     <nav className={clsx("flex gap-1", orientation === "vertical" ? "flex-col" : "flex-row")}>
       {ITEMS.map(({ href, label, Icon }) => {
-        const active = path === href || (href !== "/dashboard" && path.startsWith(href));
+        const active = href === activeHref;
         return (
           <Link
             key={href}
