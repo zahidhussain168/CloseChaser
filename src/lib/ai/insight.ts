@@ -20,7 +20,18 @@ function sanitize(s: string): string {
     .trim();
 }
 
-export type ClientInsight = { headline: string; insights: string[]; recommendation: string };
+export type InsightAction =
+  | { kind: "chase"; label: string }
+  | { kind: "review"; label: string }
+  | { kind: "add_item"; label: string; title: string; note?: string; itemType: "document" | "questionnaire" }
+  | { kind: "none" };
+
+export type ClientInsight = {
+  headline: string;
+  insights: string[];
+  recommendation: string;
+  action: InsightAction;
+};
 
 export type InsightContext = {
   clientName: string;
@@ -52,24 +63,44 @@ Give the bookkeeper:
 - "headline": a punchy 6 to 10 word status read.
 - "insights": 2 or 3 short observations (max 14 words each) about what is happening and why it may be stuck.
 - "recommendation": ONE specific next action to take now, one short sentence.
+- "action": a structured one-click action that matches your recommendation, ONE of:
+  {"kind":"chase","label":"Re-send the chase"} when a nudge or reminder is the move;
+  {"kind":"review","label":"Rule off answered items"} when items are answered and waiting for the bookkeeper;
+  {"kind":"add_item","label":"Add this to the checklist","itemType":"document" or "questionnaire","title":"<short client-facing title>","note":"<one plain-language sentence the client will read>"} when the client needs a clarifying request or a plain-language note (for example explaining what a W-9 is);
+  {"kind":"none"} when no in-app action fits.
 
-Be concrete and reference the actual items or behavior. If items are answered, tell them to review and rule those off. If the link is unopened after a chase, suggest a text or a firmer nudge. If a client may be confused by an item (like a W-9), suggest adding a plain-language note. Never use em dashes or en dashes. Plain, human language.
+Be concrete and reference the actual items or behavior. Never use em dashes or en dashes. Plain, human language.
 
-Output EXACTLY this JSON and nothing else:
-{"headline":"","insights":["",""],"recommendation":""}`;
+Output EXACTLY this JSON shape and nothing else:
+{"headline":"","insights":["",""],"recommendation":"","action":{"kind":"none"}}`;
 }
 
-export async function generateClientInsight(ctx: InsightContext): Promise<ClientInsight> {
-  const key = process.env.OPENROUTER_API_KEY;
-  if (!key) throw new Error("AI is not configured yet.");
+function normalizeAction(a: unknown): InsightAction {
+  const o = (a ?? {}) as Record<string, unknown>;
+  const label = typeof o.label === "string" ? sanitize(o.label) : "";
+  if (o.kind === "chase") return { kind: "chase", label: label || "Re-send the chase" };
+  if (o.kind === "review") return { kind: "review", label: label || "Rule off answered items" };
+  if (o.kind === "add_item" && typeof o.title === "string" && o.title.trim()) {
+    return {
+      kind: "add_item",
+      label: label || "Add this to the checklist",
+      title: sanitize(o.title).slice(0, 120),
+      note: typeof o.note === "string" && o.note.trim() ? sanitize(o.note).slice(0, 500) : undefined,
+      itemType: o.itemType === "questionnaire" ? "questionnaire" : "document",
+    };
+  }
+  return { kind: "none" };
+}
 
+async function callInsight(ctx: InsightContext, key: string): Promise<ClientInsight> {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "content-type": "application/json", "X-Title": "RuledOff" },
     body: JSON.stringify({
       model: process.env.OPENROUTER_MODEL || DEFAULT_MODEL,
-      max_tokens: 500,
-      temperature: 0.5,
+      max_tokens: 600,
+      temperature: 0.4,
+      response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM },
         { role: "user", content: buildPrompt(ctx) },
@@ -85,16 +116,29 @@ export async function generateClientInsight(ctx: InsightContext): Promise<Client
   const end = text.lastIndexOf("}");
   if (start === -1 || end === -1) throw new Error("The AI did not return a usable read.");
 
-  let parsed: { headline?: string; insights?: string[]; recommendation?: string };
-  try {
-    parsed = JSON.parse(text.slice(start, end + 1));
-  } catch {
-    throw new Error("The AI response could not be read. Try again.");
-  }
+  const parsed = JSON.parse(text.slice(start, end + 1)) as {
+    headline?: string;
+    insights?: string[];
+    recommendation?: string;
+    action?: unknown;
+  };
 
   return {
     headline: sanitize(parsed.headline ?? "Here is where things stand."),
     insights: (parsed.insights ?? []).slice(0, 3).map(sanitize).filter(Boolean),
     recommendation: sanitize(parsed.recommendation ?? "Review the open items and send a nudge."),
+    action: normalizeAction(parsed.action),
   };
+}
+
+export async function generateClientInsight(ctx: InsightContext): Promise<ClientInsight> {
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) throw new Error("AI is not configured yet.");
+  // One retry: json_object mode is reliable, but the odd malformed response
+  // should not surface to the bookkeeper as an error.
+  try {
+    return await callInsight(ctx, key);
+  } catch {
+    return await callInsight(ctx, key);
+  }
 }

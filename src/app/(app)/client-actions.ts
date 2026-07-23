@@ -141,3 +141,28 @@ export async function setAutoChaseAction(clientId: string, on: boolean): Promise
   revalidatePath(`/clients/${clientId}`);
   return { ok: true };
 }
+
+/** Add one manual checklist item (used by the AI analyst's one-click action). */
+export async function addQuickItemAction(
+  clientId: string,
+  input: { type: "document" | "questionnaire"; title: string; note?: string },
+): Promise<FormState> {
+  await requireUserId();
+  const supabase = createClient();
+  const period = await ensureCurrentPeriod(clientId);
+  if (!period) return { ok: false, error: "Could not open the close period." };
+  const details: Record<string, string> = {};
+  if (input.note) details.note = input.note;
+  const { error } = await supabase.from("items").insert({
+    close_period_id: period.id,
+    type: input.type,
+    source: "manual",
+    title: input.title.slice(0, 200) || "New request",
+    details,
+    state: "requested",
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/clients/${clientId}`);
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
