@@ -47,6 +47,7 @@ export type Client = {
   qbo_realm_id: string | null;
   default_template_id: string | null;
   notes: string | null;
+  auto_chase?: boolean;
   created_at: string;
 };
 

@@ -71,6 +71,7 @@ export interface Database {
           qbo_realm_id: string | null;
           default_template_id: string | null;
           notes: string | null;
+          auto_chase: boolean;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -81,6 +82,7 @@ export interface Database {
           qbo_realm_id?: string | null;
           default_template_id?: string | null;
           notes?: string | null;
+          auto_chase?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["clients"]["Insert"]>;

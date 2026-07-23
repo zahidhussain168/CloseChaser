@@ -131,3 +131,13 @@ export async function copyLastMonthAction(clientId: string): Promise<FormState> 
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+/** Turn recurring monthly requests (auto-build + auto-chase) on or off. */
+export async function setAutoChaseAction(clientId: string, on: boolean): Promise<FormState> {
+  await requireUserId();
+  const supabase = createClient();
+  const { error } = await supabase.from("clients").update({ auto_chase: on }).eq("id", clientId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/clients/${clientId}`);
+  return { ok: true };
+}

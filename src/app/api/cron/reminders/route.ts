@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { runReminders } from "@/lib/scheduler";
+import { runRecurring } from "@/lib/recurring";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { serverEnv } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -29,8 +31,11 @@ async function handle(req: Request) {
   if (!authorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  // Generate + auto-chase recurring monthly closes first, then send any due
+  // reminders (including for the chases just started).
+  const recurring = await runRecurring(createAdminClient());
   const report = await runReminders();
-  return NextResponse.json(report);
+  return NextResponse.json({ ...report, recurring });
 }
 
 export async function GET(req: Request) {

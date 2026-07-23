@@ -17,6 +17,7 @@ import { ItemActions } from "@/components/app/ItemActions";
 import { ItemRemoveButton } from "@/components/app/ItemRemoveButton";
 import { ClientEditForm } from "@/components/app/ClientEditForm";
 import { BulkAcceptButton, CopyLastMonthButton } from "@/components/app/ClientQuickActions";
+import { AutoChaseToggle } from "@/components/app/AutoChaseToggle";
 import { buildActivity, nextReminderInfo } from "@/lib/activity";
 import { ImportPanel } from "@/components/app/ImportPanel";
 import { TextChaseCard } from "@/components/app/TextChaseCard";
@@ -278,6 +279,13 @@ export default async function ClientPage({ params }: { params: { id: string } })
                 templates={templates}
                 defaultTemplateId={client.default_template_id}
               />
+              <div className="mt-4 border-t border-line pt-4">
+                <AutoChaseToggle
+                  clientId={client.id}
+                  initial={Boolean(client.auto_chase)}
+                  hasTemplate={Boolean(client.default_template_id)}
+                />
+              </div>
             </div>
           </div>
         }
