@@ -71,7 +71,8 @@ export async function signUpAction(
   });
   if (signInErr) return { error: signInErr.message };
 
-  redirect("/dashboard");
+  // New firms land on the one-time welcome step before the dashboard.
+  redirect("/welcome");
 }
 
 const loginSchema = z.object({

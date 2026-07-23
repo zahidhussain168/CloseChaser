@@ -31,6 +31,11 @@ export type Firm = {
   subscription_status?: string | null;
   current_period_end?: string | null;
   trial_ends_at?: string | null;
+  accounting_software?: string | null;
+  client_count?: string | null;
+  chase_method?: string | null;
+  referral_source?: string | null;
+  onboarded_at?: string | null;
 };
 
 export type Client = {

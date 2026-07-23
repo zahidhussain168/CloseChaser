@@ -31,6 +31,11 @@ export interface Database {
           subscription_status: string;
           current_period_end: string | null;
           trial_ends_at: string | null;
+          accounting_software: string | null;
+          client_count: string | null;
+          chase_method: string | null;
+          referral_source: string | null;
+          onboarded_at: string | null;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -46,6 +51,11 @@ export interface Database {
           subscription_status?: string;
           current_period_end?: string | null;
           trial_ends_at?: string | null;
+          accounting_software?: string | null;
+          client_count?: string | null;
+          chase_method?: string | null;
+          referral_source?: string | null;
+          onboarded_at?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["firms"]["Insert"]>;
