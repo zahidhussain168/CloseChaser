@@ -63,13 +63,14 @@ export function AddClientForm() {
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Add a client">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Add a client">
           <div className="fixed inset-0 bg-[#0b1120]/60" onClick={() => setOpen(false)} />
 
-          {/* Slide-over panel: full height, header/footer pinned, body scrolls */}
+          {/* Centered card: compact for a short form, but caps at the viewport and
+              scrolls its own body when content grows, so it never overflows. */}
           <div
-            className="fixed right-0 top-0 flex h-dvh w-full max-w-md flex-col bg-surface shadow-2xl"
-            style={{ animation: "slideInRight .25s cubic-bezier(.22,1,.36,1) both" }}
+            className="relative flex max-h-[88dvh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl"
+            style={{ animation: "co-rise .2s ease-out both" }}
           >
             <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-4">
               <div className="flex items-center gap-2.5">
