@@ -69,7 +69,7 @@ export function ClientsTable({ rows }: { rows: DashRow[] }) {
       </div>
 
       <div className="sheet overflow-hidden">
-        <div className="hidden grid-cols-[1.7fr_1fr_7rem_auto] items-center gap-4 border-b border-line px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-faint md:grid">
+        <div className="hidden grid-cols-[1.7fr_1fr_7rem_11rem] items-center gap-4 border-b border-line px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-faint md:grid">
           <span>Client</span>
           <span>Progress</span>
           <span>Status</span>
@@ -83,7 +83,7 @@ export function ClientsTable({ rows }: { rows: DashRow[] }) {
             <Link
               key={r.id}
               href={`/clients/${r.id}`}
-              className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-line px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2/60 md:grid-cols-[1.7fr_1fr_7rem_auto]"
+              className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-line px-5 py-3.5 transition-colors last:border-0 hover:bg-surface-2/60 md:grid-cols-[1.7fr_1fr_7rem_11rem]"
             >
               <span className="flex min-w-0 items-center gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-[13px] font-bold text-brand">
@@ -115,7 +115,7 @@ export function ClientsTable({ rows }: { rows: DashRow[] }) {
               </span>
 
               <span className="flex items-center justify-end gap-2.5">
-                <span className="hidden text-xs md:inline" style={{ color: toneColor(r.activityTone) }}>
+                <span className="hidden whitespace-nowrap text-xs md:inline" style={{ color: toneColor(r.activityTone) }}>
                   {r.activity}
                 </span>
                 <span className={r.statusCls + " num md:hidden"}>{r.statusLabel}</span>
