@@ -51,6 +51,8 @@ export type ClientWithBlocking = Client & {
   period: ClosePeriod | null;
   totalItems: number;
   lastOpenedAt: string | null;
+  /** Items the client has answered that are waiting for the bookkeeper to accept. */
+  answeredCount?: number;
 };
 
 /** All clients for the firm, annotated with how much is blocking the close. */
@@ -116,6 +118,7 @@ export async function listClientsWithBlocking(): Promise<ClientWithBlocking[]> {
       openCount: openCount(items),
       totalItems: items.length,
       lastOpenedAt,
+      answeredCount: items.filter((i) => i.state === "answered").length,
     };
   });
 

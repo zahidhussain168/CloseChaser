@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { Inbox, Send, EyeOff, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { Inbox, ClipboardCheck, EyeOff, CheckCircle2 } from "lucide-react";
 import { getDashboard, getFirm } from "@/lib/data";
 import { AddClientForm } from "@/components/app/AddClientForm";
 import { BlockingRollup } from "@/components/app/BlockingRollup";
 import { ChaseEveryone } from "@/components/app/ChaseEveryone";
+import { BulkAcceptButton } from "@/components/app/ClientQuickActions";
 import { ClientsTable, type DashRow } from "@/components/app/ClientsTable";
 import { ProgressRing } from "@/components/site/ProgressRing";
 import { formatMonth, monthKey, timeAgo } from "@/lib/format";
@@ -46,7 +48,6 @@ export default async function DashboardPage({
   const justSubscribed = searchParams.subscribed === "1";
 
   const totalOpen = clients.reduce((n, c) => n + c.openCount, 0);
-  const chasing = clients.filter((c) => c.period?.status === "chasing").length;
   const ruledOff = clients.filter((c) => c.period?.status === "closed" || (!c.openCount && c.totalItems > 0)).length;
   const notOpened = clients.filter((c) => c.period?.status === "chasing" && c.openCount > 0 && !c.lastOpenedAt).length;
   const totalItems = clients.reduce((n, c) => n + c.totalItems, 0);
@@ -54,6 +55,8 @@ export default async function DashboardPage({
   const overallFill = totalItems ? totalDone / totalItems : 0;
   const overallPct = Math.round(overallFill * 100);
   const chaseable = clients.filter((c) => c.openCount > 0 && c.email).length;
+  const totalAnswered = clients.reduce((n, c) => n + (c.answeredCount ?? 0), 0);
+  const needsReview = clients.filter((c) => (c.answeredCount ?? 0) > 0);
 
   const rows: DashRow[] = clients.map((c) => {
     const done = c.totalItems - c.openCount;
@@ -149,13 +152,54 @@ export default async function DashboardPage({
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Kpi value={totalOpen} label="Open items" color="#b45309" bg="var(--warning-tint)" Icon={Inbox} />
-              <Kpi value={chasing} label="Chasing" color="var(--brand)" bg="var(--brand-tint)" Icon={Send} />
+              <Kpi value={totalAnswered} label="Awaiting review" color="var(--brand)" bg="var(--brand-tint)" Icon={ClipboardCheck} />
               <Kpi value={notOpened} label="Not opened" color="var(--pending)" bg="var(--warning-tint)" Icon={EyeOff} />
               <Kpi value={ruledOff} label="Ruled off" color="var(--success)" bg="var(--success-tint)" Icon={CheckCircle2} />
             </div>
           </div>
 
           <ChaseEveryone count={chaseable} />
+
+          {/* Needs your review: clients who answered and are waiting on you */}
+          {needsReview.length > 0 ? (
+            <section className="flex flex-col gap-3">
+              <div className="flex items-center gap-2 px-1">
+                <h2 className="t-h3 font-display font-semibold">Needs your review</h2>
+                <span className="pill pill-brand num text-[11px]">{totalAnswered}</span>
+              </div>
+              <div className="sheet divide-y divide-line overflow-hidden">
+                {needsReview.map((c) => {
+                  const n = c.answeredCount ?? 0;
+                  const inits = c.name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+                  return (
+                    <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
+                      <Link href={`/clients/${c.id}`} className="flex min-w-0 items-center gap-3 transition-opacity hover:opacity-75">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-[13px] font-bold text-brand">
+                          {inits}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate font-semibold text-text">{c.name}</span>
+                          <span className="text-xs text-ink-muted">
+                            {n} answer{n === 1 ? "" : "s"} waiting on you to rule off
+                          </span>
+                        </span>
+                      </Link>
+                      {n >= 2 ? (
+                        <BulkAcceptButton clientId={c.id} count={n} />
+                      ) : (
+                        <Link
+                          href={`/clients/${c.id}`}
+                          className="inline-flex items-center rounded-lg border border-line-strong px-3.5 py-2 text-sm font-semibold text-text transition-colors hover:bg-surface-2"
+                        >
+                          Review
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
 
           {totalOpen > 0 && <BlockingRollup rollup={rollup} />}
 
