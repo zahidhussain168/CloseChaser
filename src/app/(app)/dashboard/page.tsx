@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getDashboard, getFirm } from "@/lib/data";
 import { AddClientForm } from "@/components/app/AddClientForm";
 import { BlockingRollup } from "@/components/app/BlockingRollup";
+import { ChaseEveryone } from "@/components/app/ChaseEveryone";
 import { Counter } from "@/components/marketing/Counter";
 import { ProgressRing } from "@/components/site/ProgressRing";
 import { formatMonth, monthKey, timeAgo } from "@/lib/format";
@@ -43,6 +44,7 @@ export default async function DashboardPage({
   const totalDone = clients.reduce((n, c) => n + (c.totalItems - c.openCount), 0);
   const overallFill = totalItems ? totalDone / totalItems : 0;
   const overallPct = Math.round(overallFill * 100);
+  const chaseable = clients.filter((c) => c.openCount > 0 && c.email).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -102,6 +104,9 @@ export default async function DashboardPage({
               <Stat value={ruledOff} label="Ruled off" color="var(--success)" />
             </div>
           </div>
+
+          {/* Wow: chase every waiting client in one click */}
+          <ChaseEveryone count={chaseable} />
 
           {/* Needs you this week */}
           {totalOpen > 0 && <BlockingRollup rollup={rollup} />}
