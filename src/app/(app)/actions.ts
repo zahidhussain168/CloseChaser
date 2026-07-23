@@ -221,16 +221,24 @@ export async function acceptItemAction(itemId: string, clientId: string) {
 /** Push one accepted item's answer and receipts into QuickBooks, if it came from there. */
 async function syncAcceptedItem(itemId: string): Promise<void> {
   const supabase = createClient();
-  const { data: item } = await supabase
-    .from("items")
-    .select("*")
-    .eq("id", itemId)
-    .maybeSingle();
-  if (!item || (item as Item).source !== "qbo") return;
+  const { data } = await supabase.from("items").select("*").eq("id", itemId).maybeSingle();
+  const item = data as Item | null;
+  if (!item) return;
+
+  // Only a real QuickBooks transaction (one with a txn reference) can be
+  // written back. Manual and QBO-tagged-without-a-reference items cannot, so
+  // never attempt the push, and clear any stale error so a ruled-off item does
+  // not keep showing a scary QuickBooks message.
+  if (item.source !== "qbo" || !item.qbo_txn_id) {
+    if (item.qbo_sync_error) {
+      await supabase.from("items").update({ qbo_sync_error: null }).eq("id", itemId);
+    }
+    return;
+  }
 
   const conn = await getQboConnection();
   if (!conn) return;
-  await syncItemToQbo(item as Item, conn);
+  await syncItemToQbo(item, conn);
 }
 
 /** Retry a write-back that failed, from the item row. */
