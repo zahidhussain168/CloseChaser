@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useFormState } from "react-dom";
 import { Building2, Mail, Phone, Plug, X, UserPlus, ChevronRight } from "lucide-react";
 import { SubmitButton } from "@/components/SubmitButton";
@@ -62,11 +63,12 @@ export function AddClientForm() {
         + Add a client
       </button>
 
-      {open ? (
-        // Overlay is the scroll container (the standard Headless UI / Radix
-        // pattern): centered when the form fits, and the whole overlay scrolls
-        // when the form is taller than the screen, so every field and the footer
-        // are always reachable.
+      {open && typeof document !== "undefined"
+        ? createPortal(
+        // Portaled to <body> so the fixed overlay is relative to the VIEWPORT,
+        // not a transformed ancestor (which was pushing it off-center). The
+        // overlay is the scroll container (standard Headless UI / Radix pattern):
+        // centered when the form fits, scrolls when it is taller than the screen.
         <div
           className="fixed inset-0 z-50 overflow-y-auto bg-[#0b1120]/60"
           role="dialog"
@@ -151,8 +153,10 @@ export function AddClientForm() {
               </form>
             </div>
           </div>
-        </div>
-      ) : null}
+        </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
