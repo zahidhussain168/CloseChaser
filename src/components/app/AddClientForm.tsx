@@ -60,7 +60,7 @@ export function AddClientForm() {
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="Add a client">
-          <div className="fixed inset-0 bg-[#0b1120]/55 backdrop-blur-md" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 bg-[#0b1120]/70" onClick={() => setOpen(false)} />
 
           <div className="relative my-auto w-full max-w-md" style={{ animation: "co-rise .22s ease-out both" }}>
             <div className="sheet overflow-hidden rounded-2xl shadow-elev2">
