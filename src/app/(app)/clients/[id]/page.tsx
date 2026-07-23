@@ -82,13 +82,14 @@ function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: n
   const TypeIcon = type.Icon;
   const age = item.created_at ? timeAgo(item.created_at) : null;
   const spine = accepted ? "var(--success)" : answered ? "var(--brand)" : "var(--warning)";
+  const spineTint = accepted ? "var(--success-tint)" : answered ? "var(--brand-tint)" : "var(--warning-tint)";
   return (
     <div
-      className="group relative -mx-2 rounded-r-xl border-l-[3px] pl-3 pr-2 transition-colors hover:bg-[var(--paper-deep)]"
-      style={{ borderColor: spine }}
+      className="group sheet lift relative overflow-hidden border-l-[4px] px-4 sm:px-5"
+      style={{ borderLeftColor: spine }}
     >
       <div
-        className="reveal-row grid grid-cols-[2.25rem_1fr_auto] items-start gap-3 py-3.5"
+        className="grid grid-cols-[2.25rem_1fr_auto] items-start gap-3 py-3.5"
         style={{ ["--i"]: idx } as CSSProperties}
       >
         <span className="flex justify-center pt-0.5">
@@ -98,7 +99,7 @@ function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: n
             <span
               aria-hidden="true"
               className="flex h-8 w-8 items-center justify-center rounded-lg"
-              style={{ background: "var(--paper-sheet)", border: "1px solid var(--rule)", color: "var(--ink-muted)" }}
+              style={{ background: spineTint, color: spine }}
             >
               <TypeIcon size={15} />
             </span>
@@ -394,7 +395,7 @@ export default async function ClientPage({ params }: { params: { id: string } })
                     </span>
                   )}
                 </div>
-                <div className="sheet overflow-hidden px-4 sm:px-5">
+                <div className="flex flex-col gap-2.5">
                   {groupItems.map((item, i) => (
                     <ItemRow key={item.id} item={item} clientId={client.id} idx={i} />
                   ))}
