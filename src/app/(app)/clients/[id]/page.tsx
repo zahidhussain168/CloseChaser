@@ -18,6 +18,7 @@ import { ItemRemoveButton } from "@/components/app/ItemRemoveButton";
 import { ClientEditForm } from "@/components/app/ClientEditForm";
 import { BulkAcceptButton, CopyLastMonthButton } from "@/components/app/ClientQuickActions";
 import { AutoChaseToggle } from "@/components/app/AutoChaseToggle";
+import { AIInsightCard } from "@/components/app/AIInsightCard";
 import { buildActivity, nextReminderInfo } from "@/lib/activity";
 import { ImportPanel } from "@/components/app/ImportPanel";
 import { TextChaseCard } from "@/components/app/TextChaseCard";
@@ -333,6 +334,9 @@ export default async function ClientPage({ params }: { params: { id: string } })
           </div>
         ) : null}
       </div>
+
+      {/* AI close analyst */}
+      <AIInsightCard clientId={client.id} />
 
       {/* Completion moment */}
       {allDone ? (
