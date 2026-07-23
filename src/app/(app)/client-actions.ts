@@ -166,3 +166,42 @@ export async function addQuickItemAction(
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+/**
+ * Attach a plain-language note to an item already on the checklist (matched by
+ * title). Falls back to adding a new request if no such item is found, so the
+ * AI analyst's one-click action always does something useful.
+ */
+export async function annotateItemAction(clientId: string, itemTitle: string, note: string): Promise<FormState> {
+  await requireUserId();
+  const supabase = createClient();
+  const period = await ensureCurrentPeriod(clientId);
+  if (!period) return { ok: false, error: "Could not open the close period." };
+
+  const { data: item } = await supabase
+    .from("items")
+    .select("id, details")
+    .eq("close_period_id", period.id)
+    .eq("title", itemTitle)
+    .maybeSingle();
+
+  if (item) {
+    const details = { ...((item.details as Record<string, unknown>) ?? {}), note } as Record<string, string>;
+    const { error } = await supabase.from("items").update({ details }).eq("id", item.id);
+    if (error) return { ok: false, error: error.message };
+  } else {
+    const { error } = await supabase.from("items").insert({
+      close_period_id: period.id,
+      type: "document",
+      source: "manual",
+      title: itemTitle.slice(0, 200) || "New request",
+      details: { note },
+      state: "requested",
+    });
+    if (error) return { ok: false, error: error.message };
+  }
+
+  revalidatePath(`/clients/${clientId}`);
+  revalidatePath("/dashboard");
+  return { ok: true };
+}

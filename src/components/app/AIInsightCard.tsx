@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Sparkles, ArrowRight, Check, RefreshCw } from "lucide-react";
 import { clientInsightAction, type InsightResult } from "@/app/(app)/client-ai-actions";
 import { fireChaseAction } from "@/app/(app)/actions";
-import { bulkAcceptAction, addQuickItemAction } from "@/app/(app)/client-actions";
+import { bulkAcceptAction, addQuickItemAction, annotateItemAction } from "@/app/(app)/client-actions";
 
 const GRADIENT = "linear-gradient(120deg, var(--brand), var(--success))";
 
@@ -30,6 +30,7 @@ export function AIInsightCard({ clientId }: { clientId: string }) {
       let res: { ok?: boolean; error?: string } | undefined = undefined;
       if (a.kind === "chase") res = await fireChaseAction(clientId);
       else if (a.kind === "review") res = await bulkAcceptAction(clientId);
+      else if (a.kind === "annotate") res = await annotateItemAction(clientId, a.itemTitle, a.note);
       else if (a.kind === "add_item") res = await addQuickItemAction(clientId, { type: a.itemType, title: a.title, note: a.note });
       if (!res || res.ok) {
         setDone(true);

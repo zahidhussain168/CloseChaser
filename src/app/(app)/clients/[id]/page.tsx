@@ -81,8 +81,12 @@ function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: n
   const type = TYPE_META[item.type] ?? TYPE_META.document;
   const TypeIcon = type.Icon;
   const age = item.created_at ? timeAgo(item.created_at) : null;
+  const spine = accepted ? "var(--success)" : answered ? "var(--brand)" : "var(--warning)";
   return (
-    <div className="group relative -mx-2 rounded-xl px-2 transition-colors hover:bg-[var(--paper-deep)]">
+    <div
+      className="group relative -mx-2 rounded-r-xl border-l-[3px] pl-3 pr-2 transition-colors hover:bg-[var(--paper-deep)]"
+      style={{ borderColor: spine }}
+    >
       <div
         className="reveal-row grid grid-cols-[2.25rem_1fr_auto] items-start gap-3 py-3.5"
         style={{ ["--i"]: idx } as CSSProperties}

@@ -23,6 +23,7 @@ function sanitize(s: string): string {
 export type InsightAction =
   | { kind: "chase"; label: string }
   | { kind: "review"; label: string }
+  | { kind: "annotate"; label: string; itemTitle: string; note: string }
   | { kind: "add_item"; label: string; title: string; note?: string; itemType: "document" | "questionnaire" }
   | { kind: "none" };
 
@@ -66,7 +67,8 @@ Give the bookkeeper:
 - "action": a structured one-click action that matches your recommendation, ONE of:
   {"kind":"chase","label":"Re-send the chase"} when a nudge or reminder is the move;
   {"kind":"review","label":"Rule off answered items"} when items are answered and waiting for the bookkeeper;
-  {"kind":"add_item","label":"Add this to the checklist","itemType":"document" or "questionnaire","title":"<short client-facing title>","note":"<one plain-language sentence the client will read>"} when the client needs a clarifying request or a plain-language note (for example explaining what a W-9 is);
+  {"kind":"annotate","label":"Add a note for the client","itemTitle":"<the EXACT title of an item from the open items list above>","note":"<one plain-language sentence the client will read>"} when clarifying an item ALREADY on the checklist (for example explaining what a W-9 is). Copy the item title exactly;
+  {"kind":"add_item","label":"Add this to the checklist","itemType":"document" or "questionnaire","title":"<short client-facing title>","note":"<one plain-language sentence>"} when the client needs a NEW request that is not already on the list;
   {"kind":"none"} when no in-app action fits.
 
 Be concrete and reference the actual items or behavior. Never use em dashes or en dashes. Plain, human language.
@@ -80,6 +82,14 @@ function normalizeAction(a: unknown): InsightAction {
   const label = typeof o.label === "string" ? sanitize(o.label) : "";
   if (o.kind === "chase") return { kind: "chase", label: label || "Re-send the chase" };
   if (o.kind === "review") return { kind: "review", label: label || "Rule off answered items" };
+  if (o.kind === "annotate" && typeof o.itemTitle === "string" && o.itemTitle.trim() && typeof o.note === "string" && o.note.trim()) {
+    return {
+      kind: "annotate",
+      label: label || "Add this note for the client",
+      itemTitle: sanitize(o.itemTitle).slice(0, 200),
+      note: sanitize(o.note).slice(0, 500),
+    };
+  }
   if (o.kind === "add_item" && typeof o.title === "string" && o.title.trim()) {
     return {
       kind: "add_item",

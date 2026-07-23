@@ -26,14 +26,12 @@ function Kpi({
   Icon: typeof Inbox;
 }) {
   return (
-    <div className="sheet flex items-center gap-3 p-4">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: bg, color }}>
-        <Icon size={18} />
+    <div className="sheet p-4">
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: bg, color }}>
+        <Icon size={17} />
       </span>
-      <div className="min-w-0">
-        <div className="num text-[26px] font-bold leading-none" style={{ color }}>{value}</div>
-        <div className="mt-1 truncate text-xs text-ink-muted">{label}</div>
-      </div>
+      <div className="num mt-2.5 text-[28px] font-bold leading-none" style={{ color }}>{value}</div>
+      <div className="mt-1 text-[13px] text-ink-muted">{label}</div>
     </div>
   );
 }
@@ -150,7 +148,7 @@ export default async function DashboardPage({
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3">
               <Kpi value={totalOpen} label="Open items" color="#b45309" bg="var(--warning-tint)" Icon={Inbox} />
               <Kpi value={totalAnswered} label="Awaiting review" color="var(--brand)" bg="var(--brand-tint)" Icon={ClipboardCheck} />
               <Kpi value={notOpened} label="Not opened" color="var(--pending)" bg="var(--warning-tint)" Icon={EyeOff} />
