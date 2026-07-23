@@ -63,35 +63,42 @@ export function AddClientForm() {
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Add a client">
-          <div className="fixed inset-0 bg-[#0b1120]/60" onClick={() => setOpen(false)} />
-
-          {/* Centered card: compact for a short form, but caps at the viewport and
-              scrolls its own body when content grows, so it never overflows. */}
-          <div
-            className="relative flex max-h-[88dvh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-surface shadow-2xl"
-            style={{ animation: "co-rise .2s ease-out both" }}
-          >
-            <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-4">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-brand">
-                  <UserPlus size={17} />
-                </span>
-                <h2 className="font-display text-lg font-semibold text-text">Add a client</h2>
+        // Overlay is the scroll container (the standard Headless UI / Radix
+        // pattern): centered when the form fits, and the whole overlay scrolls
+        // when the form is taller than the screen, so every field and the footer
+        // are always reachable.
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-[#0b1120]/60"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Add a client"
+          onClick={() => setOpen(false)}
+        >
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div
+              className="relative w-full max-w-md overflow-hidden rounded-2xl bg-surface shadow-2xl"
+              style={{ animation: "co-rise .2s ease-out both" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-line px-5 py-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-brand">
+                    <UserPlus size={17} />
+                  </span>
+                  <h2 className="font-display text-lg font-semibold text-text">Add a client</h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close"
+                  className="rounded-lg p-1.5 text-ink-muted transition-colors hover:bg-surface-2 hover:text-text"
+                >
+                  <X size={18} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close"
-                className="rounded-lg p-1.5 text-ink-muted transition-colors hover:bg-surface-2 hover:text-text"
-              >
-                <X size={18} />
-              </button>
-            </div>
 
-            <form action={action} className="flex min-h-0 flex-1 flex-col">
-              <div className="flex-1 overflow-y-auto p-5">
-                <div className="flex flex-col gap-4">
+              <form action={action}>
+                <div className="flex flex-col gap-4 p-5">
                   {state.error ? <p className="text-sm text-danger">{state.error}</p> : null}
 
                   {/* Live preview: fills in as they type */}
@@ -134,15 +141,15 @@ export function AddClientForm() {
                     <input type="hidden" name="qbo_realm_id" value="" />
                   )}
                 </div>
-              </div>
 
-              <div className="flex shrink-0 items-center gap-3 border-t border-line px-5 py-4">
-                <SubmitButton pendingText="Adding">Add client</SubmitButton>
-                <button type="button" onClick={() => setOpen(false)} className="text-sm font-medium text-ink-muted transition-colors hover:text-text">
-                  Cancel
-                </button>
-              </div>
-            </form>
+                <div className="flex items-center gap-3 border-t border-line px-5 py-4">
+                  <SubmitButton pendingText="Adding">Add client</SubmitButton>
+                  <button type="button" onClick={() => setOpen(false)} className="text-sm font-medium text-ink-muted transition-colors hover:text-text">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       ) : null}
