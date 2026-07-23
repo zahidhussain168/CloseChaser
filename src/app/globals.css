@@ -548,3 +548,7 @@ html {
   70% { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}

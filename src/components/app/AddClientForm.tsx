@@ -40,7 +40,11 @@ export function AddClientForm() {
       if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   const initials =
@@ -59,95 +63,85 @@ export function AddClientForm() {
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="Add a client">
-          <div className="fixed inset-0 bg-[#0b1120]/70" onClick={() => setOpen(false)} />
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Add a client">
+          <div className="fixed inset-0 bg-[#0b1120]/60" onClick={() => setOpen(false)} />
 
-          <div className="relative my-auto w-full max-w-md" style={{ animation: "co-rise .22s ease-out both" }}>
-            <div className="sheet overflow-hidden rounded-2xl shadow-elev2">
-              <div className="flex items-center justify-between border-b border-line px-5 py-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-brand">
-                    <UserPlus size={17} />
-                  </span>
-                  <h2 className="font-display text-lg font-semibold text-text">Add a client</h2>
+          {/* Slide-over panel: full height, header/footer pinned, body scrolls */}
+          <div
+            className="fixed right-0 top-0 flex h-dvh w-full max-w-md flex-col bg-surface shadow-2xl"
+            style={{ animation: "slideInRight .25s cubic-bezier(.22,1,.36,1) both" }}
+          >
+            <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-4">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-brand">
+                  <UserPlus size={17} />
+                </span>
+                <h2 className="font-display text-lg font-semibold text-text">Add a client</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="rounded-lg p-1.5 text-ink-muted transition-colors hover:bg-surface-2 hover:text-text"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form action={action} className="flex min-h-0 flex-1 flex-col">
+              <div className="flex-1 overflow-y-auto p-5">
+                <div className="flex flex-col gap-4">
+                  {state.error ? <p className="text-sm text-danger">{state.error}</p> : null}
+
+                  {/* Live preview: fills in as they type */}
+                  <div className="flex items-center gap-3 rounded-xl px-3.5 py-3" style={{ background: "var(--brand-tint)" }}>
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold text-white" style={{ background: "var(--brand)" }}>
+                      {initials}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold text-text">{name || "New client"}</div>
+                      <div className="num truncate text-xs text-ink-muted">{email || "no email yet"}</div>
+                    </div>
+                  </div>
+
+                  <IconField icon={Building2} label="Name">
+                    <input name="name" required autoFocus value={name} onChange={(e) => setName(e.target.value)} className="field pl-10" placeholder="Acme Coffee LLC" />
+                  </IconField>
+
+                  <IconField icon={Mail} label="Email">
+                    <input name="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="field pl-10" placeholder="owner@acme.co" />
+                  </IconField>
+
+                  <IconField icon={Phone} label="Phone (optional)">
+                    <input name="phone" className="field num pl-10" placeholder="(555) 010-0142" />
+                  </IconField>
+
+                  <button
+                    type="button"
+                    onClick={() => setAdvanced((a) => !a)}
+                    className="flex w-fit items-center gap-1 text-sm font-medium text-ink-muted transition-colors hover:text-text"
+                  >
+                    <ChevronRight size={14} className={"transition-transform " + (advanced ? "rotate-90" : "")} />
+                    Advanced
+                  </button>
+
+                  {advanced ? (
+                    <IconField icon={Plug} label="QuickBooks realm ID (optional)">
+                      <input name="qbo_realm_id" className="field num pl-10" placeholder="Leave blank for manual-only" />
+                    </IconField>
+                  ) : (
+                    <input type="hidden" name="qbo_realm_id" value="" />
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  aria-label="Close"
-                  className="rounded-lg p-1.5 text-ink-muted transition-colors hover:bg-surface-2 hover:text-text"
-                >
-                  <X size={18} />
-                </button>
               </div>
 
-              <form action={action} className="flex flex-col gap-4 p-5">
-                {state.error ? <p className="text-sm text-danger">{state.error}</p> : null}
-
-                {/* Live preview: fills in as they type */}
-                <div className="flex items-center gap-3 rounded-xl px-3.5 py-3" style={{ background: "var(--brand-tint)" }}>
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold text-white" style={{ background: "var(--brand)" }}>
-                    {initials}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-text">{name || "New client"}</div>
-                    <div className="num truncate text-xs text-ink-muted">{email || "no email yet"}</div>
-                  </div>
-                </div>
-
-                <IconField icon={Building2} label="Name">
-                  <input
-                    name="name"
-                    required
-                    autoFocus
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="field pl-10"
-                    placeholder="Acme Coffee LLC"
-                  />
-                </IconField>
-
-                <IconField icon={Mail} label="Email">
-                  <input
-                    name="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="field pl-10"
-                    placeholder="owner@acme.co"
-                  />
-                </IconField>
-
-                <IconField icon={Phone} label="Phone (optional)">
-                  <input name="phone" className="field num pl-10" placeholder="(555) 010-0142" />
-                </IconField>
-
-                <button
-                  type="button"
-                  onClick={() => setAdvanced((a) => !a)}
-                  className="flex w-fit items-center gap-1 text-sm font-medium text-ink-muted transition-colors hover:text-text"
-                >
-                  <ChevronRight size={14} className={"transition-transform " + (advanced ? "rotate-90" : "")} />
-                  Advanced
+              <div className="flex shrink-0 items-center gap-3 border-t border-line px-5 py-4">
+                <SubmitButton pendingText="Adding">Add client</SubmitButton>
+                <button type="button" onClick={() => setOpen(false)} className="text-sm font-medium text-ink-muted transition-colors hover:text-text">
+                  Cancel
                 </button>
-
-                {advanced ? (
-                  <IconField icon={Plug} label="QuickBooks realm ID (optional)">
-                    <input name="qbo_realm_id" className="field num pl-10" placeholder="Leave blank for manual-only" />
-                  </IconField>
-                ) : (
-                  <input type="hidden" name="qbo_realm_id" value="" />
-                )}
-
-                <div className="flex items-center gap-3 pt-1">
-                  <SubmitButton pendingText="Adding">Add client</SubmitButton>
-                  <button type="button" onClick={() => setOpen(false)} className="text-sm font-medium text-ink-muted transition-colors hover:text-text">
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       ) : null}
