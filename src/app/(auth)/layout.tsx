@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/site/Logo";
+import { AuthShowcase } from "@/components/auth/AuthShowcase";
 
 export default function AuthLayout({
   children,
@@ -7,18 +8,22 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="brand-wash flex min-h-dvh flex-col items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <Link href="/" className="mb-8 flex justify-center">
+    <main className="grid min-h-dvh lg:grid-cols-[1fr_1.1fr]">
+      {/* Form side */}
+      <div className="flex flex-col bg-bg px-6 py-8 sm:px-10 lg:px-14 xl:px-20">
+        <Link href="/" className="tap inline-flex w-fit">
           <Logo />
         </Link>
-        <div className="sheet page-enter rounded-2xl p-7 shadow-elev2 sm:p-9">
-          {children}
+        <div className="flex flex-1 items-center justify-center py-10">
+          <div className="page-enter w-full max-w-sm">{children}</div>
         </div>
-        <p className="mt-6 text-center text-xs text-muted">
+        <p className="text-xs text-muted">
           Close the month without chasing your clients.
         </p>
       </div>
+
+      {/* Brand showcase (desktop) */}
+      <AuthShowcase />
     </main>
   );
 }
