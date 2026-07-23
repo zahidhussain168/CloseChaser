@@ -24,7 +24,7 @@ export function AuthShowcase() {
         <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[12px] font-medium text-slate-200">
           Built for solo bookkeepers
         </span>
-        <h2 className="mt-7 font-display text-[34px] font-bold leading-[1.1] tracking-tight xl:text-[40px]">
+        <h2 className="mt-7 font-display text-[34px] font-bold leading-[1.1] tracking-tight text-white xl:text-[40px]">
           Close the month without chasing clients.
         </h2>
         <p className="mt-4 max-w-md text-[15px] leading-relaxed text-slate-300">
@@ -53,27 +53,23 @@ export function AuthShowcase() {
               <div className="text-[12px] text-slate-400">Acme Coffee Roasters</div>
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
-              <Check size={11} strokeWidth={3} /> 2 of 3 ruled off
+              <Check size={11} strokeWidth={3} /> 3 of 3 ruled off
             </span>
           </div>
           <div className="mt-3 space-y-2">
-            {[
-              { label: "Bank statement", done: true },
-              { label: "Receipt for $128.40", done: true },
-              { label: "W-9 for Bright Design", done: false },
-            ].map((r) => (
-              <div key={r.label} className="flex items-center gap-2.5 rounded-lg bg-white/[0.03] px-3 py-2">
+            {["Bank statement", "Receipt for $128.40", "W-9 for Bright Design"].map((label, i) => (
+              <div
+                key={label}
+                className="flex items-center gap-2.5 rounded-lg bg-white/[0.03] px-3 py-2"
+                style={{ animation: "co-rise .55s both", animationDelay: `${0.15 + i * 0.18}s` }}
+              >
                 <span
-                  className={
-                    "flex h-4 w-4 items-center justify-center rounded-full " +
-                    (r.done ? "bg-emerald-400 text-[#0a1626]" : "border border-white/25")
-                  }
+                  className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 text-[#0a1626]"
+                  style={{ animation: "co-pop .45s both", animationDelay: `${0.32 + i * 0.18}s` }}
                 >
-                  {r.done ? <Check size={10} strokeWidth={3.5} /> : null}
+                  <Check size={10} strokeWidth={3.5} />
                 </span>
-                <span className={"text-[13px] " + (r.done ? "text-slate-300 line-through" : "text-white")}>
-                  {r.label}
-                </span>
+                <span className="text-[13px] text-slate-300 line-through">{label}</span>
               </div>
             ))}
           </div>
