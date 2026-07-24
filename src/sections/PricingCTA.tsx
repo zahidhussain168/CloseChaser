@@ -1,8 +1,19 @@
 "use client";
 
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/site/Button";
 import { Reveal } from "@/components/site/Reveal";
+
+const PLAN_FEATURES: { label: string; pro?: boolean }[] = [
+  { label: "Close Forecast, predicted finish dates", pro: true },
+  { label: "AI Close Analyst on every client", pro: true },
+  { label: "Chase Everyone in one click", pro: true },
+  { label: "Auto-chase each new month", pro: true },
+  { label: "Unlimited clients and closes" },
+  { label: "No-login client portal" },
+  { label: "QuickBooks sync and CSV import" },
+  { label: "Reminder cadence and email templates" },
+];
 
 export function PricingCTA() {
   return (
@@ -12,13 +23,13 @@ export function PricingCTA() {
           <div className="brand-wash relative overflow-hidden rounded-3xl border border-line bg-surface p-8 sm:p-14">
             <div className="relative grid gap-7 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
               <div>
-                <p className="kicker">One flat price</p>
+                <p className="kicker">Free to start, flat to grow</p>
                 <h2 className="t-h2 mt-3 font-display text-text">
                   Cheaper than the hour you spend chasing.
                 </h2>
                 <p className="t-body-lg mt-4 max-w-lg text-muted">
-                  Unlimited clients, unlimited closes, every feature. No seats, no per-client fees,
-                  no free tier to outgrow.
+                  Unlimited clients and unlimited closes on every plan, including free.
+                  No seats and no per-client fees, ever.
                 </p>
                 <div className="mt-7 flex flex-wrap items-center gap-3">
                   <Button href="/signup" size="lg">
@@ -30,21 +41,36 @@ export function PricingCTA() {
                 </div>
               </div>
 
-              <div className="sheet rounded-2xl p-7">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="num text-[52px] font-extrabold leading-none text-text">$39</span>
-                  <span className="text-[16px] text-muted">/month</span>
+              <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+                <div
+                  className="relative overflow-hidden px-7 py-6 text-white"
+                  style={{ background: "linear-gradient(135deg, var(--brand-solid), var(--brand-solid-2))" }}
+                >
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full"
+                    style={{ background: "radial-gradient(closest-side, rgba(255,255,255,0.18), transparent)" }}
+                  />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wide text-white/80">
+                      <Sparkles size={14} /> RuledOff Pro
+                    </div>
+                    <div className="mt-2 flex items-baseline gap-1.5">
+                      <span className="num text-[46px] font-extrabold leading-none">$39</span>
+                      <span className="text-[15px] text-white/70">/month</span>
+                    </div>
+                    <p className="mt-1.5 text-[13px] text-white/70">Flat, unlimited clients, 14-day free trial.</p>
+                  </div>
                 </div>
-                <p className="mt-2 text-[13px] text-muted">Flat. Unlimited clients. 14-day free trial.</p>
-                <ul className="mt-6 flex flex-col gap-3">
-                  {[
-                    "Unlimited clients and closes",
-                    "Automated email chasing",
-                    "No-login client portal",
-                    "QuickBooks sync and CSV import",
-                  ].map((t) => (
-                    <li key={t} className="flex items-start gap-2.5 text-[14px] text-text">
-                      <Check size={17} className="mt-0.5 shrink-0 text-success" /> {t}
+                <ul className="grid gap-x-5 gap-y-2.5 px-7 py-6">
+                  {PLAN_FEATURES.map((f) => (
+                    <li key={f.label} className="flex items-start gap-2.5 text-[13.5px] text-text">
+                      {f.pro ? (
+                        <Sparkles size={16} className="mt-0.5 shrink-0" style={{ color: "var(--brass-ink)" }} />
+                      ) : (
+                        <Check size={16} className="mt-0.5 shrink-0 text-success" />
+                      )}
+                      {f.label}
                     </li>
                   ))}
                 </ul>

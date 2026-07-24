@@ -136,7 +136,7 @@ export default function BestToolsRoundupPage() {
                           {t.name}
                         </h2>
                         {t.ours && (
-                          <span className="rounded-full bg-brass/15 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-brass">
+                          <span className="rounded-full bg-brass/15 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-brass-ink">
                             Our product
                           </span>
                         )}

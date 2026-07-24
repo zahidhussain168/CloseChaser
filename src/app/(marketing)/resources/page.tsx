@@ -59,7 +59,7 @@ export default function ResourcesHubPage() {
                   href={g.href}
                   className="flex h-full flex-col rounded-[12px] border border-site-border bg-site-white p-6 transition-colors hover:border-brass"
                 >
-                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass-ink">
                     Guide
                   </span>
                   <h2 className="mt-3 font-editorial text-[20px] font-medium leading-[1.2] tracking-[-0.01em] text-site-ink">

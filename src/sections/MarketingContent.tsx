@@ -2,6 +2,9 @@ import { Hero } from "./Hero";
 import { HowItWorks } from "./HowItWorks";
 import { MobileShowcase } from "./MobileShowcase";
 import { AppShowcase } from "./AppShowcase";
+import { TrustBlock } from "./TrustBlock";
+import { FounderStory } from "./FounderStory";
+import { ProofStrip } from "./ProofStrip";
 import { PricingCTA } from "./PricingCTA";
 import { Finale } from "./Finale";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -25,9 +28,13 @@ export function MarketingContent() {
     <main>
       <JsonLd data={homeStructuredData()} />
       <Hero />
+      <ProofStrip />
       <HowItWorks />
       <MobileShowcase />
       <AppShowcase />
+      <TrustBlock />
+      <FounderStory />
+      <ProofStrip />
       <PricingCTA />
       <Finale />
       <SiteFooter />

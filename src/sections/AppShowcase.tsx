@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { Reveal } from "@/components/site/Reveal";
 import { Parallax } from "@/components/site/Parallax";
 import { ProgressRing } from "@/components/site/ProgressRing";
+import { initials } from "@/lib/format";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -21,10 +22,6 @@ function color(status: string) {
   if (status === "overdue") return "var(--danger)";
   if (status === "review") return "var(--brand)";
   return "var(--warning)";
-}
-
-function initials(name: string) {
-  return name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 }
 
 // The card lifts into view, then the client rows populate one by one, like the

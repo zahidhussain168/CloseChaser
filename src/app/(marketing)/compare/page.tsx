@@ -23,6 +23,13 @@ type Comparison = {
 
 const COMPARISONS: Comparison[] = [
   {
+    href: "/compare/double",
+    vs: "RuledOff vs Double",
+    blurb:
+      "Double (formerly Keeper) is a deep close suite priced per client. RuledOff is single-purpose and flat, with a predicted close date per client.",
+    status: "live",
+  },
+  {
     href: "/compare/uncat",
     vs: "RuledOff vs Uncat",
     blurb:
@@ -80,7 +87,7 @@ export default function CompareHubPage() {
                     <span
                       className={
                         "font-mono text-[11px] uppercase tracking-[0.12em] " +
-                        (live ? "text-brass" : "text-site-secondary")
+                        (live ? "text-brass-ink" : "text-site-secondary")
                       }
                     >
                       {live ? "Read now" : "Coming soon"}
