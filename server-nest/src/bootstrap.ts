@@ -25,7 +25,10 @@ export async function createApp(): Promise<INestApplication> {
       whitelist: true, // strip unknown keys
       forbidNonWhitelisted: true, // and reject if the caller sent them
       transform: true,
-      transformOptions: { enableImplicitConversion: true },
+      // Deliberately NOT enableImplicitConversion. It coerces before it
+      // validates, so @IsBoolean() would accept "yes" (any non-empty string
+      // becomes true) and quietly act on a request the caller never made.
+      // Where a query string genuinely needs coercing, use @Type() on the DTO.
     }),
   );
 
