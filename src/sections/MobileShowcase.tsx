@@ -22,7 +22,7 @@ const item: Variants = {
 function PhoneScreen() {
   return (
     <motion.div
-      className="flex h-full flex-col bg-bg"
+      className="flex flex-auto flex-col bg-bg"
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.3 }}
@@ -88,7 +88,9 @@ export function MobileShowcase() {
         <Parallax travel={120} className="order-2 lg:order-1">
           <Reveal className="flex justify-center lg:justify-start">
             <div className="w-[248px] rounded-[42px] border border-white/10 bg-[#060c16] p-[10px] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.8)] sm:w-[300px]">
-              <div className="relative h-[512px] overflow-hidden rounded-[33px] bg-bg sm:h-[620px]">
+              {/* min-h, not h: at 248px the answer wraps to two lines and a fixed
+                  height clipped the footnote against the frame. */}
+              <div className="relative flex min-h-[512px] flex-col overflow-hidden rounded-[33px] bg-bg sm:min-h-[620px]">
                 <div className="pointer-events-none absolute left-1/2 top-2 z-10 h-[22px] w-[84px] -translate-x-1/2 rounded-full bg-[#060c16]" />
                 <PhoneScreen />
               </div>
