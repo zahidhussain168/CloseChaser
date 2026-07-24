@@ -51,12 +51,20 @@ export type InsightContext = {
 
 const SYSTEM = `You are a sharp, practical assistant for a solo bookkeeper using RuledOff, a tool that chases the bookkeeper's own clients for the documents and answers needed to close the books each month. The client answers via a no-login link and never creates an account. You read one client's month-end situation and give the bookkeeper a crisp read plus one concrete next step. Output ONLY valid JSON, no markdown, no code fences.`;
 
+function toneGuidance(remindersSent: number): string {
+  if (remindersSent >= 3)
+    return "Tone: this client has been nudged several times. Make the recommendation firmer and reference the mounting delay, while staying respectful and never scolding.";
+  if (remindersSent >= 1) return "Tone: they have had a nudge or two. Keep it friendly but a little more direct.";
+  return "Tone: early in the chase. Keep it warm and low-pressure.";
+}
+
 function buildPrompt(ctx: InsightContext): string {
   const items = ctx.openItems.map((i) => `- ${i.title} (${i.type})`).join("\n") || "(none open)";
   return `Client: ${ctx.clientName}. Month: ${ctx.month}.
 Items: ${ctx.total} total, ${ctx.open} still open, ${ctx.answered} answered and waiting for the bookkeeper to accept, ${ctx.accepted} ruled off.
 Chase status: ${ctx.chasing ? `chasing for ${ctx.daysChasing ?? "?"} days, ${ctx.remindersSent} reminders sent` : "not chasing yet"}.
 Client link: ${ctx.opened ? `opened ${ctx.lastOpenedDaysAgo ?? 0} days ago` : "not opened yet"}.
+${toneGuidance(ctx.remindersSent)}
 Open items:
 ${items}
 

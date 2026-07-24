@@ -4,6 +4,7 @@ import { seedPeriodFromTemplate } from "@/lib/data";
 import { ensureMagicToken } from "@/lib/links";
 import { sendChaseEmail } from "@/lib/chase";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { firmIsPro } from "@/lib/pro-features";
 import type { Client, Firm, Item, ClosePeriod } from "@/lib/types";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -59,6 +60,9 @@ export async function runRecurring(admin: Admin, now: Date = new Date()): Promis
       // already begun this month.
       if (open.length > 0 && period.status !== "chasing" && !period.chase_started_at && client.email) {
         const { data: firm } = await admin.from("firms").select("*").eq("id", client.firm_id).single();
+        // Auto-chase is a paid feature. A firm that turned it on and then lapsed
+        // to Free keeps the flag but stops being auto-chased.
+        if (!firm || !firmIsPro(firm as unknown as Firm)) continue;
         const token = await ensureMagicToken(admin, client.id);
         await admin
           .from("close_periods")

@@ -1,8 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { serverEnv } from "@/lib/env";
-import { getSubscriptionState } from "@/lib/paddle/subscription";
-import type { Firm } from "@/lib/types";
 
 /**
  * Public path prefixes that never require a bookkeeper session.
@@ -82,31 +80,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Subscription gate: once the trial ends (and the firm is not paying), the
-  // authenticated app is blocked and the user is sent to billing so they can
-  // subscribe. /settings/plan and /api/* stay reachable so they can pay and so
-  // cron/webhooks/attachments keep working. Public marketing/portal pages are
-  // untouched.
-  if (
-    user &&
-    !isPublic(pathname) &&
-    !pathname.startsWith("/api") &&
-    !pathname.startsWith("/settings/plan")
-  ) {
-    const { data: firm } = await supabase
-      .from("firms")
-      .select(
-        "subscription_status, trial_ends_at, paddle_subscription_id, current_period_end",
-      )
-      .eq("owner_id", user.id)
-      .maybeSingle();
-    if (firm && !getSubscriptionState(firm as unknown as Firm).active) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/settings/plan";
-      url.search = "";
-      return NextResponse.redirect(url);
-    }
-  }
+  // Note: an expired trial is NOT locked out of the app. The basic collection
+  // loop stays usable indefinitely; the premium features (Close Forecast, AI
+  // analyst, Chase Everyone, auto-chase) gate themselves in the UI and are
+  // enforced in their server actions via entitlements. This keeps the product
+  // genuinely useful for free while the paid plan sells the automation and
+  // intelligence, rather than trapping someone the moment the trial ends.
 
   return response;
 }

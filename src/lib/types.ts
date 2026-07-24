@@ -31,6 +31,8 @@ export type Firm = {
   subscription_status?: string | null;
   current_period_end?: string | null;
   trial_ends_at?: string | null;
+  /** Paid tier: 'pro' | 'scale'. Null while trialing or unsubscribed. */
+  plan?: string | null;
   accounting_software?: string | null;
   client_count?: string | null;
   chase_method?: string | null;
@@ -48,6 +50,8 @@ export type Client = {
   default_template_id: string | null;
   notes: string | null;
   auto_chase?: boolean;
+  /** Optional hard close day-of-month (1-28) for deadline-aware escalation. */
+  close_day?: number | null;
   created_at: string;
 };
 

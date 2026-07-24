@@ -18,7 +18,15 @@ type PaddleSubscription = {
   customer_id: string;
   current_billing_period?: { ends_at?: string } | null;
   custom_data?: { firm_id?: string } | null;
+  items?: { price?: { id?: string } | null }[] | null;
 };
+
+/** Map the purchased Paddle price to our flat tier. Defaults to 'pro'. */
+function planFromItems(items: PaddleSubscription["items"]): "pro" | "scale" {
+  const scalePriceId = process.env.NEXT_PUBLIC_PADDLE_SCALE_PRICE_ID;
+  const priceIds = (items ?? []).map((i) => i.price?.id).filter(Boolean) as string[];
+  return scalePriceId && priceIds.includes(scalePriceId) ? "scale" : "pro";
+}
 
 function statusToLocal(paddle: string): string {
   // Paddle: trialing, active, past_due, paused, canceled
@@ -59,6 +67,7 @@ export async function POST(request: NextRequest) {
     paddle_subscription_id: sub.id,
     paddle_customer_id: sub.customer_id,
     current_period_end: sub.current_billing_period?.ends_at ?? null,
+    plan: planFromItems(sub.items),
   };
 
   let query = admin.from("firms").update(update);

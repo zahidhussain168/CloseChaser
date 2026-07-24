@@ -31,6 +31,7 @@ export interface Database {
           subscription_status: string;
           current_period_end: string | null;
           trial_ends_at: string | null;
+          plan: string | null;
           accounting_software: string | null;
           client_count: string | null;
           chase_method: string | null;
@@ -51,6 +52,7 @@ export interface Database {
           subscription_status?: string;
           current_period_end?: string | null;
           trial_ends_at?: string | null;
+          plan?: string | null;
           accounting_software?: string | null;
           client_count?: string | null;
           chase_method?: string | null;
@@ -72,6 +74,7 @@ export interface Database {
           default_template_id: string | null;
           notes: string | null;
           auto_chase: boolean;
+          close_day: number | null;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -83,9 +86,31 @@ export interface Database {
           default_template_id?: string | null;
           notes?: string | null;
           auto_chase?: boolean;
+          close_day?: number | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["clients"]["Insert"]>;
+        Relationships: [];
+      };
+      ai_suggestions: {
+        Row: {
+          id: string;
+          firm_id: string;
+          client_id: string;
+          suggestion: Record<string, unknown>;
+          reminders_sent: number | null;
+          acted: boolean;
+        } & Timestamps;
+        Insert: {
+          id?: string;
+          firm_id: string;
+          client_id: string;
+          suggestion: Record<string, unknown>;
+          reminders_sent?: number | null;
+          acted?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ai_suggestions"]["Insert"]>;
         Relationships: [];
       };
       request_templates: {

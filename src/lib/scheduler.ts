@@ -5,7 +5,20 @@ import { sendChaseEmail } from "@/lib/chase";
 import { dueReminder, levelLabel, normaliseCadence } from "@/lib/reminders";
 import { kindForLevel } from "@/lib/email/templates";
 import { isOpen } from "@/lib/state";
+import { planEscalation, smsChaseBody } from "@/lib/escalation";
+import { firmIsPro } from "@/lib/pro-features";
+import { isSmsEnabled, sendSms } from "@/lib/sms/twilio";
+import { magicLinkUrl } from "@/lib/tokens";
+import { serverEnv } from "@/lib/env";
 import type { Client, Firm, Item, ClosePeriod } from "@/lib/types";
+
+/** The hard close deadline for a period, from the client's close_day (books
+ * close on the Nth of the month after the close month). Null if none set. */
+function periodDeadlineISO(monthISO: string, closeDay: number | null | undefined): string | null {
+  if (!closeDay) return null;
+  const pm = new Date(monthISO);
+  return new Date(Date.UTC(pm.getUTCFullYear(), pm.getUTCMonth() + 1, closeDay)).toISOString();
+}
 
 export type SchedulerReport = {
   ranAt: string;
@@ -86,6 +99,14 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
       .single();
     if (!firm) continue;
 
+    // Auto-escalating reminders are a Pro feature. A Free firm can still send a
+    // chase by hand from the client page; the scheduler just does not follow up
+    // for them. Trial and paid plans are unaffected.
+    if (!firmIsPro(firm as unknown as Firm)) {
+      report.skipped += 1;
+      continue;
+    }
+
     const due = dueReminder(
       new Date(period.chase_started_at as string),
       sentCount ?? 0,
@@ -95,7 +116,17 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
         weeklyStep: (firm as { reminder_weekly_step?: number }).reminder_weekly_step,
       }),
     );
-    if (!due) {
+
+    // Deadline-aware: work BACKWARD from the close date. On the final day and the
+    // day before, force a firm (level 3, consequence) reminder even if the
+    // forward cadence has nothing due. The daily-slot claim below still prevents
+    // double-contacting if a cadence reminder already went out today.
+    const deadlineIso = periodDeadlineISO(period.month, (clientRow as { close_day?: number | null }).close_day);
+    const dl = planEscalation(deadlineIso, now.getTime());
+    const deadlineDrivenLevel =
+      dl.daysToDeadline != null && dl.daysToDeadline >= 0 && dl.daysToDeadline <= 1 ? 3 : null;
+    const sendLevel = due ? due.level : deadlineDrivenLevel;
+    if (sendLevel == null) {
       report.skipped += 1;
       continue;
     }
@@ -110,7 +141,7 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
         .insert({
           client_id: clientRow.id,
           close_period_id: period.id,
-          level: due.level,
+          level: sendLevel,
           channel: "email",
           scheduled_for: now.toISOString(),
           day,
@@ -129,7 +160,7 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
         supabase: admin,
         firm: firm as Firm,
         client: clientRow,
-        kind: kindForLevel(due.level),
+        kind: kindForLevel(sendLevel),
         items,
         token,
         monthISO: period.month,
@@ -150,8 +181,29 @@ export async function runReminders(now: Date = new Date()): Promise<SchedulerRep
         .eq("close_period_id", period.id)
         .eq("state", "requested");
 
+      // Deadline-aware channel escalation. If the client has a close deadline
+      // and we are within the SMS window, also text them, urgent on the final
+      // day. The SMS channel is dormant unless configured, so this is a no-op
+      // today and the email above remains the live path. Best-effort: an SMS
+      // problem never fails the run.
+      if (result.ok && clientRow.phone && dl.channel === "email_sms" && isSmsEnabled()) {
+        try {
+          await sendSms(
+            clientRow.phone,
+            smsChaseBody({
+              firmName: (firm as Firm).name,
+              openCount: open.length,
+              url: magicLinkUrl(serverEnv.appUrl, token),
+              urgent: dl.urgent,
+            }),
+          );
+        } catch {
+          /* SMS is best-effort; the email already went out */
+        }
+      }
+
       if (result.ok) {
-        report.sent.push({ client: clientRow.name, level: levelLabel(due.level) });
+        report.sent.push({ client: clientRow.name, level: levelLabel(sendLevel) });
       } else {
         report.errors.push({ client: clientRow.name, error: result.error });
       }

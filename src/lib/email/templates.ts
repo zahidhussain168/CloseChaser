@@ -1,4 +1,5 @@
 import type { ReminderLevel } from "@/lib/types";
+import { initials, readableOn } from "@/lib/format";
 
 /**
  * Email copy. Escalation is by COPY, not channel:
@@ -103,73 +104,134 @@ export type EmailItem = {
 };
 
 function itemKindLabel(type: EmailItem["type"]): string {
-  if (type === "document") return "upload";
-  if (type === "questionnaire") return "a few questions";
-  return "quick answer";
+  if (type === "document") return "Upload";
+  if (type === "questionnaire") return "Questions";
+  return "Answer";
 }
 
-/** Ledger-styled HTML email. Inline styles only (email clients strip <style>). */
+/**
+ * A designed, firm-branded HTML email. Table-based with inline styles only so
+ * it renders in Gmail, Apple Mail, and Outlook. The firm's accent colour drives
+ * the header band, the item accents, and the call-to-action button, so every
+ * chase looks like it came from the firm, not from a generic tool. Text colour
+ * on the accent is chosen for contrast so light accents stay readable.
+ */
 export function buildEmailHtml(opts: {
   bodyText: string;
   items: EmailItem[];
   ctaUrl: string;
   firmName: string;
   accent: string;
+  month?: string;
 }): string {
-  const { bodyText, items, ctaUrl, firmName, accent } = opts;
+  const { bodyText, items, ctaUrl, firmName, accent, month } = opts;
+  const onAccent = readableOn(accent);
+  const onAccentSoft = onAccent === "#FFFFFF" ? "rgba(255,255,255,0.82)" : "rgba(0,0,0,0.6)";
+  const avatarBg = onAccent === "#FFFFFF" ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.12)";
+  const safeFirm = escapeHtml(firmName);
+  const firmInitials = initials(firmName);
+
   const paras = bodyText
     .split(/\n\n+/)
     .map(
       (p) =>
-        `<p style="margin:0 0 16px;line-height:1.55;color:#1E293B;font-size:15px;">${escapeHtml(
-          p,
-        ).replace(/\n/g, "<br/>")}</p>`,
+        `<p style="margin:0 0 16px;line-height:1.6;color:#334155;font-size:15px;">${escapeHtml(p).replace(
+          /\n/g,
+          "<br/>",
+        )}</p>`,
     )
     .join("");
 
   const itemRows = items
     .map(
       (it) => `
-      <tr>
-        <td style="padding:10px 0;border-bottom:1px solid #E2DFD5;font-size:14px;color:#1E293B;">
-          <span style="color:#C49A2A;font-family:'IBM Plex Mono',Menlo,monospace;">•</span>
-          &nbsp; ${escapeHtml(it.title)}
-          <span style="color:#475569;font-size:12px;"> (${itemKindLabel(it.type)})</span>
-        </td>
-      </tr>`,
+      <tr><td style="padding:0 0 8px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border:1px solid #E8EDF3;border-radius:10px;">
+          <tr>
+            <td width="4" style="background:${accent};border-radius:10px 0 0 10px;">&nbsp;</td>
+            <td style="padding:11px 14px;font-size:14px;font-weight:600;color:#0F172A;">${escapeHtml(it.title)}</td>
+            <td align="right" style="padding:11px 14px;">
+              <span style="display:inline-block;background:#EEF2F6;color:#475569;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;">${itemKindLabel(
+                it.type,
+              )}</span>
+            </td>
+          </tr>
+        </table>
+      </td></tr>`,
     )
     .join("");
 
+  const preheader = `${items.length} item${items.length === 1 ? "" : "s"} to finish${
+    month ? ` ${escapeHtml(month)}` : ""
+  }. No login needed.`;
+
+  const chip =
+    items.length && month
+      ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 18px;"><tr><td style="background:#F1F5F9;border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:600;color:#334155;">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:999px;background:${accent};"></span>
+          &nbsp; ${items.length} item${items.length === 1 ? "" : "s"} left to close ${escapeHtml(month)}
+        </td></tr></table>`
+      : "";
+
   return `<!doctype html>
 <html>
-  <body style="margin:0;background:#FFFDF7;padding:24px 0;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;">
+  <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
+  <body style="margin:0;background:#F1F4F8;padding:24px 0;font-family:Inter,'Segoe UI',Helvetica,Arial,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${preheader}</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr><td align="center">
-        <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#FFFFFF;border:1px solid #E2DFD5;border-radius:8px;overflow:hidden;">
-          <tr><td style="padding:22px 28px 18px;border-bottom:3px solid ${accent};">
-            <div style="font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#1E293B;">${escapeHtml(
-              firmName,
-            )}</div>
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#FFFFFF;border:1px solid #E6EBF1;border-radius:16px;overflow:hidden;">
+
+          <!-- Branded header band -->
+          <tr><td style="background:${accent};padding:22px 28px;">
+            <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+              <td style="padding-right:12px;">
+                <table role="presentation" cellpadding="0" cellspacing="0"><tr><td width="44" height="44" align="center" valign="middle" style="width:44px;height:44px;background:${avatarBg};border-radius:12px;font-size:15px;font-weight:800;color:${onAccent};">${escapeHtml(firmInitials)}</td></tr></table>
+              </td>
+              <td>
+                <div style="font-size:19px;font-weight:800;letter-spacing:-0.01em;color:${onAccent};">${safeFirm}</div>
+                ${
+                  month
+                    ? `<div style="font-size:13px;color:${onAccentSoft};margin-top:1px;">${escapeHtml(month)} close</div>`
+                    : ""
+                }
+              </td>
+            </tr></table>
           </td></tr>
-          <tr><td style="padding:22px 28px 4px;">
+
+          <!-- Body -->
+          <tr><td style="padding:26px 28px 6px;">
+            ${chip}
             ${paras}
           </td></tr>
+
           ${
             items.length
-              ? `<tr><td style="padding:4px 28px 8px;">
-                  <div style="font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#475569;margin-bottom:4px;">Open items</div>
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E2DFD5;">${itemRows}</table>
+              ? `<tr><td style="padding:6px 28px 4px;">
+                  <div style="font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#94A3B8;font-weight:700;margin:0 0 10px;">What I still need</div>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${itemRows}</table>
                 </td></tr>`
               : ""
           }
-          <tr><td style="padding:18px 28px 28px;">
-            <a href="${ctaUrl}" style="display:inline-block;background:#1E3A5F;color:#FFFFFF;text-decoration:none;padding:14px 26px;border-radius:10px;font-weight:700;font-size:15px;">Open your checklist</a>
-            <div style="margin-top:12px;font-size:12px;color:#475569;">No login required. This private link is just for you.</div>
+
+          <!-- CTA -->
+          <tr><td style="padding:18px 28px 8px;">
+            <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+              <td align="center" style="background:${accent};border-radius:12px;">
+                <a href="${ctaUrl}" style="display:inline-block;padding:15px 30px;font-size:15px;font-weight:700;color:${onAccent};text-decoration:none;border-radius:12px;">Open your checklist &nbsp;&rarr;</a>
+              </td>
+            </tr></table>
+            <div style="margin-top:12px;font-size:12.5px;color:#64748B;line-height:1.5;">No login, no app to download. It saves as you go, so you can stop and come back anytime.</div>
           </td></tr>
+
+          <!-- Footer -->
+          <tr><td style="padding:18px 28px 24px;">
+            <div style="border-top:1px solid #EEF2F6;padding-top:14px;font-size:11.5px;color:#94A3B8;">
+              Sent by ${safeFirm} &middot; delivered with <a href="https://ruledoff.vercel.app" style="color:#94A3B8;text-decoration:none;">RuledOff</a>
+            </div>
+          </td></tr>
+
         </table>
-        <div style="max-width:520px;margin:14px auto 0;font-size:11px;color:#9CA3AF;">Sent by ${escapeHtml(
-          firmName,
-        )} via RuledOff</div>
       </td></tr>
     </table>
   </body>

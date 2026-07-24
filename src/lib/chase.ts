@@ -86,6 +86,7 @@ export async function sendChaseEmail(args: ChaseArgs): Promise<SendResult> {
     ctaUrl,
     firmName: firm.name,
     accent,
+    month: ctx.month,
   });
   const text = buildEmailText({
     bodyText,
