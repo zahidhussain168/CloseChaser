@@ -14,7 +14,9 @@ export async function createApp(): Promise<INestApplication> {
     Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 0.1 });
   }
 
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  // rawBody so the Paddle webhook can verify the signature against the exact
+  // bytes that were signed. Re-serialising parsed JSON does not round-trip.
+  const app = await NestFactory.create(AppModule, { bufferLogs: true, rawBody: true });
   app.useLogger(app.get(Logger));
 
   // Everything under /api so one Vercel rewrite can own the whole surface.
