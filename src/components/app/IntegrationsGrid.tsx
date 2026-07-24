@@ -5,8 +5,18 @@ import Link from "next/link";
 import { Check, ArrowRight, Bell } from "lucide-react";
 import { requestIntegrationAction } from "@/app/(app)/integration-actions";
 import type { IntegrationDef } from "@/lib/integrations";
+import { BrandLogo, hasBrandLogo } from "@/components/app/BrandLogo";
 
 function Monogram({ item }: { item: IntegrationDef }) {
+  // Real brand logo on a clean white tile; fall back to the colored monogram
+  // for any partner we have not drawn a mark for yet.
+  if (hasBrandLogo(item.key)) {
+    return (
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-white p-1.5 shadow-sm">
+        <BrandLogo brand={item.key} className="h-full w-full" />
+      </span>
+    );
+  }
   return (
     <span
       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold lowercase"

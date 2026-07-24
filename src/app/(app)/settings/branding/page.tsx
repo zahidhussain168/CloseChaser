@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getFirm } from "@/lib/data";
 import { BrandingForm } from "@/components/app/SettingsForms";
 import { SettingsSection } from "@/components/app/SettingsSection";
+import { Palette } from "lucide-react";
 
 export default async function BrandingSettings() {
   const firm = await getFirm();
@@ -11,6 +12,7 @@ export default async function BrandingSettings() {
     <SettingsSection
       title="Branding"
       description="How your firm appears to clients on the link and in emails."
+      icon={Palette}
     >
       <BrandingForm
         name={firm.name}

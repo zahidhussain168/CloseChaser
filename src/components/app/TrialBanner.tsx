@@ -19,8 +19,8 @@ export function TrialBanner({ firm }: { firm: Firm }) {
   const expired = !sub.inTrial;
   const tone = expired ? "bg-danger" : sub.trialDaysLeft <= 3 ? "bg-warning" : "bg-brand";
   const message = expired
-    ? "Your free trial has ended."
-    : `${sub.trialDaysLeft} day${sub.trialDaysLeft === 1 ? "" : "s"} left in your free trial.`;
+    ? "Your free trial has ended. Forecast, AI, and auto-chase are locked. Basic collection still works."
+    : `${sub.trialDaysLeft} day${sub.trialDaysLeft === 1 ? "" : "s"} left in your free trial. Enjoy every Pro feature until then.`;
 
   return (
     <div className={`${tone} text-white`}>

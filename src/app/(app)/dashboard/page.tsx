@@ -2,9 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Inbox, ClipboardCheck, EyeOff, CheckCircle2 } from "lucide-react";
 import { getDashboard, getFirm } from "@/lib/data";
+import { getCloseForecast } from "@/lib/forecast";
 import { AddClientForm } from "@/components/app/AddClientForm";
 import { BlockingRollup } from "@/components/app/BlockingRollup";
 import { ChaseEveryone } from "@/components/app/ChaseEveryone";
+import { CloseForecast } from "@/components/app/CloseForecast";
+import { ClientsRanked } from "@/components/app/ClientsRanked";
+import { ProLock } from "@/components/app/ProLock";
+import { firmIsPro, firmIsScale } from "@/lib/entitlements";
+import { getResponsivenessScores } from "@/lib/responsiveness";
 import { BulkAcceptButton } from "@/components/app/ClientQuickActions";
 import { ClientsTable, type DashRow } from "@/components/app/ClientsTable";
 import { ProgressRing } from "@/components/site/ProgressRing";
@@ -39,11 +45,22 @@ function Kpi({
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { subscribed?: string };
+  searchParams: { subscribed?: string; preview?: string };
 }) {
   const [{ clients, rollup }, firm] = await Promise.all([getDashboard(), getFirm()]);
   const month = formatMonth(monthKey());
   const justSubscribed = searchParams.subscribed === "1";
+  // ?preview=locked lets the owner see the post-trial locked view on demand,
+  // without altering their real subscription state.
+  const previewLocked = searchParams.preview === "locked";
+  const pro = firmIsPro(firm) && !previewLocked;
+  const scale = firmIsScale(firm) && !previewLocked;
+
+  // Scale-only data: only query it when it will actually be shown. Free/Pro
+  // dashboards (and the locked preview) skip these entirely.
+  const [forecast, scores] = scale
+    ? await Promise.all([getCloseForecast(), getResponsivenessScores()])
+    : [null, []];
 
   const totalOpen = clients.reduce((n, c) => n + c.openCount, 0);
   const ruledOff = clients.filter((c) => c.period?.status === "closed" || (!c.openCount && c.totalItems > 0)).length;
@@ -156,7 +173,13 @@ export default async function DashboardPage({
             </div>
           </div>
 
-          <ChaseEveryone count={chaseable} />
+          {scale && forecast ? <CloseForecast forecast={forecast} /> : <ProLock feature="forecast" />}
+
+          {pro ? (
+            <ChaseEveryone count={chaseable} />
+          ) : chaseable > 0 ? (
+            <ProLock feature="bulkChase" />
+          ) : null}
 
           {/* Needs your review: clients who answered and are waiting on you */}
           {needsReview.length > 0 ? (
@@ -202,6 +225,8 @@ export default async function DashboardPage({
           {totalOpen > 0 && <BlockingRollup rollup={rollup} />}
 
           <ClientsTable rows={rows} />
+
+          {scale && scores.length > 0 ? <ClientsRanked scores={scores} /> : null}
         </>
       )}
     </div>

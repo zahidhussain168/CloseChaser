@@ -1,6 +1,7 @@
 import { listTemplates } from "@/lib/data";
 import { TemplatesManager } from "@/components/app/TemplatesManager";
 import { SettingsSection } from "@/components/app/SettingsSection";
+import { LayoutList } from "lucide-react";
 
 export default async function TemplatesSettings() {
   const requestTemplates = await listTemplates();
@@ -9,6 +10,7 @@ export default async function TemplatesSettings() {
     <SettingsSection
       title="Request templates"
       description="Save the requests you send every month. Assign a template to a client and its items appear automatically in each new close."
+      icon={LayoutList}
     >
       <TemplatesManager templates={requestTemplates} />
     </SettingsSection>

@@ -2,6 +2,10 @@ import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { getClientDetail, listTemplates, getFirm } from "@/lib/data";
+import { getClientForecast } from "@/lib/forecast";
+import { ClientForecastCard } from "@/components/app/ClientForecastCard";
+import { ProLock, ProLockInline } from "@/components/app/ProLock";
+import { firmIsPro, firmIsScale } from "@/lib/entitlements";
 import { getActiveLink } from "@/lib/links";
 import { ClientTemplatePicker } from "@/components/app/ClientTemplatePicker";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +29,7 @@ import { TextChaseCard } from "@/components/app/TextChaseCard";
 import { CloseCockpit } from "@/components/app/CloseCockpit";
 import { buildTextMessage, smsHref } from "@/lib/textmessage";
 import { getQboConnection } from "@/lib/qbo/connection";
+import { RuledOff } from "@/components/RuledOff";
 import type { Attachment, Item } from "@/lib/types";
 
 const STATE_LABEL: Record<string, string> = {
@@ -106,8 +111,8 @@ function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: n
           )}
         </span>
         <span className="min-w-0">
-          <span className="block font-medium" style={accepted ? { color: "var(--cleared)" } : undefined}>
-            {item.title}
+          <span className="block font-medium">
+            <RuledOff done={accepted}>{item.title}</RuledOff>
           </span>
           <span className="mt-0.5 block text-[11px] font-medium uppercase tracking-wide text-faint">
             {type.label}
@@ -170,7 +175,13 @@ function ItemRow({ item, clientId, idx }: { item: Item; clientId: string; idx: n
   );
 }
 
-export default async function ClientPage({ params }: { params: { id: string } }) {
+export default async function ClientPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { preview?: string };
+}) {
   const detail = await getClientDetail(params.id);
   if (!detail) notFound();
 
@@ -182,7 +193,11 @@ export default async function ClientPage({ params }: { params: { id: string } })
   const opened = !!link?.lastOpenedAt;
   const openedLabel = link ? (opened ? `Opened ${timeAgo(link.lastOpenedAt)}` : "Not opened yet") : null;
   const open = openCount(items);
+  const forecast = await getClientForecast(client.id);
   const firm = await getFirm();
+  const previewLocked = searchParams.preview === "locked";
+  const pro = firmIsPro(firm) && !previewLocked;
+  const scale = firmIsScale(firm) && !previewLocked;
   const textMessage = buildTextMessage({
     firmName: firm?.name ?? "Your bookkeeper",
     clientName: client.name,
@@ -232,13 +247,22 @@ export default async function ClientPage({ params }: { params: { id: string } })
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        href="/dashboard"
-        className="tap inline-flex items-center gap-1 self-start text-sm text-ink-muted hover:text-ink"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-        Clients
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          href="/dashboard"
+          className="tap inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          Clients
+        </Link>
+        <Link
+          href={`/clients/${client.id}/receipt`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-[13px] font-medium text-ink-muted transition-colors hover:border-brand hover:text-text"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M9 13h6M9 17h4" /></svg>
+          Close Receipt
+        </Link>
+      </div>
 
       <CloseCockpit
         clientId={client.id}
@@ -286,16 +310,23 @@ export default async function ClientPage({ params }: { params: { id: string } })
                 defaultTemplateId={client.default_template_id}
               />
               <div className="mt-4 border-t border-line pt-4">
-                <AutoChaseToggle
-                  clientId={client.id}
-                  initial={Boolean(client.auto_chase)}
-                  hasTemplate={Boolean(client.default_template_id)}
-                />
+                {pro ? (
+                  <AutoChaseToggle
+                    clientId={client.id}
+                    initial={Boolean(client.auto_chase)}
+                    hasTemplate={Boolean(client.default_template_id)}
+                  />
+                ) : (
+                  <ProLockInline feature="autoChase" />
+                )}
               </div>
             </div>
           </div>
         }
       />
+
+      {/* Forward-looking companion to the cockpit: when will this one close? */}
+      {scale ? <ClientForecastCard forecast={forecast} /> : forecast ? <ProLock feature="forecast" /> : null}
 
       {/* Detail strip: next nudge, preview, edit, private note */}
       <div className="flex flex-col gap-3">
@@ -327,6 +358,7 @@ export default async function ClientPage({ params }: { params: { id: string } })
               email: client.email,
               phone: client.phone,
               notes: client.notes,
+              closeDay: (client as { close_day?: number | null }).close_day ?? null,
             }}
           />
         </div>
@@ -341,7 +373,7 @@ export default async function ClientPage({ params }: { params: { id: string } })
       </div>
 
       {/* AI close analyst */}
-      <AIInsightCard clientId={client.id} />
+      {scale ? <AIInsightCard clientId={client.id} /> : <ProLock feature="aiAnalyst" />}
 
       {/* Completion moment */}
       {allDone ? (

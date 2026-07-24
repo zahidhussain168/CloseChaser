@@ -7,6 +7,7 @@ import { requireUserId } from "@/lib/auth";
 import { ensureCurrentPeriod } from "@/lib/data";
 import { getQboConnection } from "@/lib/qbo/connection";
 import { syncItemToQbo } from "@/lib/qbo/writeback";
+import { isPro } from "@/lib/entitlements";
 import type { FormState } from "@/lib/forms";
 import type { Item } from "@/lib/types";
 
@@ -16,6 +17,10 @@ const editSchema = z.object({
   email: z.string().trim().email("Enter a valid email"),
   phone: z.string().trim().optional(),
   notes: z.string().trim().max(2000).optional(),
+  closeDay: z.preprocess(
+    (v) => (v === "" || v == null ? undefined : Number(v)),
+    z.number().int().min(1, "Day must be 1-28").max(28, "Day must be 1-28").optional(),
+  ),
 });
 
 /** Edit a client's name, email, phone, and private firm notes. */
@@ -27,14 +32,15 @@ export async function updateClientAction(_prev: FormState, formData: FormData): 
     email: formData.get("email"),
     phone: formData.get("phone") ?? undefined,
     notes: formData.get("notes") ?? undefined,
+    closeDay: formData.get("close_day") ?? undefined,
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const { clientId, name, email, phone, notes } = parsed.data;
+  const { clientId, name, email, phone, notes, closeDay } = parsed.data;
 
   const supabase = createClient();
   const { error } = await supabase
     .from("clients")
-    .update({ name, email, phone: phone || null, notes: notes || null })
+    .update({ name, email, phone: phone || null, notes: notes || null, close_day: closeDay ?? null })
     .eq("id", clientId);
   if (error) return { ok: false, error: error.message };
 
@@ -135,6 +141,9 @@ export async function copyLastMonthAction(clientId: string): Promise<FormState> 
 /** Turn recurring monthly requests (auto-build + auto-chase) on or off. */
 export async function setAutoChaseAction(clientId: string, on: boolean): Promise<FormState> {
   await requireUserId();
+  if (!(await isPro())) {
+    return { ok: false, error: "Your free trial has ended. Upgrade to turn on auto-chase." };
+  }
   const supabase = createClient();
   const { error } = await supabase.from("clients").update({ auto_chase: on }).eq("id", clientId);
   if (error) return { ok: false, error: error.message };

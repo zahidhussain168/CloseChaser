@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Sparkles, ArrowRight, Check, RefreshCw } from "lucide-react";
-import { clientInsightAction, type InsightResult } from "@/app/(app)/client-ai-actions";
+import { clientInsightAction, markSuggestionActedAction, type InsightResult } from "@/app/(app)/client-ai-actions";
 import { fireChaseAction } from "@/app/(app)/actions";
 import { bulkAcceptAction, addQuickItemAction, annotateItemAction } from "@/app/(app)/client-actions";
 
@@ -35,6 +35,7 @@ export function AIInsightCard({ clientId }: { clientId: string }) {
       if (!res || res.ok) {
         setDone(true);
         setActionErr(null);
+        void markSuggestionActedAction(clientId); // close the audit loop
       } else {
         setActionErr(res.error ?? "Could not complete that.");
       }

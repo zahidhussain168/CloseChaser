@@ -3,12 +3,14 @@ import { getFirm } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { loadTemplates } from "@/lib/chase";
 import { normaliseCadence } from "@/lib/reminders";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Clock, Mail } from "lucide-react";
 import { CadenceForm } from "@/components/app/CadenceForm";
 import { TemplateEditor } from "@/components/app/SettingsForms";
 import { SettingsSection } from "@/components/app/SettingsSection";
 import { AiEmailGenerator } from "@/components/app/AiEmailGenerator";
+import { TestEmailButton } from "@/components/app/TestEmailButton";
 import { isAiConfigured } from "@/lib/ai/emails";
+import { firmIsPro } from "@/lib/entitlements";
 import type { EmailKind } from "@/lib/email/templates";
 
 const ORDER: EmailKind[] = ["initial", "level1", "level2", "level3", "level4"];
@@ -18,6 +20,8 @@ export default async function RemindersSettings() {
   if (!firm) redirect("/login");
 
   const emails = await loadTemplates(createClient(), firm.id);
+  const pro = firmIsPro(firm);
+  const accent = firm.accent_color || "#C49A2A";
   const cadence = normaliseCadence({
     offsets: (firm as { reminder_offsets?: number[] }).reminder_offsets,
     weeklyStep: (firm as { reminder_weekly_step?: number }).reminder_weekly_step,
@@ -28,6 +32,7 @@ export default async function RemindersSettings() {
       <SettingsSection
         title="Reminder cadence"
         description="When the chase emails go out. The wording of each one is below."
+        icon={Clock}
       >
         <CadenceForm offsets={cadence.offsets} weeklyStep={cadence.weeklyStep} />
       </SettingsSection>
@@ -35,8 +40,11 @@ export default async function RemindersSettings() {
       <SettingsSection
         title="Chase emails"
         description="The escalation ladder: friendly, then specific, then consequence. Let RuledOff write them in your voice, or fine-tune any one by hand. The checklist button is added automatically."
+        icon={Mail}
       >
-        <AiEmailGenerator configured={isAiConfigured()} />
+        <AiEmailGenerator configured={isAiConfigured()} firmName={firm.name} accent={accent} pro={pro} />
+
+        <TestEmailButton />
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center gap-1.5 text-sm font-medium text-muted transition-colors hover:text-text">
@@ -50,6 +58,9 @@ export default async function RemindersSettings() {
                 kind={kind}
                 subject={emails[kind].subject}
                 body={emails[kind].body}
+                firmName={firm.name}
+                accent={accent}
+                pro={pro}
               />
             ))}
           </div>

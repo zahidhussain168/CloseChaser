@@ -6,6 +6,7 @@ import { getFirm, ensureCurrentPeriod } from "@/lib/data";
 import { requireUserId } from "@/lib/auth";
 import { ensureMagicToken } from "@/lib/links";
 import { sendChaseEmail } from "@/lib/chase";
+import { firmIsPro } from "@/lib/entitlements";
 import type { Client, Firm, Item } from "@/lib/types";
 
 export type ChaseAllResult = {
@@ -14,6 +15,7 @@ export type ChaseAllResult = {
   skipped: number;
   failed: number;
   error?: string;
+  upgrade?: boolean;
 };
 
 /**
@@ -27,6 +29,16 @@ export async function chaseAllAction(): Promise<ChaseAllResult> {
   await requireUserId();
   const firm = (await getFirm()) as Firm | null;
   if (!firm) return { ok: false, chased: 0, skipped: 0, failed: 0, error: "No firm found" };
+  if (!firmIsPro(firm)) {
+    return {
+      ok: false,
+      chased: 0,
+      skipped: 0,
+      failed: 0,
+      upgrade: true,
+      error: "Your free trial has ended. Upgrade to chase your whole book at once.",
+    };
+  }
 
   const supabase = createClient();
   const { data: clients } = await supabase

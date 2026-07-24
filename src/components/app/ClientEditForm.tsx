@@ -13,6 +13,7 @@ type EditableClient = {
   email: string;
   phone: string | null;
   notes: string | null;
+  closeDay?: number | null;
 };
 
 export function ClientEditForm({ client }: { client: EditableClient }) {
@@ -52,16 +53,31 @@ export function ClientEditForm({ client }: { client: EditableClient }) {
           <input name="phone" defaultValue={client.phone ?? ""} className="field num" />
         </label>
       </div>
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-ink-muted">Private notes (only you see these)</span>
-        <textarea
-          name="notes"
-          defaultValue={client.notes ?? ""}
-          rows={2}
-          className="field"
-          placeholder="e.g. always slow, call rather than email"
-        />
-      </label>
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-ink-muted">Private notes (only you see these)</span>
+          <textarea
+            name="notes"
+            defaultValue={client.notes ?? ""}
+            rows={2}
+            className="field"
+            placeholder="e.g. always slow, call rather than email"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-ink-muted">Books close on day</span>
+          <input
+            name="close_day"
+            type="number"
+            min={1}
+            max={28}
+            defaultValue={client.closeDay ?? ""}
+            className="field num sm:w-28"
+            placeholder="e.g. 5"
+          />
+          <span className="text-[11px] text-faint">Of the following month. Blank for no deadline.</span>
+        </label>
+      </div>
       <div className="flex items-center gap-3">
         <SubmitButton variant="plain" pendingText="Saving">
           Save

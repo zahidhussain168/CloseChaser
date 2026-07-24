@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useFormState } from "react-dom";
-import { Check, Plus, Sparkles } from "lucide-react";
+import { Check, Plus, Sparkles, LayoutList, FileText, Receipt, Trash2, X } from "lucide-react";
 import { SubmitButton } from "@/components/SubmitButton";
 import { SavedFlash } from "@/components/app/SavedFlash";
 import {
@@ -124,14 +124,30 @@ function CreateTemplate() {
     if (state.ok) ref.current?.reset();
   }, [state]);
   return (
-    <form ref={ref} action={action} className="sheet flex flex-wrap items-end gap-3 p-4">
-      <label className="flex flex-1 flex-col gap-1.5 text-sm">
-        <span className="text-ink-muted">New template</span>
-        <input name="name" required className="field" placeholder="e.g. Monthly close basics" />
-      </label>
-      <SubmitButton variant="plain" pendingText="Creating…">
-        Create template
-      </SubmitButton>
+    <form
+      ref={ref}
+      action={action}
+      className="sheet flex flex-col gap-4 border-dashed p-5"
+      style={{ borderColor: "var(--line-strong)" }}
+    >
+      <div className="flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-tint text-brand">
+          <Plus size={18} />
+        </span>
+        <div>
+          <h3 className="text-[15px] font-bold text-text">Create a template</h3>
+          <p className="mt-0.5 text-sm text-ink-muted">Start a blank list, then add the items you request each month.</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex flex-1 flex-col gap-1.5 text-sm">
+          <span className="font-medium text-ink-muted">Template name</span>
+          <input name="name" required className="field" placeholder="e.g. Monthly close basics" />
+        </label>
+        <SubmitButton variant="plain" pendingText="Creating…">
+          Create template
+        </SubmitButton>
+      </div>
       <SavedFlash state={state} label="Template created" />
       {state.error && (
         <p className="w-full text-sm" style={{ color: "var(--pending)" }}>
@@ -144,50 +160,69 @@ function CreateTemplate() {
 
 function TemplateCard({ template }: { template: Tpl }) {
   const [pending, start] = useTransition();
+  const n = template.items.length;
   return (
-    <div className="sheet p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-lg font-semibold">{template.name}</h3>
+    <div className="sheet overflow-hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-tint text-brand">
+            <LayoutList size={19} />
+          </span>
+          <div className="min-w-0">
+            <h3 className="truncate font-display text-[16px] font-semibold text-text">{template.name}</h3>
+            <span className="num text-xs text-faint">
+              {n} item{n === 1 ? "" : "s"}
+            </span>
+          </div>
+        </div>
         <button
+          type="button"
           disabled={pending}
           onClick={() => {
             if (confirm(`Delete the "${template.name}" template?`)) {
               start(() => deleteTemplateAction(template.id));
             }
           }}
-          className="text-xs text-ink-muted underline-offset-2 hover:text-ink hover:underline"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-faint transition-colors hover:bg-danger-tint hover:text-danger"
+          aria-label="Delete template"
         >
-          Delete template
+          <Trash2 size={16} />
         </button>
       </div>
 
-      {template.items.length > 0 ? (
-        <ul className="mt-3 flex flex-col divide-y" style={{ borderColor: "var(--rule)" }}>
+      {n > 0 ? (
+        <ul className="divide-y divide-line px-5">
           {template.items.map((it) => (
-            <li key={it.id} className="flex items-start justify-between gap-3 py-2.5">
-              <span className="min-w-0">
-                <span className="block text-sm">{it.title}</span>
-                <span className="text-xs text-ink-muted">
+            <li key={it.id} className="group flex items-center gap-3 py-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-ink-muted">
+                {it.type === "document" ? <FileText size={14} /> : <Receipt size={14} />}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-text">{it.title}</span>
+                <span className="text-xs text-faint">
                   {it.type === "document" ? "Document" : "Transaction"}
                   {it.note ? ` · ${it.note}` : ""}
                 </span>
               </span>
               <button
+                type="button"
                 disabled={pending}
                 onClick={() => start(() => deleteTemplateItemAction(it.id))}
-                className="shrink-0 text-xs text-ink-muted hover:text-ink"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-faint opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
                 aria-label={`Remove ${it.title}`}
               >
-                Remove
+                <X size={15} />
               </button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-sm text-ink-muted">No items yet.</p>
+        <p className="px-5 py-4 text-sm text-ink-muted">No items yet. Add the first below.</p>
       )}
 
-      <AddTemplateItem templateId={template.id} />
+      <div className="border-t border-line bg-surface-2/30 px-5 py-3.5">
+        <AddTemplateItem templateId={template.id} />
+      </div>
     </div>
   );
 }
@@ -199,7 +234,7 @@ function AddTemplateItem({ templateId }: { templateId: string }) {
     if (state.ok) ref.current?.reset();
   }, [state]);
   return (
-    <form ref={ref} action={action} className="mt-3 flex flex-col gap-2 border-t pt-3" style={{ borderColor: "var(--rule)" }}>
+    <form ref={ref} action={action} className="flex flex-col gap-2">
       <input type="hidden" name="templateId" value={templateId} />
       <div className="flex flex-col gap-2 sm:flex-row">
         <select name="type" defaultValue="document" className="field sm:w-36">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { initials } from "@/lib/format";
 
 export type DashRow = {
   id: string;
@@ -25,10 +26,6 @@ const TABS = [
   { key: "chasing", label: "Chasing" },
   { key: "ruled", label: "Ruled off" },
 ] as const;
-
-function initials(name: string) {
-  return name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-}
 
 function toneColor(t: DashRow["activityTone"]) {
   if (t === "ok") return "var(--cleared)";

@@ -14,13 +14,16 @@ export default async function SettingsLayout({
   if (!firm) redirect("/login");
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-7">
       <div>
         <p className="kicker">Workspace</p>
         <h1 className="t-h2 mt-2 font-display font-semibold">Settings</h1>
+        <p className="mt-1.5 text-sm text-ink-muted">
+          Manage {firm.name}: your plan, branding, connections, and how you chase.
+        </p>
       </div>
       <SettingsTabs />
-      <div className="max-w-2xl">{children}</div>
+      <div className="max-w-3xl">{children}</div>
     </div>
   );
 }
