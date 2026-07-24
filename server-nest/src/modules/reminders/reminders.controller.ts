@@ -1,7 +1,8 @@
 import {
   Body, Controller, ForbiddenException, Get, Headers, Param, ParseUUIDPipe, Post, UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiProperty, ApiTags } from "@nestjs/swagger";
+import { PauseResponse, ReminderResponse } from "../../common/api-responses";
 import { IsBoolean } from "class-validator";
 import { timingSafeEqual } from "crypto";
 import { Throttle } from "@nestjs/throttler";
@@ -12,6 +13,7 @@ import { SuppressionService } from "../../common/suppression.service";
 import { RemindersService } from "./reminders.service";
 
 class PauseDto {
+  @ApiProperty({ description: "True to hold the chase, false to resume it." })
   @IsBoolean()
   paused!: boolean;
 }
@@ -27,6 +29,7 @@ export class RemindersController {
 
   @Post("clients/:clientId/chase/pause")
   @ApiOperation({ summary: "Hold or resume the chase for a client" })
+  @ApiOkResponse({ type: PauseResponse })
   pause(
     @CurrentUser() user: AuthUser,
     @Param("clientId", ParseUUIDPipe) clientId: string,
@@ -37,6 +40,7 @@ export class RemindersController {
 
   @Get("clients/:clientId/reminders")
   @ApiOperation({ summary: "Reminders sent to this client, with delivery events" })
+  @ApiOkResponse({ type: [ReminderResponse] })
   history(@CurrentUser() user: AuthUser, @Param("clientId", ParseUUIDPipe) clientId: string) {
     return this.reminders.history(user.userId, clientId);
   }

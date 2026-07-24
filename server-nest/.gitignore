@@ -1,5 +1,6 @@
 node_modules
 .env
 dist
-openapi/
+openapi/*
+!openapi/openapi.json
 tmp-link.json

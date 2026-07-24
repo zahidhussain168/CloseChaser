@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiProperty, ApiTags } from "@nestjs/swagger";
 import { IsString, MinLength } from "class-validator";
 import { Throttle } from "@nestjs/throttler";
 import { Public } from "../common/public.decorator";
@@ -10,6 +10,7 @@ import { PortalTokenService } from "./portal-token.service";
 
 class ExchangeMagicLinkDto {
   /** The opaque token from the emailed magic link. */
+  @ApiProperty({ description: "The opaque token from the emailed magic link." })
   @IsString()
   @MinLength(20)
   token!: string;

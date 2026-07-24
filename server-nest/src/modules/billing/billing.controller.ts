@@ -1,5 +1,6 @@
 import { Controller, Get, Headers, HttpCode, Post, Req, UnauthorizedException } from "@nestjs/common";
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { EntitlementsResponse } from "../../common/api-responses";
 import type { RawBodyRequest } from "@nestjs/common";
 import type { Request } from "express";
 import { Public } from "../../common/public.decorator";
@@ -16,6 +17,7 @@ export class BillingController {
 
   @Get("entitlements")
   @ApiOperation({ summary: "What this firm can use right now" })
+  @ApiOkResponse({ type: EntitlementsResponse })
   entitlements(@CurrentUser() user: AuthUser) {
     return this.billing.entitlements(user.userId);
   }

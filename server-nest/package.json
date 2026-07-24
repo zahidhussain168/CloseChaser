@@ -10,7 +10,8 @@
     "test": "vitest run",
     "db:pull": "prisma db pull",
     "db:generate": "prisma generate",
-    "openapi": "node -r dotenv/config dist/scripts/emit-openapi.js"
+    "openapi": "node -r dotenv/config dist/scripts/emit-openapi.js",
+    "api:client": "npm run build && npm run openapi && orval"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.28",
@@ -41,6 +42,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
     "@types/passport-jwt": "^4.0.1",
+    "orval": "^7.21.0",
     "prisma": "^6.19.3",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",

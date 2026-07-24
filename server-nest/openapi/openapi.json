@@ -1,0 +1,1286 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Liveness and database reachability",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "The signed-in bookkeeper",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/portal/session": {
+      "post": {
+        "operationId": "AuthController_exchange",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExchangeMagicLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Exchange a magic link for a scoped portal token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/portal/me": {
+      "get": {
+        "operationId": "AuthController_portalMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "portal": []
+          }
+        ],
+        "summary": "The client behind the current portal token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/clients": {
+      "get": {
+        "operationId": "ClientsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Every client belonging to the signed-in firm",
+        "tags": [
+          "clients"
+        ]
+      },
+      "post": {
+        "operationId": "ClientsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClientDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Add a client",
+        "tags": [
+          "clients"
+        ]
+      }
+    },
+    "/api/clients/{id}": {
+      "get": {
+        "operationId": "ClientsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "One client, scoped to the firm",
+        "tags": [
+          "clients"
+        ]
+      },
+      "patch": {
+        "operationId": "ClientsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClientDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Update a client",
+        "tags": [
+          "clients"
+        ]
+      },
+      "delete": {
+        "operationId": "ClientsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Remove a client and everything under it",
+        "tags": [
+          "clients"
+        ]
+      }
+    },
+    "/api/clients/{clientId}/items": {
+      "get": {
+        "operationId": "ItemsController_list",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Items blocking this client's close",
+        "tags": [
+          "items"
+        ]
+      },
+      "post": {
+        "operationId": "ItemsController_create",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Request something from a client",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{id}/rule-off": {
+      "post": {
+        "operationId": "ItemsController_ruleOff",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Accept the answer and rule the item off",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{id}/download": {
+      "get": {
+        "operationId": "ItemsController_download",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignedUrlResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Short-lived signed URL for an attachment",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{id}/uploads/sign": {
+      "post": {
+        "operationId": "ItemsController_sign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignedUploadResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Signed upload URL (bookkeeper). Bytes go direct to storage.",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/portal/items": {
+      "get": {
+        "operationId": "PortalItemsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "portal": []
+          }
+        ],
+        "summary": "The client's own checklist",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/portal/items/{id}/answer": {
+      "post": {
+        "operationId": "PortalItemsController_answer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "portal": []
+          }
+        ],
+        "summary": "Send an answer back",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/portal/items/{id}/uploads/sign": {
+      "post": {
+        "operationId": "PortalItemsController_sign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignedUploadResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "portal": []
+          }
+        ],
+        "summary": "Signed upload URL (client). Bytes go direct to storage.",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/portal/items/{id}/uploads/confirm": {
+      "post": {
+        "operationId": "PortalItemsController_confirm",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "portal": []
+          }
+        ],
+        "summary": "Record the uploaded file against the item",
+        "tags": [
+          "portal"
+        ]
+      }
+    },
+    "/api/clients/{clientId}/chase/pause": {
+      "post": {
+        "operationId": "RemindersController_pause",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PauseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PauseResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Hold or resume the chase for a client",
+        "tags": [
+          "reminders"
+        ]
+      }
+    },
+    "/api/clients/{clientId}/reminders": {
+      "get": {
+        "operationId": "RemindersController_history",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReminderResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Reminders sent to this client, with delivery events",
+        "tags": [
+          "reminders"
+        ]
+      }
+    },
+    "/api/billing/entitlements": {
+      "get": {
+        "operationId": "BillingController_entitlements",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "What this firm can use right now",
+        "tags": [
+          "billing"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "RuledOff API",
+    "description": "",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bookkeeper": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      },
+      "portal": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "ExchangeMagicLinkDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The opaque token from the emailed magic link."
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "ClientResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "close_day": {
+            "type": "number",
+            "nullable": true,
+            "description": "Day of the month the books are due to close."
+          },
+          "auto_chase": {
+            "type": "boolean",
+            "description": "Start next month's close from the template automatically."
+          },
+          "qbo_realm_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "phone",
+          "notes",
+          "close_day",
+          "auto_chase",
+          "qbo_realm_id",
+          "created_at"
+        ]
+      },
+      "CreateClientDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "closeDay": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 28
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ]
+      },
+      "UpdateClientDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "closeDay": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 28
+          }
+        }
+      },
+      "DeletedResponse": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "deleted"
+        ]
+      },
+      "AttachmentResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "uploaded_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "name",
+          "size",
+          "mime",
+          "uploaded_at"
+        ]
+      },
+      "ItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "nudged",
+              "answered",
+              "accepted"
+            ]
+          },
+          "ruledOff": {
+            "type": "boolean",
+            "description": "Derived: the item is accepted."
+          },
+          "overdue": {
+            "type": "boolean",
+            "description": "Derived: still open past the grace period."
+          },
+          "daysOpen": {
+            "type": "number"
+          },
+          "answerText": {
+            "type": "string",
+            "nullable": true
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentResponse"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "answeredAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "acceptedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "state",
+          "ruledOff",
+          "overdue",
+          "daysOpen",
+          "answerText",
+          "attachments",
+          "createdAt",
+          "answeredAt",
+          "acceptedAt"
+        ]
+      },
+      "CreateItemDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "transaction",
+              "document",
+              "questionnaire"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title"
+        ]
+      },
+      "SignedUrlResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "SignUploadDto": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number",
+            "description": "Bytes. Rejected above the bucket limit."
+          }
+        },
+        "required": [
+          "filename",
+          "mime",
+          "size"
+        ]
+      },
+      "SignedUploadResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Server-derived object path. Never caller supplied."
+          },
+          "token": {
+            "type": "string"
+          },
+          "signedUrl": {
+            "type": "string"
+          },
+          "bucket": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "token",
+          "signedUrl",
+          "bucket"
+        ]
+      },
+      "AnswerItemDto": {
+        "type": "object",
+        "properties": {
+          "answerText": {
+            "type": "string",
+            "description": "What the client typed back"
+          }
+        },
+        "required": [
+          "answerText"
+        ]
+      },
+      "ConfirmUploadDto": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Storage path returned by the sign step"
+          },
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "mime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "name",
+          "size",
+          "mime"
+        ]
+      },
+      "PauseDto": {
+        "type": "object",
+        "properties": {
+          "paused": {
+            "type": "boolean",
+            "description": "True to hold the chase, false to resume it."
+          }
+        },
+        "required": [
+          "paused"
+        ]
+      },
+      "PauseResponse": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "paused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "clientId",
+          "paused"
+        ]
+      },
+      "ReminderEventResponse": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "type",
+          "occurred_at"
+        ]
+      },
+      "ReminderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "level": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "levelLabel": {
+            "type": "string",
+            "description": "friendly, specific-deadline, consequence or weekly"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "sentAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "stoppedReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReminderEventResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "levelLabel",
+          "channel",
+          "sentAt",
+          "stoppedReason",
+          "createdAt",
+          "events"
+        ]
+      },
+      "EntitlementFeatures": {
+        "type": "object",
+        "properties": {
+          "forecast": {
+            "type": "boolean"
+          },
+          "aiAnalyst": {
+            "type": "boolean"
+          },
+          "responsiveness": {
+            "type": "boolean"
+          },
+          "closeReceipt": {
+            "type": "boolean"
+          },
+          "smsEscalation": {
+            "type": "boolean"
+          },
+          "bulkChase": {
+            "type": "boolean"
+          },
+          "autoChase": {
+            "type": "boolean"
+          },
+          "emailPreview": {
+            "type": "boolean"
+          },
+          "autoEscalatingReminders": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "forecast",
+          "aiAnalyst",
+          "responsiveness",
+          "closeReceipt",
+          "smsEscalation",
+          "bulkChase",
+          "autoChase",
+          "emailPreview",
+          "autoEscalatingReminders"
+        ]
+      },
+      "EntitlementsResponse": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "type": "string",
+            "enum": [
+              "free",
+              "pro",
+              "scale"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "trialing",
+              "active",
+              "past_due",
+              "paused",
+              "canceled",
+              "expired"
+            ]
+          },
+          "trialEndsAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "features": {
+            "$ref": "#/components/schemas/EntitlementFeatures"
+          }
+        },
+        "required": [
+          "tier",
+          "status",
+          "trialEndsAt",
+          "currentPeriodEnd",
+          "features"
+        ]
+      }
+    }
+  }
+}

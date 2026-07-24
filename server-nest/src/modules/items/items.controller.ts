@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ItemResponse, SignedUploadResponse, SignedUrlResponse } from "../../common/api-responses";
 import { IsString, MaxLength } from "class-validator";
 import { Public } from "../../common/public.decorator";
 import { CurrentUser, Portal } from "../../common/current-user.decorator";
@@ -26,12 +27,14 @@ export class ItemsController {
 
   @Get("clients/:clientId/items")
   @ApiOperation({ summary: "Items blocking this client's close" })
+  @ApiOkResponse({ type: [ItemResponse] })
   list(@CurrentUser() user: AuthUser, @Param("clientId", ParseUUIDPipe) clientId: string) {
     return this.items.listForClient(user.userId, clientId);
   }
 
   @Post("clients/:clientId/items")
   @ApiOperation({ summary: "Request something from a client" })
+  @ApiOkResponse({ type: ItemResponse })
   create(
     @CurrentUser() user: AuthUser,
     @Param("clientId", ParseUUIDPipe) clientId: string,
@@ -42,12 +45,14 @@ export class ItemsController {
 
   @Post("items/:id/rule-off")
   @ApiOperation({ summary: "Accept the answer and rule the item off" })
+  @ApiOkResponse({ type: ItemResponse })
   ruleOff(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
     return this.items.ruleOff(user.userId, id);
   }
 
   @Get("items/:id/download")
   @ApiOperation({ summary: "Short-lived signed URL for an attachment" })
+  @ApiOkResponse({ type: SignedUrlResponse })
   async download(
     @CurrentUser() user: AuthUser,
     @Param("id", ParseUUIDPipe) id: string,
@@ -60,6 +65,7 @@ export class ItemsController {
 
   @Post("items/:id/uploads/sign")
   @ApiOperation({ summary: "Signed upload URL (bookkeeper). Bytes go direct to storage." })
+  @ApiOkResponse({ type: SignedUploadResponse })
   async sign(
     @CurrentUser() user: AuthUser,
     @Param("id", ParseUUIDPipe) id: string,
@@ -85,12 +91,14 @@ export class PortalItemsController {
 
   @Get("items")
   @ApiOperation({ summary: "The client's own checklist" })
+  @ApiOkResponse({ type: [ItemResponse] })
   list(@Portal() portal: PortalPrincipal) {
     return this.items.listForPortal(portal.clientId);
   }
 
   @Post("items/:id/answer")
   @ApiOperation({ summary: "Send an answer back" })
+  @ApiOkResponse({ type: ItemResponse })
   answer(
     @Portal() portal: PortalPrincipal,
     @Param("id", ParseUUIDPipe) id: string,
@@ -101,6 +109,7 @@ export class PortalItemsController {
 
   @Post("items/:id/uploads/sign")
   @ApiOperation({ summary: "Signed upload URL (client). Bytes go direct to storage." })
+  @ApiOkResponse({ type: SignedUploadResponse })
   async sign(
     @Portal() portal: PortalPrincipal,
     @Param("id", ParseUUIDPipe) id: string,
@@ -112,6 +121,7 @@ export class PortalItemsController {
 
   @Post("items/:id/uploads/confirm")
   @ApiOperation({ summary: "Record the uploaded file against the item" })
+  @ApiOkResponse({ type: ItemResponse })
   async confirm(
     @Portal() portal: PortalPrincipal,
     @Param("id", ParseUUIDPipe) id: string,
