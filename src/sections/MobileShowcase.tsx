@@ -19,10 +19,15 @@ const item: Variants = {
   show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: 0.2 + i * 0.2, duration: 0.42, ease: EASE } }),
 };
 
+// pb-4 on the screen is slack, not decoration. The rows animate in from y:12
+// inside an overflow-hidden frame that otherwise hugs its content exactly, so
+// the last line had its descenders shaved off against the frame edge. The
+// padding sits outside the animated children, so it absorbs that offset at any
+// text size, including the larger system font a lot of phones are set to.
 function PhoneScreen() {
   return (
     <motion.div
-      className="flex flex-auto flex-col bg-bg"
+      className="flex flex-auto flex-col bg-bg pb-4"
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.3 }}
