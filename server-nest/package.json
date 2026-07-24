@@ -1,0 +1,49 @@
+{
+  "name": "ruledoff-nest",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:pull": "prisma db pull",
+    "db:generate": "prisma generate",
+    "openapi": "node -r dotenv/config dist/scripts/emit-openapi.js"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/core": "^11.1.28",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/swagger": "^11.4.6",
+    "@nestjs/throttler": "^6.5.0",
+    "@prisma/client": "^6.19.3",
+    "@sentry/node": "^10.67.0",
+    "@supabase/supabase-js": "^2.110.8",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "express": "^5.2.1",
+    "nestjs-pino": "^4.6.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.24",
+    "@nestjs/testing": "^11.1.28",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.1",
+    "@types/passport-jwt": "^4.0.1",
+    "prisma": "^6.19.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}
