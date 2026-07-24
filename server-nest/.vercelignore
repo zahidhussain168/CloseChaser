@@ -1,0 +1,7 @@
+# Vercel runs `prisma generate && nest build` itself, so src/ and prisma/ MUST
+# be uploaded. Only things it rebuilds or never needs are excluded.
+node_modules
+dist
+openapi
+.vercel
+.env

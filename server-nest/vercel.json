@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
-  "crons": [{ "path": "/api/jobs/reminders-sweep", "schedule": "*/15 * * * *" }]
+  "regions": ["icn1"],
+  "buildCommand": "prisma generate && nest build",
+  "outputDirectory": "public",
+  "functions": {
+    "api/index.js": { "maxDuration": 60, "includeFiles": "dist/**" }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }

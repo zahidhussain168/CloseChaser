@@ -4,3 +4,6 @@ dist
 openapi/*
 !openapi/openapi.json
 tmp-link.json
+
+.vercel
+.env*

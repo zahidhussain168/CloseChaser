@@ -1,6 +1,9 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["multiSchema"]
+  // Vercel's runtime is Amazon Linux, not this machine. Without the rhel
+  // target the deployed function cannot find a query engine at all.
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

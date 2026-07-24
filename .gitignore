@@ -32,3 +32,6 @@ next-env.d.ts
 .DS_Store
 Thumbs.db
 .env*
+
+# Vercel project link for the standalone API
+server-nest/.vercel
