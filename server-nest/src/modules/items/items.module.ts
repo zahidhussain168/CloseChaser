@@ -1,5 +1,12 @@
 import { Module } from "@nestjs/common";
+import { ItemsController, PortalItemsController } from "./items.controller";
+import { ItemsService } from "./items.service";
+import { TenantService } from "../../common/tenant.service";
+import { StorageService } from "../../common/storage.service";
 
-/** Items. Endpoints land here in Phase 2. */
-@Module({})
+@Module({
+  controllers: [ItemsController, PortalItemsController],
+  providers: [ItemsService, TenantService, StorageService],
+  exports: [ItemsService],
+})
 export class ItemsModule {}
