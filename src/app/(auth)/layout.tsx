@@ -8,9 +8,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="grid min-h-dvh lg:grid-cols-[1fr_1.1fr]">
-      {/* Form side */}
-      <div className="flex flex-col bg-bg px-6 py-8 sm:px-10 lg:px-14 xl:px-20">
+    <main className="grid h-dvh overflow-hidden lg:grid-cols-[1fr_1.1fr]">
+      {/* Form side (scrolls internally only if a very short screen needs it, so
+          the page itself never scrolls) */}
+      <div className="flex flex-col overflow-y-auto bg-bg px-6 py-8 sm:px-10 lg:px-14 xl:px-20">
         <Link href="/" className="tap inline-flex w-fit">
           <Logo />
         </Link>

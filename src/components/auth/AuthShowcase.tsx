@@ -13,7 +13,7 @@ const BENEFITS = [
  */
 export function AuthShowcase() {
   return (
-    <div className="relative hidden overflow-hidden bg-[#0a1626] p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
+    <div className="relative hidden overflow-hidden bg-[#0a1626] p-10 text-white lg:flex lg:flex-col lg:justify-between lg:gap-8 xl:p-14">
       {/* soft brand glows */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -left-24 -top-16 h-96 w-96 rounded-full bg-brand/25 blur-[130px]" />
@@ -27,12 +27,12 @@ export function AuthShowcase() {
         <h2 className="mt-7 font-display text-[34px] font-bold leading-[1.1] tracking-tight text-white xl:text-[40px]">
           Close the month without chasing clients.
         </h2>
-        <p className="mt-4 max-w-md text-[15px] leading-relaxed text-slate-300">
+        <p className="mt-3.5 max-w-md text-[15px] leading-relaxed text-slate-300">
           RuledOff collects every document, receipt, and answer blocking your
           close, then chases your client automatically until each item is ruled
           off.
         </p>
-        <ul className="mt-8 flex flex-col gap-3.5">
+        <ul className="mt-6 flex flex-col gap-3">
           {BENEFITS.map((b) => (
             <li key={b} className="flex items-start gap-3 text-[14.5px] text-slate-100">
               <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
@@ -74,7 +74,7 @@ export function AuthShowcase() {
             ))}
           </div>
         </div>
-        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12.5px] text-slate-400">
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12.5px] text-slate-400">
           <span>No card required</span>
           <span aria-hidden="true">•</span>
           <span>14-day free trial</span>
