@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./config";
+import { NEST_API_BASE_URL } from "./config";
 import { ApiError } from "./http";
 
 /**
@@ -17,15 +17,15 @@ export async function apiFetcher<T extends { data: unknown; status: number }>(
   url: string,
   init?: RequestInit,
 ): Promise<T> {
-  if (!API_BASE_URL) {
+  if (!NEST_API_BASE_URL) {
     throw new ApiError(
       503,
-      "NEXT_PUBLIC_API_URL is not set, so the standalone API cannot be reached",
+      "NEXT_PUBLIC_NEST_API_URL is not set, so the API cannot be reached",
       "api_not_configured",
     );
   }
 
-  const res = await fetch(`${API_BASE_URL}${url}`, {
+  const res = await fetch(`${NEST_API_BASE_URL}${url}`, {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     // Never serve a stale answer for data the bookkeeper is about to act on.

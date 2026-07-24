@@ -1,5 +1,5 @@
 import { authHeaders } from "./fetcher";
-import { isApiEnabled } from "./config";
+import { isNestApiEnabled } from "./config";
 import { clientsControllerList, clientsControllerGet } from "./generated/clients/clients";
 import { itemsControllerList } from "./generated/items/items";
 import { billingControllerEntitlements } from "./generated/billing/billing";
@@ -13,14 +13,15 @@ import { remindersControllerHistory } from "./generated/reminders/reminders";
  * access token, and is the ONLY place app code should import the API from, so
  * regenerating the client never ripples through pages.
  *
- * Everything here is opt-in: when NEXT_PUBLIC_API_URL is unset, which is the
- * current default including production, nothing calls it and the app keeps
- * using its built-in server actions.
+ * Everything here is opt-in and uses its OWN switch, NEXT_PUBLIC_NEST_API_URL,
+ * separate from the old NEXT_PUBLIC_API_URL that the server actions read. The
+ * two APIs do not share routes or response shapes, so one flag could not safely
+ * govern both.
  */
 const opts = (token: string | null): RequestInit => ({ headers: authHeaders(token) });
 
 export const nestApi = {
-  enabled: isApiEnabled,
+  enabled: isNestApiEnabled,
 
   clients: {
     list: async (token: string | null) => (await clientsControllerList(opts(token))).data,
