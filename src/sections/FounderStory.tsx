@@ -9,7 +9,7 @@ import { Reveal } from "@/components/site/Reveal";
  */
 export function FounderStory() {
   return (
-    <section className="section-y bg-surface-2">
+    <section className="section-y border-t border-line bg-bg">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16">
           <Reveal>

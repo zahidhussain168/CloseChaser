@@ -120,10 +120,12 @@
 
 @media (max-width: 640px) {
   :root {
-    /* Mobile runs a tighter vertical scale, roughly 55% of desktop, so stacked
-       sections do not balloon the page height. */
-    --section-y: 32px;
-    --section-y-hero: 40px;
+    /* Mobile runs a tighter vertical scale so stacked sections do not balloon
+       the page height. 32px was too tight: with only 64px between two sections'
+       content they read as one block, especially where neighbours share a
+       background. */
+    --section-y: 56px;
+    --section-y-hero: 64px;
   }
 }
 
