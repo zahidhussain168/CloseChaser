@@ -11,17 +11,17 @@
   app screens re-skin through these variables instead of a full rewrite.
 */
 :root {
-  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
-  --font-plex-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-display: "DM Serif Display", "Georgia", "Times New Roman", serif;
-  --font-newsreader: "DM Serif Display", Georgia, serif; /* legacy alias */
+  --font-inter: var(--font-inter-next), "Inter", system-ui, -apple-system, sans-serif;
+  --font-plex-mono: var(--font-plex-next), "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-fraunces), "Georgia", "Times New Roman", serif;
+  --font-newsreader: var(--font-fraunces), Georgia, serif; /* legacy alias */
 
-  /* Brand: institutional navy (primary actions, headers, nav) */
-  --brand: #1e3a5f;
-  --brand-dark: #162d4a;
-  --brand-darker: #12253c;
-  --brand-tint: #e8eef5;
-  --brand-tint-2: #f4f7fa;
+  /* Brand: oxblood ink (primary actions, headers, links, focus) */
+  --brand: #5b2333;
+  --brand-dark: #491b28;
+  --brand-darker: #3b151f;
+  --brand-tint: #f6e9ec;
+  --brand-tint-2: #fbf4f5;
 
   /* Semantic */
   --success: #16a34a;
@@ -39,7 +39,7 @@
   --border-strong: #cbc6b8;
   --text: #1e293b;
   --muted: #475569;
-  --faint: #9ca3af;
+  --faint: #6b7280; /* was #9ca3af (~2.6:1 on ivory, failed AA); now ~4.9:1 */
 
   /* Legacy aliases used by the app screens */
   --paper: var(--bg);
@@ -56,6 +56,13 @@
   --brass: #c49a2a;
   --gold: #c49a2a;
   --gold-tint: #f6edcf;
+  /* Darker brass for TEXT on light grounds (bright brass fails AA as text);
+     the bright --brass stays for fills, avatars, and text on dark panels. */
+  --brass-ink: #7c610f;
+  /* Fixed dark oxblood for filled brand surfaces so white text stays legible in
+     BOTH themes (the mode-swapping --brand does not: dark-mode brand is light). */
+  --brand-solid: #5b2333;
+  --brand-solid-2: #3b151f;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -73,12 +80,12 @@
 }
 
 .dark {
-  /* Lighter steel-navy so primary actions stay legible on a dark ground */
-  --brand: #5b8bc0;
-  --brand-dark: #4a76a8;
-  --brand-darker: #3b6090;
-  --brand-tint: #16283a;
-  --brand-tint-2: #12202f;
+  /* Dusty rose so the oxblood brand stays legible on a dark ground */
+  --brand: #d38b98;
+  --brand-dark: #c2707f;
+  --brand-darker: #a85a69;
+  --brand-tint: #2e1a20;
+  --brand-tint-2: #241419;
 
   --success: #22c55e;
   --success-tint: #06331f;
@@ -94,12 +101,17 @@
   --border-strong: #3a4a5c;
   --text: #f2f0ea;
   --muted: #a2aec0;
-  --faint: #6b7688;
+  --faint: #8b93a3; /* was #6b7688 (~4.2:1); now ~5.5:1 on dark */
 
   /* Gold reads brighter on dark surfaces */
   --brass: #d4af4a;
   --gold: #d4af4a;
   --gold-tint: #2c2411;
+  /* On dark, the bright brass already passes as text; keep it for --brass-ink.
+     Keep the filled-brand surface a fixed dark oxblood (white text stays legible). */
+  --brass-ink: #d4af4a;
+  --brand-solid: #5b2333;
+  --brand-solid-2: #3b151f;
 
   --elev-1: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.35);
   --elev-2: 0 8px 30px rgba(0, 0, 0, 0.5);
@@ -226,14 +238,16 @@ html {
   .btn:active {
     transform: translateY(1px);
   }
+  /* Filled brand buttons use the fixed dark oxblood (not the mode-swapping
+     --brand, whose dark value is a light rose that fails with white text). */
   .btn-primary {
-    background: var(--brand);
+    background: var(--brand-solid);
     color: #fff;
     border-color: transparent;
     box-shadow: var(--elev-brand);
   }
   .btn-primary:hover {
-    background: var(--brand-dark);
+    background: var(--brand-solid-2);
   }
   .btn-ghost {
     background: transparent;
@@ -551,4 +565,85 @@ html {
 @keyframes slideInRight {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
+}
+/* Slow diagonal light sweep for locked Pro features. */
+@keyframes pro-shimmer {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(320%) skewX(-18deg); }
+}
+.pro-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-120%) skewX(-18deg);
+  animation: pro-shimmer 4.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pro-shimmer::after { animation: none; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Signature motion: "ruled off" strike-through.
+ * A green rule draws through completed text left-to-right (an ink stroke
+ * that settles from 2px to 1.5px), the text softening to muted as it lands.
+ * Used in the product (item completion) and the marketing hero.
+ * ------------------------------------------------------------------ */
+.ruledoff {
+  position: relative;
+  display: inline;
+  transition: color 0.4s ease;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.ruledoff .ruledoff-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--success);
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+.ruledoff[data-done="true"] {
+  color: var(--muted);
+}
+.ruledoff[data-done="true"] .ruledoff-line {
+  animation: ruledoff-strike 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes ruledoff-strike {
+  0% { transform: scaleX(0); height: 2px; }
+  70% { height: 2px; }
+  100% { transform: scaleX(1); height: 1.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ruledoff[data-done="true"] .ruledoff-line {
+    animation: none;
+    transform: scaleX(1);
+    height: 1.5px;
+  }
+}
+
+/* Accessibility: one consistent, visible focus ring across the whole app. The
+ * box-shadow lays a surface-coloured separator ring immediately around the
+ * element, so the brand outline stays visible even when a brand-coloured control
+ * sits on a brand-tinted surface. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--surface);
+  border-radius: 4px;
+}
+
+/* Close Receipt: isolate the receipt when printing / saving to PDF so app
+ * chrome (sidebar, banners, buttons) never bleeds into the artifact. */
+@media print {
+  body * { visibility: hidden; }
+  .receipt-print, .receipt-print * { visibility: visible; }
+  .receipt-print { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
+  .no-print { display: none !important; }
 }

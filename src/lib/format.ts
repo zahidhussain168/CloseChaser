@@ -43,6 +43,21 @@ export function pluralize(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
 
+/** Up to two uppercase initials from a name. Empty string if there are none. */
+export function initials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+}
+
+/** Black or white text, whichever stays legible on the given hex colour. */
+export function readableOn(hex: string): string {
+  const c = (hex || "").replace("#", "");
+  if (c.length !== 6) return "#FFFFFF";
+  const r = parseInt(c.slice(0, 2), 16);
+  const g = parseInt(c.slice(2, 4), 16);
+  const b = parseInt(c.slice(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62 ? "#1A1A1A" : "#FFFFFF";
+}
+
 /** Compact relative time: "just now", "5m ago", "2h ago", "3d ago", or a date. */
 export function timeAgo(input: string | Date | null | undefined): string {
   if (!input) return "";

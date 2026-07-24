@@ -31,7 +31,7 @@ export function Button({
         "active:translate-y-[1px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
         size === "lg" ? "min-h-[52px] px-7 text-[16px]" : "min-h-[46px] px-5 text-[15px]",
         variant === "primary"
-          ? "bg-brand text-white shadow-brand hover:bg-brand-600"
+          ? "bg-brand-solid text-white shadow-brand hover:bg-brand-solid-2"
           : "border border-line-strong bg-surface text-text hover:bg-surface-2",
         className,
       )}

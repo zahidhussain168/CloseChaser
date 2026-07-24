@@ -14,19 +14,23 @@ const config: Config = {
       colors: {
         brand: {
           // DEFAULT is variable-backed so text-brand / bg-brand swap in dark mode.
+          // Oxblood scale (see globals.css --brand). 600/700 back the button
+          // hover + darker gradient stops so they stay in-hue.
           DEFAULT: "var(--brand)",
-          50: "#f4f7fa",
-          100: "#e8eef5",
-          200: "#cdd9e8",
-          300: "#a7bdd5",
-          400: "#6b93bf",
-          500: "#1e3a5f",
-          600: "#162d4a",
-          700: "#12253c",
-          800: "#0e1d30",
-          900: "#0b1725",
+          50: "#fbf4f5",
+          100: "#f6e9ec",
+          200: "#ecd0d7",
+          300: "#dba9b5",
+          400: "#c17b8c",
+          500: "#5b2333",
+          600: "#491b28",
+          700: "#3b151f",
+          800: "#2e1119",
+          900: "#230d13",
           tint: "var(--brand-tint)",
           "tint-2": "var(--brand-tint-2)",
+          solid: "var(--brand-solid)",
+          "solid-2": "var(--brand-solid-2)",
         },
         // Variable-backed roles so dark mode swaps automatically.
         bg: "var(--bg)",
@@ -37,6 +41,7 @@ const config: Config = {
         text: "var(--text)",
         muted: "var(--muted)",
         faint: "var(--faint)",
+        "brass-ink": "var(--brass-ink)",
         success: "var(--success)",
         warning: "var(--warning)",
         danger: "var(--danger)",

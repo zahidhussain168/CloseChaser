@@ -1,5 +1,24 @@
 import type { Metadata } from "next";
+import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+
+// Display: Fraunces, a characterful high-contrast serif with optical sizing.
+// Body: Inter. Numerals/data: IBM Plex Mono. Loaded via next/font so there is
+// no render-blocking link and no layout shift; each exposes a CSS variable that
+// feeds the existing --font-* tokens in globals.css.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-fraunces",
+  style: ["normal", "italic"],
+});
+const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter-next" });
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-plex-next",
+});
 
 const DESCRIPTION =
   "RuledOff automatically collects the documents, receipts, and answers blocking your month-end close, and chases your client until every item is ruled off. No logins, no portals for your client.";
@@ -66,14 +85,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${fraunces.variable} ${inter.variable} ${plexMono.variable}`}
+    >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="font-sans antialiased text-text">{children}</body>
