@@ -191,3 +191,38 @@ export const clientsControllerRemove = async (id: string, options?: RequestInit)
 );}
 
 
+/**
+ * @summary Client, current period, items and link state for the detail screen
+ */
+export type clientsControllerDetailResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type clientsControllerDetailResponseSuccess = (clientsControllerDetailResponse200) & {
+  headers: Headers;
+};
+;
+
+export type clientsControllerDetailResponse = (clientsControllerDetailResponseSuccess)
+
+export const getClientsControllerDetailUrl = (id: string,) => {
+
+
+  
+
+  return `/api/clients/${id}/detail`
+}
+
+export const clientsControllerDetail = async (id: string, options?: RequestInit): Promise<clientsControllerDetailResponse> => {
+  
+  return apiFetcher<clientsControllerDetailResponse>(getClientsControllerDetailUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+

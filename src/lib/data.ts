@@ -224,6 +224,18 @@ export async function getDashboard(): Promise<{
 export async function getClientDetail(
   clientId: string,
 ): Promise<ClientDetail | null> {
+  // Migrated to the NestJS API: one call returns the client, current period,
+  // items and link state, including the get-or-create-and-seed of the month's
+  // period (a verified-identical port). A missing client is a 404 here, which
+  // maps to null so the page still calls notFound(). Falls back to Supabase.
+  if (isNestApiEnabled()) {
+    try {
+      return await nestApi.clients.detail(await getServerToken(), clientId);
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 404) return null;
+      throw e;
+    }
+  }
   if (isApiEnabled()) {
     try {
       const c = await closeApi.checklist(await getServerToken(), clientId);

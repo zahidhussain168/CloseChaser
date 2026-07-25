@@ -260,6 +260,35 @@
         ]
       }
     },
+    "/api/clients/{id}/detail": {
+      "get": {
+        "operationId": "ClientsController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Client, current period, items and link state for the detail screen",
+        "tags": [
+          "clients"
+        ]
+      }
+    },
     "/api/clients/{clientId}/items": {
       "get": {
         "operationId": "ItemsController_list",

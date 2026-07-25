@@ -1,11 +1,11 @@
 import { authHeaders } from "./fetcher";
 import { isNestApiEnabled } from "./config";
-import { clientsControllerList, clientsControllerGet } from "./generated/clients/clients";
+import { clientsControllerList, clientsControllerGet, clientsControllerDetail } from "./generated/clients/clients";
 import { itemsControllerList } from "./generated/items/items";
 import { billingControllerEntitlements } from "./generated/billing/billing";
 import { remindersControllerHistory } from "./generated/reminders/reminders";
 import { dashboardControllerGet } from "./generated/dashboard/dashboard";
-import type { ClientWithBlocking, CloseRollup } from "@/lib/data";
+import type { ClientWithBlocking, CloseRollup, ClientDetail } from "@/lib/data";
 
 /**
  * A thin, readable face over the generated client.
@@ -29,6 +29,10 @@ export const nestApi = {
     list: async (token: string | null) => (await clientsControllerList(opts(token))).data,
     get: async (token: string | null, id: string) =>
       (await clientsControllerGet(id, opts(token))).data,
+    // Returns the full ClientDetail shape (a port of getClientDetail). The
+    // caller maps a 404 to null, matching the old behaviour for a missing client.
+    detail: async (token: string | null, id: string) =>
+      (await clientsControllerDetail(id, opts(token))).data as unknown as ClientDetail,
   },
 
   items: {

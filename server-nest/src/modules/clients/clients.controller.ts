@@ -1,4 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from "@nestjs/common";
+import {
+  Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Patch, Post,
+} from "@nestjs/common";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ClientResponse, DeletedResponse } from "../../common/api-responses";
 import { CurrentUser } from "../../common/current-user.decorator";
@@ -24,6 +26,14 @@ export class ClientsController {
   @ApiOkResponse({ type: ClientResponse })
   get(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
     return this.clients.get(user.userId, id);
+  }
+
+  @Get(":id/detail")
+  @ApiOperation({ summary: "Client, current period, items and link state for the detail screen" })
+  async detail(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
+    const detail = await this.clients.detail(user.userId, id);
+    if (!detail) throw new NotFoundException("Client not found");
+    return detail;
   }
 
   @Post()
