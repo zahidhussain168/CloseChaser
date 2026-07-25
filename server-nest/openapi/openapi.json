@@ -740,6 +740,26 @@
           "billing"
         ]
       }
+    },
+    "/api/dashboard": {
+      "get": {
+        "operationId": "DashboardController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Clients ranked by what is blocking the close, plus a firm rollup",
+        "tags": [
+          "dashboard"
+        ]
+      }
     }
   },
   "info": {

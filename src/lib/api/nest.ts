@@ -4,6 +4,8 @@ import { clientsControllerList, clientsControllerGet } from "./generated/clients
 import { itemsControllerList } from "./generated/items/items";
 import { billingControllerEntitlements } from "./generated/billing/billing";
 import { remindersControllerHistory } from "./generated/reminders/reminders";
+import { dashboardControllerGet } from "./generated/dashboard/dashboard";
+import type { ClientWithBlocking, CloseRollup } from "@/lib/data";
 
 /**
  * A thin, readable face over the generated client.
@@ -42,6 +44,17 @@ export const nestApi = {
   reminders: {
     history: async (token: string | null, clientId: string) =>
       (await remindersControllerHistory(clientId, opts(token))).data,
+  },
+
+  dashboard: {
+    // The endpoint returns exactly this shape (a port of the old query), and
+    // ClientWithBlocking / CloseRollup are the app's canonical types, so we
+    // assert to them here rather than duplicate them as Nest DTOs.
+    get: async (token: string | null) =>
+      (await dashboardControllerGet(opts(token))).data as unknown as {
+        clients: ClientWithBlocking[];
+        rollup: CloseRollup;
+      },
   },
 };
 

@@ -12,6 +12,7 @@ import { ClientsModule } from "./modules/clients/clients.module";
 import { ItemsModule } from "./modules/items/items.module";
 import { RemindersModule } from "./modules/reminders/reminders.module";
 import { BillingModule } from "./modules/billing/billing.module";
+import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { NotificationsModule } from "./modules/notifications/notifications.module";
 
 @Global()
@@ -41,6 +42,7 @@ class PrismaModule {}
     ItemsModule,
     RemindersModule,
     BillingModule,
+    DashboardModule,
     NotificationsModule,
   ],
   controllers: [HealthController],

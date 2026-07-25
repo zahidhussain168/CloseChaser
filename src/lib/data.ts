@@ -12,9 +12,10 @@ import type {
 } from "@/lib/types";
 import { monthKey } from "@/lib/format";
 import { openCount, isOpen } from "@/lib/state";
-import { isApiEnabled } from "@/lib/api/config";
+import { isApiEnabled, isNestApiEnabled } from "@/lib/api/config";
 import { getServerToken } from "@/lib/api/server";
 import { closeApi, dashboardApi, templatesApi, firmApi } from "@/lib/api/resources";
+import { nestApi } from "@/lib/api/nest";
 import { ApiError } from "@/lib/api/http";
 
 type DB = SupabaseClient<Database>;
@@ -205,6 +206,13 @@ export async function getDashboard(): Promise<{
   clients: ClientWithBlocking[];
   rollup: CloseRollup;
 }> {
+  // Migrated to the NestJS API: the dashboard rollup now comes from the
+  // standalone service (a verified-identical port of the two functions below),
+  // which runs in the database region. Falls back to computing it here directly
+  // against Supabase whenever the Nest API is not configured.
+  if (isNestApiEnabled()) {
+    return nestApi.dashboard.get(await getServerToken());
+  }
   if (isApiEnabled()) {
     return dashboardApi.get(await getServerToken());
   }
