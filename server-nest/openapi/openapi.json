@@ -809,6 +809,26 @@
           "templates"
         ]
       }
+    },
+    "/api/firm": {
+      "get": {
+        "operationId": "FirmController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "The firm owned by the signed-in bookkeeper",
+        "tags": [
+          "firm"
+        ]
+      }
     }
   },
   "info": {

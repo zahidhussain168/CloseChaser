@@ -6,7 +6,9 @@ import { billingControllerEntitlements } from "./generated/billing/billing";
 import { remindersControllerHistory } from "./generated/reminders/reminders";
 import { dashboardControllerGet } from "./generated/dashboard/dashboard";
 import { templatesControllerList } from "./generated/templates/templates";
+import { firmControllerGet } from "./generated/firm/firm";
 import type { ClientWithBlocking, CloseRollup, ClientDetail, TemplateWithItems } from "@/lib/data";
+import type { Firm } from "@/lib/types";
 
 /**
  * A thin, readable face over the generated client.
@@ -65,6 +67,13 @@ export const nestApi = {
   templates: {
     list: async (token: string | null) =>
       (await templatesControllerList(opts(token))).data as unknown as TemplateWithItems[],
+  },
+
+  firm: {
+    // Returns the full firm row. The caller maps 401/404 to null, matching the
+    // old "no session / no firm" behaviour.
+    get: async (token: string | null) =>
+      (await firmControllerGet(opts(token))).data as unknown as Firm,
   },
 };
 

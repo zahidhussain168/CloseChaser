@@ -22,6 +22,19 @@ type DB = SupabaseClient<Database>;
 
 /** The signed-in bookkeeper's firm (one per user). */
 export async function getFirm(): Promise<Firm | null> {
+  // Migrated to the NestJS API: the full firm row (branding + entitlements) in
+  // one call, behind the same gate. No session or no firm surfaces as 401/404,
+  // which we treat as "no firm", exactly as before. Falls back to Supabase.
+  if (isNestApiEnabled()) {
+    const token = await getServerToken();
+    if (!token) return null;
+    try {
+      return await nestApi.firm.get(token);
+    } catch (e) {
+      if (e instanceof ApiError && (e.status === 401 || e.status === 404)) return null;
+      throw e;
+    }
+  }
   if (isApiEnabled()) {
     const token = await getServerToken();
     if (!token) return null;
