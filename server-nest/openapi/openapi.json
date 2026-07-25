@@ -789,6 +789,26 @@
           "dashboard"
         ]
       }
+    },
+    "/api/templates": {
+      "get": {
+        "operationId": "TemplatesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Every request template for the firm, with its items",
+        "tags": [
+          "templates"
+        ]
+      }
     }
   },
   "info": {

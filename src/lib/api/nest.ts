@@ -5,7 +5,8 @@ import { itemsControllerList } from "./generated/items/items";
 import { billingControllerEntitlements } from "./generated/billing/billing";
 import { remindersControllerHistory } from "./generated/reminders/reminders";
 import { dashboardControllerGet } from "./generated/dashboard/dashboard";
-import type { ClientWithBlocking, CloseRollup, ClientDetail } from "@/lib/data";
+import { templatesControllerList } from "./generated/templates/templates";
+import type { ClientWithBlocking, CloseRollup, ClientDetail, TemplateWithItems } from "@/lib/data";
 
 /**
  * A thin, readable face over the generated client.
@@ -59,6 +60,11 @@ export const nestApi = {
         clients: ClientWithBlocking[];
         rollup: CloseRollup;
       },
+  },
+
+  templates: {
+    list: async (token: string | null) =>
+      (await templatesControllerList(opts(token))).data as unknown as TemplateWithItems[],
   },
 };
 

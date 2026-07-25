@@ -319,6 +319,11 @@ export type TemplateWithItems = RequestTemplate & { items: TemplateItem[] };
 
 /** All request templates for the firm, with their items. */
 export async function listTemplates(): Promise<TemplateWithItems[]> {
+  // Migrated to the NestJS API: templates with their items in one call (a
+  // verified-identical port). Falls back to Supabase where the API is unset.
+  if (isNestApiEnabled()) {
+    return nestApi.templates.list(await getServerToken());
+  }
   if (isApiEnabled()) {
     return templatesApi.list(await getServerToken());
   }
