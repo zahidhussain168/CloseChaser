@@ -222,3 +222,18 @@ export interface EntitlementsResponse {
   features: EntitlementFeatures;
 }
 
+export interface UpdateBrandingDto {
+  /**
+   * The firm's display name.
+   * @maxLength 120
+   */
+  name: string;
+  /** Accent colour as a six-digit hex. */
+  accent_color: string;
+  /**
+   * Reply-to email, or empty to clear.
+   * @nullable
+   */
+  reply_to?: string | null;
+}
+

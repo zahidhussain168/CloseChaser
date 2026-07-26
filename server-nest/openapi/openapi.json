@@ -829,6 +829,36 @@
           "firm"
         ]
       }
+    },
+    "/api/firm/branding": {
+      "patch": {
+        "operationId": "FirmController_updateBranding",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBrandingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Update the firm's name, accent colour and reply-to",
+        "tags": [
+          "firm"
+        ]
+      }
     }
   },
   "info": {
@@ -1368,6 +1398,30 @@
           "trialEndsAt",
           "currentPeriodEnd",
           "features"
+        ]
+      },
+      "UpdateBrandingDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The firm's display name.",
+            "maxLength": 120
+          },
+          "accent_color": {
+            "type": "string",
+            "description": "Accent colour as a six-digit hex.",
+            "example": "#0EA5E9"
+          },
+          "reply_to": {
+            "type": "string",
+            "nullable": true,
+            "description": "Reply-to email, or empty to clear."
+          }
+        },
+        "required": [
+          "name",
+          "accent_color"
         ]
       }
     }

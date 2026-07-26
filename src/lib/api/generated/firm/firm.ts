@@ -4,6 +4,10 @@
  * RuledOff API
  * OpenAPI spec version: 1.0
  */
+import type {
+  UpdateBrandingDto
+} from '../ruledOffAPI.schemas';
+
 import { apiFetcher } from '../../fetcher';
 
 /**
@@ -37,6 +41,42 @@ export const firmControllerGet = async ( options?: RequestInit): Promise<firmCon
     method: 'GET'
     
     
+  }
+);}
+
+
+/**
+ * @summary Update the firm's name, accent colour and reply-to
+ */
+export type firmControllerUpdateBrandingResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type firmControllerUpdateBrandingResponseSuccess = (firmControllerUpdateBrandingResponse200) & {
+  headers: Headers;
+};
+;
+
+export type firmControllerUpdateBrandingResponse = (firmControllerUpdateBrandingResponseSuccess)
+
+export const getFirmControllerUpdateBrandingUrl = () => {
+
+
+  
+
+  return `/api/firm/branding`
+}
+
+export const firmControllerUpdateBranding = async (updateBrandingDto: UpdateBrandingDto, options?: RequestInit): Promise<firmControllerUpdateBrandingResponse> => {
+  
+  return apiFetcher<firmControllerUpdateBrandingResponse>(getFirmControllerUpdateBrandingUrl(),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateBrandingDto,)
   }
 );}
 

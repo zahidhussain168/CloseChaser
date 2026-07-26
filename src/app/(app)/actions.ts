@@ -16,9 +16,10 @@ import { requireUserId } from "@/lib/auth";
 import { getQboConnection } from "@/lib/qbo/connection";
 import { syncItemToQbo } from "@/lib/qbo/writeback";
 import { STARTER_TEMPLATES } from "@/lib/seasonalTemplates";
-import { isApiEnabled } from "@/lib/api/config";
+import { isApiEnabled, isNestApiEnabled } from "@/lib/api/config";
 import { getServerToken } from "@/lib/api/server";
 import { clientsApi, closeApi, itemsApi, firmApi, templatesApi } from "@/lib/api/resources";
+import { nestApi } from "@/lib/api/nest";
 import type { FormState } from "@/lib/forms";
 import type { Client, Firm, Item } from "@/lib/types";
 
@@ -378,6 +379,21 @@ export async function updateBrandingAction(
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
+  // Migrated to the NestJS API (the first write to move). Same body, same
+  // firm-scoped update, behind the same gate. Falls back to Supabase.
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.firm.updateBranding(await getServerToken(), {
+        name: parsed.data.name,
+        accent_color: parsed.data.accent_color,
+        reply_to: parsed.data.reply_to || undefined,
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save branding" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
   if (isApiEnabled()) {
     try {
       await firmApi.updateBranding(await getServerToken(), {
