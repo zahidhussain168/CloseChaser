@@ -237,3 +237,13 @@ export interface UpdateBrandingDto {
   reply_to?: string | null;
 }
 
+export interface UpdateCadenceDto {
+  /** Milestone offsets in days. */
+  offsets: number[];
+  /**
+   * @minimum 3
+   * @maximum 30
+   */
+  weeklyStep: number;
+}
+

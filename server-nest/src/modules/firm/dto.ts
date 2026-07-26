@@ -1,6 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, ValidateIf } from "class-validator";
+import {
+  ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsInt, IsNotEmpty, IsString,
+  Matches, Max, MaxLength, Min, ValidateIf,
+} from "class-validator";
 
 const trim = ({ value }: { value: unknown }) => (typeof value === "string" ? value.trim() : value);
 
@@ -30,4 +33,27 @@ export class UpdateBrandingDto {
   @IsEmail({}, { message: "Reply-to must be a valid email" })
   @MaxLength(200)
   reply_to?: string;
+}
+
+/**
+ * Reminder cadence. Mirrors the frontend's zod: one to six milestone offsets
+ * (whole days, 1 to 90) and a weekly step of 3 to 30 days. The service dedupes
+ * and sorts the offsets, so a canonical value is stored whatever the caller
+ * sends.
+ */
+export class UpdateCadenceDto {
+  @ApiProperty({ type: [Number], example: [2, 5, 9], description: "Milestone offsets in days." })
+  @IsArray()
+  @ArrayMinSize(1, { message: "Use between one and six days" })
+  @ArrayMaxSize(6, { message: "Use between one and six days" })
+  @IsInt({ each: true, message: "Days must be whole numbers from 1 to 90" })
+  @Min(1, { each: true, message: "Days must be whole numbers from 1 to 90" })
+  @Max(90, { each: true, message: "Days must be whole numbers from 1 to 90" })
+  offsets!: number[];
+
+  @ApiProperty({ example: 7, minimum: 3, maximum: 30 })
+  @IsInt()
+  @Min(3, { message: "Keep at least 3 days between later reminders" })
+  @Max(30, { message: "Use 30 days or fewer between later reminders" })
+  weeklyStep!: number;
 }

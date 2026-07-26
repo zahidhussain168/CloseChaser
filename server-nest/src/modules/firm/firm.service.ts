@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma.service";
-import type { UpdateBrandingDto } from "./dto";
+import type { UpdateBrandingDto, UpdateCadenceDto } from "./dto";
 
 /**
  * The firm owned by the signed-in bookkeeper.
@@ -40,6 +40,22 @@ export class FirmService {
       return this.present(updated);
     } catch {
       // Prisma throws when no row matches owner_id (no firm for this account).
+      throw new NotFoundException("No firm for this account");
+    }
+  }
+
+  /** Update the reminder cadence on the firm this user owns. */
+  async updateCadence(userId: string, dto: UpdateCadenceDto) {
+    // Canonicalise: dedupe and sort, so the stored value never depends on the
+    // order the caller happened to send.
+    const offsets = Array.from(new Set(dto.offsets)).sort((a, b) => a - b);
+    try {
+      const updated = await this.prisma.db.firms.update({
+        where: { owner_id: userId },
+        data: { reminder_offsets: offsets, reminder_weekly_step: dto.weeklyStep },
+      });
+      return this.present(updated);
+    } catch {
       throw new NotFoundException("No firm for this account");
     }
   }

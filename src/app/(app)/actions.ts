@@ -455,6 +455,16 @@ export async function updateCadenceAction(
 
   const offsets = Array.from(new Set(parsed.data.offsets)).sort((a, b) => a - b);
 
+  // Migrated to the NestJS API. Same firm-scoped write, behind the same gate.
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.firm.updateCadence(await getServerToken(), { offsets, weeklyStep: parsed.data.weeklyStep });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save the cadence" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
   if (isApiEnabled()) {
     try {
       await firmApi.updateCadence(await getServerToken(), { offsets, weeklyStep: parsed.data.weeklyStep });

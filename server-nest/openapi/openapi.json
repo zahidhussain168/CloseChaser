@@ -859,6 +859,36 @@
           "firm"
         ]
       }
+    },
+    "/api/firm/cadence": {
+      "patch": {
+        "operationId": "FirmController_updateCadence",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCadenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Update the reminder cadence",
+        "tags": [
+          "firm"
+        ]
+      }
     }
   },
   "info": {
@@ -1422,6 +1452,33 @@
         "required": [
           "name",
           "accent_color"
+        ]
+      },
+      "UpdateCadenceDto": {
+        "type": "object",
+        "properties": {
+          "offsets": {
+            "example": [
+              2,
+              5,
+              9
+            ],
+            "description": "Milestone offsets in days.",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "weeklyStep": {
+            "type": "number",
+            "example": 7,
+            "minimum": 3,
+            "maximum": 30
+          }
+        },
+        "required": [
+          "offsets",
+          "weeklyStep"
         ]
       }
     }

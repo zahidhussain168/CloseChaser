@@ -6,7 +6,9 @@ import { billingControllerEntitlements } from "./generated/billing/billing";
 import { remindersControllerHistory } from "./generated/reminders/reminders";
 import { dashboardControllerGet } from "./generated/dashboard/dashboard";
 import { templatesControllerList } from "./generated/templates/templates";
-import { firmControllerGet, firmControllerUpdateBranding } from "./generated/firm/firm";
+import {
+  firmControllerGet, firmControllerUpdateBranding, firmControllerUpdateCadence,
+} from "./generated/firm/firm";
 import type { ClientWithBlocking, CloseRollup, ClientDetail, TemplateWithItems } from "@/lib/data";
 import type { Firm } from "@/lib/types";
 
@@ -78,6 +80,10 @@ export const nestApi = {
       token: string | null,
       body: { name: string; accent_color: string; reply_to?: string },
     ) => (await firmControllerUpdateBranding(body, opts(token))).data as unknown as Firm,
+    updateCadence: async (
+      token: string | null,
+      body: { offsets: number[]; weeklyStep: number },
+    ) => (await firmControllerUpdateCadence(body, opts(token))).data as unknown as Firm,
   },
 };
 

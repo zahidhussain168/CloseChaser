@@ -5,7 +5,8 @@
  * OpenAPI spec version: 1.0
  */
 import type {
-  UpdateBrandingDto
+  UpdateBrandingDto,
+  UpdateCadenceDto
 } from '../ruledOffAPI.schemas';
 
 import { apiFetcher } from '../../fetcher';
@@ -77,6 +78,42 @@ export const firmControllerUpdateBranding = async (updateBrandingDto: UpdateBran
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       updateBrandingDto,)
+  }
+);}
+
+
+/**
+ * @summary Update the reminder cadence
+ */
+export type firmControllerUpdateCadenceResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type firmControllerUpdateCadenceResponseSuccess = (firmControllerUpdateCadenceResponse200) & {
+  headers: Headers;
+};
+;
+
+export type firmControllerUpdateCadenceResponse = (firmControllerUpdateCadenceResponseSuccess)
+
+export const getFirmControllerUpdateCadenceUrl = () => {
+
+
+  
+
+  return `/api/firm/cadence`
+}
+
+export const firmControllerUpdateCadence = async (updateCadenceDto: UpdateCadenceDto, options?: RequestInit): Promise<firmControllerUpdateCadenceResponse> => {
+  
+  return apiFetcher<firmControllerUpdateCadenceResponse>(getFirmControllerUpdateCadenceUrl(),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateCadenceDto,)
   }
 );}
 

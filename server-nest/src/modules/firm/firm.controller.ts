@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../../common/current-user.decorator";
 import type { AuthUser } from "../../common/current-user.decorator";
 import { FirmService } from "./firm.service";
-import { UpdateBrandingDto } from "./dto";
+import { UpdateBrandingDto, UpdateCadenceDto } from "./dto";
 
 @ApiTags("firm")
 @ApiBearerAuth("bookkeeper")
@@ -23,5 +23,11 @@ export class FirmController {
   @ApiOperation({ summary: "Update the firm's name, accent colour and reply-to" })
   updateBranding(@CurrentUser() user: AuthUser, @Body() dto: UpdateBrandingDto) {
     return this.firm.updateBranding(user.userId, dto);
+  }
+
+  @Patch("cadence")
+  @ApiOperation({ summary: "Update the reminder cadence" })
+  updateCadence(@CurrentUser() user: AuthUser, @Body() dto: UpdateCadenceDto) {
+    return this.firm.updateCadence(user.userId, dto);
   }
 }
