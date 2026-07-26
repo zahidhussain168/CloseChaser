@@ -54,7 +54,20 @@ export async function createClientAction(
   // through it (RLS-scoped by the caller's token). Otherwise keep the built-in
   // DB write. Both revalidate + redirect the same way.
   let newClientId: string;
-  if (isApiEnabled()) {
+  if (isNestApiEnabled()) {
+    try {
+      const client = await nestApi.clients.create(await getServerToken(), {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone || undefined,
+        // Preserve the realm id the form can set, matching the direct DB path.
+        qboRealmId: parsed.data.qbo_realm_id || undefined,
+      });
+      newClientId = client.id;
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the client" };
+    }
+  } else if (isApiEnabled()) {
     try {
       const token = await getServerToken();
       const client = await clientsApi.create(token, {

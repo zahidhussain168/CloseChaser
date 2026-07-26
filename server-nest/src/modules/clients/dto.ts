@@ -18,6 +18,10 @@ export class CreateClientDto {
   @ApiPropertyOptional({ minimum: 1, maximum: 28 })
   @IsOptional() @IsInt() @Min(1) @Max(28)
   closeDay?: number;
+
+  /** QBO realm id, if the client is connected. Blank for manual-only. */
+  @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(64)
+  qboRealmId?: string;
 }
 
 export class UpdateClientDto extends PartialType(CreateClientDto) {}

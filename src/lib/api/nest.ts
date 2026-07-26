@@ -1,6 +1,9 @@
 import { authHeaders } from "./fetcher";
 import { isNestApiEnabled } from "./config";
-import { clientsControllerList, clientsControllerGet, clientsControllerDetail } from "./generated/clients/clients";
+import {
+  clientsControllerList, clientsControllerGet, clientsControllerDetail,
+  clientsControllerCreate, clientsControllerUpdate, clientsControllerRemove,
+} from "./generated/clients/clients";
 import { itemsControllerList } from "./generated/items/items";
 import { billingControllerEntitlements } from "./generated/billing/billing";
 import { remindersControllerHistory } from "./generated/reminders/reminders";
@@ -38,6 +41,19 @@ export const nestApi = {
     // caller maps a 404 to null, matching the old behaviour for a missing client.
     detail: async (token: string | null, id: string) =>
       (await clientsControllerDetail(id, opts(token))).data as unknown as ClientDetail,
+    create: async (
+      token: string | null,
+      body: { name: string; email: string; phone?: string; qboRealmId?: string },
+    ) => (await clientsControllerCreate(body, opts(token))).data as unknown as { id: string },
+    update: async (
+      token: string | null,
+      id: string,
+      // closeDay null clears it; the old direct write cleared it when the form
+      // field was blank, so the migrated write must be able to as well.
+      body: { name?: string; email?: string; phone?: string; notes?: string; closeDay?: number | null },
+    ) => (await clientsControllerUpdate(id, body as Record<string, unknown>, opts(token))).data,
+    remove: async (token: string | null, id: string) =>
+      (await clientsControllerRemove(id, opts(token))).data,
   },
 
   items: {

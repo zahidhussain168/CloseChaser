@@ -995,6 +995,9 @@
             "type": "number",
             "minimum": 1,
             "maximum": 28
+          },
+          "qboRealmId": {
+            "type": "string"
           }
         },
         "required": [
@@ -1021,6 +1024,9 @@
             "type": "number",
             "minimum": 1,
             "maximum": 28
+          },
+          "qboRealmId": {
+            "type": "string"
           }
         }
       },

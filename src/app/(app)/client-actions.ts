@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireUserId } from "@/lib/auth";
+import { isNestApiEnabled } from "@/lib/api/config";
+import { getServerToken } from "@/lib/api/server";
+import { nestApi } from "@/lib/api/nest";
 import { ensureCurrentPeriod } from "@/lib/data";
 import { getQboConnection } from "@/lib/qbo/connection";
 import { syncItemToQbo } from "@/lib/qbo/writeback";
@@ -36,6 +39,22 @@ export async function updateClientAction(_prev: FormState, formData: FormData): 
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const { clientId, name, email, phone, notes, closeDay } = parsed.data;
+
+  // Migrated to the NestJS API, behind the same gate, falling back to Supabase.
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.clients.update(await getServerToken(), clientId, {
+        // Empty phone/notes clear to null in the service; closeDay null clears
+        // the close day, matching the old `close_day: closeDay ?? null`.
+        name, email, phone: phone ?? "", notes: notes ?? "", closeDay: closeDay ?? null,
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save the client" };
+    }
+    revalidatePath(`/clients/${clientId}`);
+    revalidatePath("/dashboard");
+    return { ok: true };
+  }
 
   const supabase = createClient();
   const { error } = await supabase

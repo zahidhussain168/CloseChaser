@@ -39,6 +39,7 @@ export interface CreateClientDto {
    * @maximum 28
    */
   closeDay?: number;
+  qboRealmId?: string;
 }
 
 export interface UpdateClientDto {
@@ -51,6 +52,7 @@ export interface UpdateClientDto {
    * @maximum 28
    */
   closeDay?: number;
+  qboRealmId?: string;
 }
 
 export interface DeletedResponse {

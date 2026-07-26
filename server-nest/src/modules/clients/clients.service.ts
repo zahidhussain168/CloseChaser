@@ -45,6 +45,9 @@ export class ClientsService {
         phone: dto.phone ?? null,
         notes: dto.notes ?? null,
         close_day: dto.closeDay ?? null,
+        // Preserve the realm id the add-client form can set. The direct-Supabase
+        // path kept it, so the migrated write must too, or it is a regression.
+        qbo_realm_id: dto.qboRealmId || null,
       },
       select: { id: true, name: true, email: true, phone: true, notes: true, close_day: true },
     });
