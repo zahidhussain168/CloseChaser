@@ -299,6 +299,17 @@ export async function sendBackItemAction(itemId: string, clientId: string) {
 export async function fireChaseAction(clientId: string) {
   await requireUserId();
 
+  if (isNestApiEnabled()) {
+    try {
+      const result = await nestApi.clients.chase(await getServerToken(), clientId);
+      revalidatePath(`/clients/${clientId}`);
+      revalidatePath("/dashboard");
+      if (!result.ok) return { ok: false, error: result.error ?? "Email failed" };
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not start the chase" };
+    }
+  }
   if (isApiEnabled()) {
     try {
       const result = await closeApi.chase(await getServerToken(), clientId);

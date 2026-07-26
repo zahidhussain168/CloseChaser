@@ -1317,6 +1317,42 @@
           "firm"
         ]
       }
+    },
+    "/api/clients/{id}/chase": {
+      "post": {
+        "operationId": "ChaseController_fire",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Start the initial chase: mark chasing and email the client",
+        "tags": [
+          "chase"
+        ]
+      }
     }
   },
   "info": {

@@ -15,6 +15,7 @@ import { BillingModule } from "./modules/billing/billing.module";
 import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { TemplatesModule } from "./modules/templates/templates.module";
 import { FirmModule } from "./modules/firm/firm.module";
+import { ChaseModule } from "./modules/chase/chase.module";
 import { NotificationsModule } from "./modules/notifications/notifications.module";
 
 @Global()
@@ -47,6 +48,7 @@ class PrismaModule {}
     DashboardModule,
     TemplatesModule,
     FirmModule,
+    ChaseModule,
     NotificationsModule,
   ],
   controllers: [HealthController],

@@ -329,3 +329,5 @@ export interface UpdateCadenceDto {
   weeklyStep: number;
 }
 
+export type ChaseControllerFire201 = { [key: string]: unknown };
+

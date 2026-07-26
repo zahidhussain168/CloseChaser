@@ -19,6 +19,7 @@ import {
 import {
   clientsControllerEnsureLink, clientsControllerRegenerateLink, clientsControllerSetAutoChase,
 } from "./generated/clients/clients";
+import { chaseControllerFire } from "./generated/chase/chase";
 import {
   firmControllerGet, firmControllerUpdateBranding, firmControllerUpdateCadence,
 } from "./generated/firm/firm";
@@ -70,6 +71,8 @@ export const nestApi = {
       (await clientsControllerRegenerateLink(id, opts(token))).data as unknown as { token: string },
     setAutoChase: async (token: string | null, id: string, on: boolean) =>
       (await clientsControllerSetAutoChase(id, { on }, opts(token))).data,
+    chase: async (token: string | null, id: string) =>
+      (await chaseControllerFire(id, opts(token))).data as unknown as { ok: boolean; error?: string },
   },
 
   items: {
