@@ -8,7 +8,17 @@ import { itemsControllerList } from "./generated/items/items";
 import { billingControllerEntitlements } from "./generated/billing/billing";
 import { remindersControllerHistory } from "./generated/reminders/reminders";
 import { dashboardControllerGet } from "./generated/dashboard/dashboard";
-import { templatesControllerList } from "./generated/templates/templates";
+import {
+  templatesControllerList, templatesControllerCreate, templatesControllerCreateWithItems,
+  templatesControllerAddItem, templatesControllerRemoveItem, templatesControllerRemove,
+  templatesControllerApply, templatesControllerSetDefault, templatesControllerUpsertEmailTemplate,
+} from "./generated/templates/templates";
+import {
+  itemsControllerCreate, itemsControllerRemove, itemsControllerAnnotate,
+} from "./generated/items/items";
+import {
+  clientsControllerEnsureLink, clientsControllerRegenerateLink, clientsControllerSetAutoChase,
+} from "./generated/clients/clients";
 import {
   firmControllerGet, firmControllerUpdateBranding, firmControllerUpdateCadence,
 } from "./generated/firm/firm";
@@ -54,11 +64,55 @@ export const nestApi = {
     ) => (await clientsControllerUpdate(id, body as Record<string, unknown>, opts(token))).data,
     remove: async (token: string | null, id: string) =>
       (await clientsControllerRemove(id, opts(token))).data,
+    ensureLink: async (token: string | null, id: string) =>
+      (await clientsControllerEnsureLink(id, opts(token))).data as unknown as { token: string },
+    regenerateLink: async (token: string | null, id: string) =>
+      (await clientsControllerRegenerateLink(id, opts(token))).data as unknown as { token: string },
+    setAutoChase: async (token: string | null, id: string, on: boolean) =>
+      (await clientsControllerSetAutoChase(id, { on }, opts(token))).data,
   },
 
   items: {
     forClient: async (token: string | null, clientId: string) =>
       (await itemsControllerList(clientId, opts(token))).data,
+    add: async (
+      token: string | null,
+      clientId: string,
+      body: { type: string; title: string; note?: string; questions?: string[] },
+    ) => (await itemsControllerCreate(clientId, body as never, opts(token))).data,
+    remove: async (token: string | null, id: string) =>
+      (await itemsControllerRemove(id, opts(token))).data,
+    annotate: async (token: string | null, clientId: string, title: string, note: string) =>
+      (await itemsControllerAnnotate(clientId, { title, note } as never, opts(token))).data,
+  },
+
+  templatesWrite: {
+    create: async (token: string | null, name: string) =>
+      (await templatesControllerCreate({ name }, opts(token))).data as unknown as { id: string },
+    createWithItems: async (
+      token: string | null,
+      name: string,
+      items: { type: string; title: string; note?: string }[],
+    ) => (await templatesControllerCreateWithItems({ name, items } as never, opts(token))).data,
+    addItem: async (
+      token: string | null,
+      templateId: string,
+      body: { type: string; title: string; note?: string },
+    ) => (await templatesControllerAddItem(templateId, body as never, opts(token))).data,
+    removeItem: async (token: string | null, itemId: string) =>
+      (await templatesControllerRemoveItem(itemId, opts(token))).data,
+    remove: async (token: string | null, id: string) =>
+      (await templatesControllerRemove(id, opts(token))).data,
+    apply: async (token: string | null, templateId: string, clientId: string) =>
+      (await templatesControllerApply(templateId, { clientId }, opts(token))).data as unknown as { added: number },
+    setDefault: async (token: string | null, clientId: string, templateId: string | null) =>
+      (await templatesControllerSetDefault(clientId, { templateId } as never, opts(token))).data,
+    upsertEmailTemplate: async (
+      token: string | null,
+      kind: string,
+      subject: string,
+      body: string,
+    ) => (await templatesControllerUpsertEmailTemplate({ kind, subject, body } as never, opts(token))).data,
   },
 
   billing: {

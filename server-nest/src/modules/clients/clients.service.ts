@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma.service";
 import { TenantService } from "../../common/tenant.service";
+import { MagicLinkService } from "../../common/magic-link.service";
 import type { CreateClientDto, UpdateClientDto } from "./dto";
 
 @Injectable()
@@ -8,7 +9,32 @@ export class ClientsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tenant: TenantService,
+    private readonly links: MagicLinkService,
   ) {}
+
+  /** Ensure a live magic link exists for this client. */
+  async ensureLink(userId: string, clientId: string) {
+    const firmId = await this.tenant.firmIdForUser(userId);
+    await this.tenant.assertClient(firmId, clientId);
+    const token = await this.links.ensureFor(clientId);
+    return { token };
+  }
+
+  /** Revoke and re-mint the client's magic link. */
+  async regenerateLink(userId: string, clientId: string) {
+    const firmId = await this.tenant.firmIdForUser(userId);
+    await this.tenant.assertClient(firmId, clientId);
+    const token = await this.links.regenerate(clientId);
+    return { token };
+  }
+
+  /** Toggle auto-chase for a client. The entitlement gate stays on the caller. */
+  async setAutoChase(userId: string, clientId: string, on: boolean) {
+    const firmId = await this.tenant.firmIdForUser(userId);
+    await this.tenant.assertClient(firmId, clientId);
+    await this.prisma.db.clients.update({ where: { id: clientId }, data: { auto_chase: on } });
+    return { clientId, autoChase: on };
+  }
 
   async list(userId: string) {
     const firmId = await this.tenant.firmIdForUser(userId);

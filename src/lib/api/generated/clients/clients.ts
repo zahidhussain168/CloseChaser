@@ -8,6 +8,7 @@ import type {
   ClientResponse,
   CreateClientDto,
   DeletedResponse,
+  SetAutoChaseDto,
   UpdateClientDto
 } from '../ruledOffAPI.schemas';
 
@@ -222,6 +223,113 @@ export const clientsControllerDetail = async (id: string, options?: RequestInit)
     method: 'GET'
     
     
+  }
+);}
+
+
+/**
+ * @summary Ensure a live magic link exists for the client
+ */
+export type clientsControllerEnsureLinkResponse201 = {
+  data: void
+  status: 201
+}
+    
+export type clientsControllerEnsureLinkResponseSuccess = (clientsControllerEnsureLinkResponse201) & {
+  headers: Headers;
+};
+;
+
+export type clientsControllerEnsureLinkResponse = (clientsControllerEnsureLinkResponseSuccess)
+
+export const getClientsControllerEnsureLinkUrl = (id: string,) => {
+
+
+  
+
+  return `/api/clients/${id}/link`
+}
+
+export const clientsControllerEnsureLink = async (id: string, options?: RequestInit): Promise<clientsControllerEnsureLinkResponse> => {
+  
+  return apiFetcher<clientsControllerEnsureLinkResponse>(getClientsControllerEnsureLinkUrl(id),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+/**
+ * @summary Revoke and re-mint the client's magic link
+ */
+export type clientsControllerRegenerateLinkResponse201 = {
+  data: void
+  status: 201
+}
+    
+export type clientsControllerRegenerateLinkResponseSuccess = (clientsControllerRegenerateLinkResponse201) & {
+  headers: Headers;
+};
+;
+
+export type clientsControllerRegenerateLinkResponse = (clientsControllerRegenerateLinkResponseSuccess)
+
+export const getClientsControllerRegenerateLinkUrl = (id: string,) => {
+
+
+  
+
+  return `/api/clients/${id}/link/regenerate`
+}
+
+export const clientsControllerRegenerateLink = async (id: string, options?: RequestInit): Promise<clientsControllerRegenerateLinkResponse> => {
+  
+  return apiFetcher<clientsControllerRegenerateLinkResponse>(getClientsControllerRegenerateLinkUrl(id),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+/**
+ * @summary Turn auto-chase on or off for the client
+ */
+export type clientsControllerSetAutoChaseResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type clientsControllerSetAutoChaseResponseSuccess = (clientsControllerSetAutoChaseResponse200) & {
+  headers: Headers;
+};
+;
+
+export type clientsControllerSetAutoChaseResponse = (clientsControllerSetAutoChaseResponseSuccess)
+
+export const getClientsControllerSetAutoChaseUrl = (id: string,) => {
+
+
+  
+
+  return `/api/clients/${id}/auto-chase`
+}
+
+export const clientsControllerSetAutoChase = async (id: string,
+    setAutoChaseDto: SetAutoChaseDto, options?: RequestInit): Promise<clientsControllerSetAutoChaseResponse> => {
+  
+  return apiFetcher<clientsControllerSetAutoChaseResponse>(getClientsControllerSetAutoChaseUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      setAutoChaseDto,)
   }
 );}
 

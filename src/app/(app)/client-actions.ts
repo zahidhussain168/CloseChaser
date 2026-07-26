@@ -163,6 +163,15 @@ export async function setAutoChaseAction(clientId: string, on: boolean): Promise
   if (!(await isPro())) {
     return { ok: false, error: "Your free trial has ended. Upgrade to turn on auto-chase." };
   }
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.clients.setAutoChase(await getServerToken(), clientId, on);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save auto-chase" };
+    }
+    revalidatePath(`/clients/${clientId}`);
+    return { ok: true };
+  }
   const supabase = createClient();
   const { error } = await supabase.from("clients").update({ auto_chase: on }).eq("id", clientId);
   if (error) return { ok: false, error: error.message };
@@ -202,6 +211,16 @@ export async function addQuickItemAction(
  */
 export async function annotateItemAction(clientId: string, itemTitle: string, note: string): Promise<FormState> {
   await requireUserId();
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.items.annotate(await getServerToken(), clientId, itemTitle, note);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save the note." };
+    }
+    revalidatePath(`/clients/${clientId}`);
+    revalidatePath("/dashboard");
+    return { ok: true };
+  }
   const supabase = createClient();
   const period = await ensureCurrentPeriod(clientId);
   if (!period) return { ok: false, error: "Could not open the close period." };

@@ -126,6 +126,20 @@ export async function addItemAction(
     return { ok: false, error: "Add at least one question" };
   }
 
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.items.add(await getServerToken(), parsed.data.clientId, {
+        type: parsed.data.type,
+        title: parsed.data.title,
+        note: parsed.data.details || undefined,
+        questions: parsed.data.type === "questionnaire" ? questions : undefined,
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the item" };
+    }
+    revalidatePath(`/clients/${parsed.data.clientId}`);
+    return { ok: true };
+  }
   if (isApiEnabled()) {
     try {
       await closeApi.addItem(await getServerToken(), parsed.data.clientId, {
@@ -173,7 +187,9 @@ const itemSchema = z.object({
 
 export async function deleteItemAction(itemId: string, clientId: string) {
   await requireUserId();
-  if (isApiEnabled()) {
+  if (isNestApiEnabled()) {
+    await nestApi.items.remove(await getServerToken(), itemId);
+  } else if (isApiEnabled()) {
     await itemsApi.remove(await getServerToken(), itemId);
   } else {
     const supabase = createClient();
@@ -349,7 +365,9 @@ export async function fireChaseAction(clientId: string) {
 
 export async function ensureLinkAction(clientId: string) {
   await requireUserId();
-  if (isApiEnabled()) {
+  if (isNestApiEnabled()) {
+    await nestApi.clients.ensureLink(await getServerToken(), clientId);
+  } else if (isApiEnabled()) {
     await closeApi.link(await getServerToken(), clientId);
   } else {
     const supabase = createClient();
@@ -360,7 +378,9 @@ export async function ensureLinkAction(clientId: string) {
 
 export async function regenerateLinkAction(clientId: string) {
   await requireUserId();
-  if (isApiEnabled()) {
+  if (isNestApiEnabled()) {
+    await nestApi.clients.regenerateLink(await getServerToken(), clientId);
+  } else if (isApiEnabled()) {
     await closeApi.regenerateLink(await getServerToken(), clientId);
   } else {
     const supabase = createClient();
@@ -516,6 +536,15 @@ export async function createTemplateAction(
   const parsed = templateSchema.safeParse({ name: formData.get("name") });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.templatesWrite.create(await getServerToken(), parsed.data.name);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not create the template" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
   if (isApiEnabled()) {
     try {
       await templatesApi.create(await getServerToken(), parsed.data.name);
@@ -546,6 +575,19 @@ export async function addStarterTemplateAction(
   const pack = STARTER_TEMPLATES.find((t) => t.key === key);
   if (!pack) return { ok: false, error: "Unknown starter pack" };
 
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.templatesWrite.createWithItems(
+        await getServerToken(),
+        pack.name,
+        pack.items.map((i) => ({ type: i.type, title: i.title, note: i.note ?? undefined })),
+      );
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the pack" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
   if (isApiEnabled()) {
     try {
       await templatesApi.addStarter(await getServerToken(), key);
@@ -600,6 +642,19 @@ export async function addTemplateItemAction(
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.templatesWrite.addItem(await getServerToken(), parsed.data.templateId, {
+        type: parsed.data.type,
+        title: parsed.data.title,
+        note: parsed.data.note || undefined,
+      });
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not add the item" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
   if (isApiEnabled()) {
     try {
       await templatesApi.addItem(await getServerToken(), parsed.data.templateId, {
@@ -633,7 +688,9 @@ export async function addTemplateItemAction(
 
 export async function deleteTemplateItemAction(id: string) {
   await requireUserId();
-  if (isApiEnabled()) {
+  if (isNestApiEnabled()) {
+    await nestApi.templatesWrite.removeItem(await getServerToken(), id);
+  } else if (isApiEnabled()) {
     await templatesApi.removeItem(await getServerToken(), id);
   } else {
     const supabase = createClient();
@@ -644,7 +701,9 @@ export async function deleteTemplateItemAction(id: string) {
 
 export async function deleteTemplateAction(id: string) {
   await requireUserId();
-  if (isApiEnabled()) {
+  if (isNestApiEnabled()) {
+    await nestApi.templatesWrite.remove(await getServerToken(), id);
+  } else if (isApiEnabled()) {
     await templatesApi.remove(await getServerToken(), id);
   } else {
     const supabase = createClient();
@@ -659,6 +718,15 @@ export async function applyTemplateAction(
   templateId: string,
 ): Promise<{ ok: boolean; error?: string; added?: number }> {
   await requireUserId();
+  if (isNestApiEnabled()) {
+    try {
+      const result = await nestApi.templatesWrite.apply(await getServerToken(), templateId, clientId);
+      revalidatePath(`/clients/${clientId}`);
+      return { ok: true, added: result.added };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not apply the template" };
+    }
+  }
   if (isApiEnabled()) {
     try {
       const result = await templatesApi.apply(await getServerToken(), templateId, clientId);
@@ -682,7 +750,9 @@ export async function setClientDefaultTemplateAction(
   templateId: string | null,
 ) {
   await requireUserId();
-  if (isApiEnabled()) {
+  if (isNestApiEnabled()) {
+    await nestApi.templatesWrite.setDefault(await getServerToken(), clientId, templateId || null);
+  } else if (isApiEnabled()) {
     await templatesApi.setDefault(await getServerToken(), clientId, templateId || null);
   } else {
     const supabase = createClient();
@@ -710,6 +780,15 @@ export async function updateTemplateAction(
     return { ok: false, error: "Subject and body are required" };
   }
 
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.templatesWrite.upsertEmailTemplate(await getServerToken(), kind, subject, body);
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not save the template" };
+    }
+    revalidatePath("/settings", "layout");
+    return { ok: true };
+  }
   if (isApiEnabled()) {
     try {
       await firmApi.updateEmailTemplate(await getServerToken(), kind as (typeof allowed)[number], { subject, body });

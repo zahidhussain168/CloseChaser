@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsIn, IsInt, IsOptional, IsString, MaxLength, Min, MinLength } from "class-validator";
+import { ArrayMaxSize, IsArray, IsIn, IsInt, IsOptional, IsString, MaxLength, Min, MinLength } from "class-validator";
 
 export class CreateItemDto {
   @ApiProperty({ enum: ["transaction", "document", "questionnaire"] })
@@ -11,6 +11,11 @@ export class CreateItemDto {
 
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(1000)
   note?: string;
+
+  /** For a questionnaire: the short questions the client answers at once. */
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional() @IsArray() @ArrayMaxSize(20) @IsString({ each: true }) @MaxLength(300, { each: true })
+  questions?: string[];
 }
 
 export class AnswerItemDto {

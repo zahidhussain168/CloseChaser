@@ -37,6 +37,26 @@ export class TenantService {
     return client;
   }
 
+  /** A request template, scoped to the firm. 404 if not theirs. */
+  async assertTemplate(firmId: string, templateId: string): Promise<{ id: string }> {
+    const t = await this.prisma.db.request_templates.findFirst({
+      where: { id: templateId, firm_id: firmId },
+      select: { id: true },
+    });
+    if (!t) throw new NotFoundException("Template not found");
+    return t;
+  }
+
+  /** A template item, scoped through its template to the firm. 404 if not theirs. */
+  async assertTemplateItem(firmId: string, itemId: string): Promise<{ id: string; template_id: string }> {
+    const it = await this.prisma.db.template_items.findFirst({
+      where: { id: itemId, request_templates: { firm_id: firmId } },
+      select: { id: true, template_id: true },
+    });
+    if (!it) throw new NotFoundException("Template item not found");
+    return it;
+  }
+
   /**
    * Resolve an item id through period -> client -> firm. One query, ownership
    * in the WHERE clause.

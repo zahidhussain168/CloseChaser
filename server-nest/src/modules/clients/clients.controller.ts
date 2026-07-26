@@ -1,12 +1,18 @@
 import {
-  Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Patch, Post,
+  Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Patch, Post, Put,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiProperty, ApiTags } from "@nestjs/swagger";
+import { IsBoolean } from "class-validator";
 import { ClientResponse, DeletedResponse } from "../../common/api-responses";
 import { CurrentUser } from "../../common/current-user.decorator";
 import type { AuthUser } from "../../common/current-user.decorator";
 import { ClientsService } from "./clients.service";
 import { CreateClientDto, UpdateClientDto } from "./dto";
+
+class SetAutoChaseDto {
+  @ApiProperty() @IsBoolean()
+  on!: boolean;
+}
 
 @ApiTags("clients")
 @ApiBearerAuth("bookkeeper")
@@ -59,5 +65,27 @@ export class ClientsController {
   @ApiOkResponse({ type: DeletedResponse })
   remove(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
     return this.clients.remove(user.userId, id);
+  }
+
+  @Post(":id/link")
+  @ApiOperation({ summary: "Ensure a live magic link exists for the client" })
+  ensureLink(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
+    return this.clients.ensureLink(user.userId, id);
+  }
+
+  @Post(":id/link/regenerate")
+  @ApiOperation({ summary: "Revoke and re-mint the client's magic link" })
+  regenerateLink(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
+    return this.clients.regenerateLink(user.userId, id);
+  }
+
+  @Put(":id/auto-chase")
+  @ApiOperation({ summary: "Turn auto-chase on or off for the client" })
+  setAutoChase(
+    @CurrentUser() user: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: SetAutoChaseDto,
+  ) {
+    return this.clients.setAutoChase(user.userId, id, dto.on);
   }
 }

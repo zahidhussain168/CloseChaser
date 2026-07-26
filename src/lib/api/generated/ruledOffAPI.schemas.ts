@@ -59,6 +59,10 @@ export interface DeletedResponse {
   deleted: boolean;
 }
 
+export interface SetAutoChaseDto {
+  on: boolean;
+}
+
 export interface AttachmentResponse {
   path: string;
   name: string;
@@ -112,7 +116,10 @@ export interface CreateItemDto {
   type: CreateItemDtoType;
   title: string;
   note?: string;
+  questions?: string[];
 }
+
+export interface AnnotateItemDto { [key: string]: unknown }
 
 export interface SignedUrlResponse {
   url: string;
@@ -222,6 +229,79 @@ export interface EntitlementsResponse {
   /** @nullable */
   currentPeriodEnd: string | null;
   features: EntitlementFeatures;
+}
+
+export interface CreateTemplateDto {
+  name: string;
+}
+
+export type TemplateItemInputType = typeof TemplateItemInputType[keyof typeof TemplateItemInputType];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const TemplateItemInputType = {
+  transaction: 'transaction',
+  document: 'document',
+  questionnaire: 'questionnaire',
+} as const;
+
+export interface TemplateItemInput {
+  type: TemplateItemInputType;
+  title: string;
+  note?: string;
+}
+
+export interface CreateTemplateWithItemsDto {
+  name: string;
+  items: TemplateItemInput[];
+}
+
+export type AddTemplateItemDtoType = typeof AddTemplateItemDtoType[keyof typeof AddTemplateItemDtoType];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AddTemplateItemDtoType = {
+  transaction: 'transaction',
+  document: 'document',
+  questionnaire: 'questionnaire',
+} as const;
+
+export interface AddTemplateItemDto {
+  type: AddTemplateItemDtoType;
+  title: string;
+  note?: string;
+}
+
+export interface ApplyTemplateDto {
+  clientId: string;
+}
+
+/**
+ * @nullable
+ */
+export type SetDefaultTemplateDtoTemplateId = { [key: string]: unknown } | null;
+
+export interface SetDefaultTemplateDto {
+  /** @nullable */
+  templateId?: SetDefaultTemplateDtoTemplateId;
+}
+
+export type UpsertEmailTemplateDtoKind = typeof UpsertEmailTemplateDtoKind[keyof typeof UpsertEmailTemplateDtoKind];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const UpsertEmailTemplateDtoKind = {
+  initial: 'initial',
+  level1: 'level1',
+  level2: 'level2',
+  level3: 'level3',
+  level4: 'level4',
+} as const;
+
+export interface UpsertEmailTemplateDto {
+  kind: UpsertEmailTemplateDtoKind;
+  subject: string;
+  body: string;
 }
 
 export interface UpdateBrandingDto {

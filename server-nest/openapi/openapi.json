@@ -289,6 +289,103 @@
         ]
       }
     },
+    "/api/clients/{id}/link": {
+      "post": {
+        "operationId": "ClientsController_ensureLink",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Ensure a live magic link exists for the client",
+        "tags": [
+          "clients"
+        ]
+      }
+    },
+    "/api/clients/{id}/link/regenerate": {
+      "post": {
+        "operationId": "ClientsController_regenerateLink",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Revoke and re-mint the client's magic link",
+        "tags": [
+          "clients"
+        ]
+      }
+    },
+    "/api/clients/{id}/auto-chase": {
+      "put": {
+        "operationId": "ClientsController_setAutoChase",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAutoChaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Turn auto-chase on or off for the client",
+        "tags": [
+          "clients"
+        ]
+      }
+    },
     "/api/clients/{clientId}/items": {
       "get": {
         "operationId": "ItemsController_list",
@@ -403,6 +500,74 @@
           }
         ],
         "summary": "Accept the answer and rule the item off",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{id}": {
+      "delete": {
+        "operationId": "ItemsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Remove an item",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/clients/{clientId}/items/annotate": {
+      "post": {
+        "operationId": "ItemsController_annotate",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnotateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Note an item by title on the current close, creating it if needed",
         "tags": [
           "items"
         ]
@@ -808,6 +973,269 @@
         "tags": [
           "templates"
         ]
+      },
+      "post": {
+        "operationId": "TemplatesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Create an empty template",
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/templates/with-items": {
+      "post": {
+        "operationId": "TemplatesController_createWithItems",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTemplateWithItemsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Create a template and seed its items (starter packs)",
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/templates/{id}/items": {
+      "post": {
+        "operationId": "TemplatesController_addItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddTemplateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Add an item to a template",
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/templates/items/{itemId}": {
+      "delete": {
+        "operationId": "TemplatesController_removeItem",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Remove a template item",
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/templates/{id}": {
+      "delete": {
+        "operationId": "TemplatesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Remove a template",
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/templates/{id}/apply": {
+      "post": {
+        "operationId": "TemplatesController_apply",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Apply a template to a client's current close",
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/clients/{clientId}/default-template": {
+      "put": {
+        "operationId": "TemplatesController_setDefault",
+        "parameters": [
+          {
+            "name": "clientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetDefaultTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Set or clear a client's default template",
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/firm/email-templates": {
+      "put": {
+        "operationId": "TemplatesController_upsertEmailTemplate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertEmailTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Upsert one of the firm's chase-email templates",
+        "tags": [
+          "templates"
+        ]
       }
     },
     "/api/firm": {
@@ -1041,6 +1469,17 @@
           "deleted"
         ]
       },
+      "SetAutoChaseDto": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "on"
+        ]
+      },
       "AttachmentResponse": {
         "type": "object",
         "properties": {
@@ -1157,12 +1596,22 @@
           },
           "note": {
             "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
           "type",
           "title"
         ]
+      },
+      "AnnotateItemDto": {
+        "type": "object",
+        "properties": {}
       },
       "SignedUrlResponse": {
         "type": "object",
@@ -1434,6 +1883,129 @@
           "trialEndsAt",
           "currentPeriodEnd",
           "features"
+        ]
+      },
+      "CreateTemplateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "TemplateItemInput": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "transaction",
+              "document",
+              "questionnaire"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title"
+        ]
+      },
+      "CreateTemplateWithItemsDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateItemInput"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "items"
+        ]
+      },
+      "AddTemplateItemDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "transaction",
+              "document",
+              "questionnaire"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title"
+        ]
+      },
+      "ApplyTemplateDto": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "clientId"
+        ]
+      },
+      "SetDefaultTemplateDto": {
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "type": "object",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "UpsertEmailTemplateDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "level1",
+              "level2",
+              "level3",
+              "level4"
+            ]
+          },
+          "subject": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "subject",
+          "body"
         ]
       },
       "UpdateBrandingDto": {

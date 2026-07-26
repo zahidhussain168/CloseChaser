@@ -36,6 +36,23 @@ export class MagicLinkService {
     return created.token;
   }
 
+  /** Revoke any live links and mint a fresh one. */
+  async regenerate(clientId: string, now: Date = new Date()): Promise<string> {
+    await this.prisma.db.magic_links.updateMany({
+      where: { client_id: clientId, revoked_at: null },
+      data: { revoked_at: now },
+    });
+    const created = await this.prisma.db.magic_links.create({
+      data: {
+        client_id: clientId,
+        token: randomBytes(32).toString("base64url"),
+        expires_at: new Date(now.getTime() + THIRTY_DAYS_MS),
+      },
+      select: { token: true },
+    });
+    return created.token;
+  }
+
   url(token: string): string {
     const base = (process.env.APP_URL ?? "https://ruledoff.vercel.app").replace(/\/+$/, "");
     return `${base}/c/${token}`;

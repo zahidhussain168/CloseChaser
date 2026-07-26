@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0
  */
 import type {
+  AnnotateItemDto,
   CreateItemDto,
   ItemResponse,
   SignUploadDto,
@@ -117,6 +118,78 @@ export const itemsControllerRuleOff = async (id: string, options?: RequestInit):
     method: 'POST'
     
     
+  }
+);}
+
+
+/**
+ * @summary Remove an item
+ */
+export type itemsControllerRemoveResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type itemsControllerRemoveResponseSuccess = (itemsControllerRemoveResponse200) & {
+  headers: Headers;
+};
+;
+
+export type itemsControllerRemoveResponse = (itemsControllerRemoveResponseSuccess)
+
+export const getItemsControllerRemoveUrl = (id: string,) => {
+
+
+  
+
+  return `/api/items/${id}`
+}
+
+export const itemsControllerRemove = async (id: string, options?: RequestInit): Promise<itemsControllerRemoveResponse> => {
+  
+  return apiFetcher<itemsControllerRemoveResponse>(getItemsControllerRemoveUrl(id),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+/**
+ * @summary Note an item by title on the current close, creating it if needed
+ */
+export type itemsControllerAnnotateResponse201 = {
+  data: void
+  status: 201
+}
+    
+export type itemsControllerAnnotateResponseSuccess = (itemsControllerAnnotateResponse201) & {
+  headers: Headers;
+};
+;
+
+export type itemsControllerAnnotateResponse = (itemsControllerAnnotateResponseSuccess)
+
+export const getItemsControllerAnnotateUrl = (clientId: string,) => {
+
+
+  
+
+  return `/api/clients/${clientId}/items/annotate`
+}
+
+export const itemsControllerAnnotate = async (clientId: string,
+    annotateItemDto: AnnotateItemDto, options?: RequestInit): Promise<itemsControllerAnnotateResponse> => {
+  
+  return apiFetcher<itemsControllerAnnotateResponse>(getItemsControllerAnnotateUrl(clientId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      annotateItemDto,)
   }
 );}
 

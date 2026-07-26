@@ -69,13 +69,12 @@ export class ItemsService {
     const firmId = await this.tenant.firmIdForUser(userId);
     await this.tenant.assertClient(firmId, clientId);
 
-    // Attach to the client's most recent close period.
-    const period = await this.prisma.db.close_periods.findFirst({
-      where: { client_id: clientId },
-      orderBy: { month: "desc" },
-      select: { id: true },
-    });
-    if (!period) throw new BadRequestException("This client has no open close period");
+    // Get-or-create the CURRENT month's period, matching the app's addItem.
+    const period = await this.ensureCurrentPeriod(clientId);
+
+    const details: Record<string, unknown> = {};
+    if (dto.note) details.note = dto.note;
+    if (dto.type === "questionnaire" && dto.questions?.length) details.questions = dto.questions;
 
     const row = await this.prisma.db.items.create({
       data: {
@@ -83,11 +82,79 @@ export class ItemsService {
         type: dto.type,
         title: dto.title,
         source: "manual",
-        details: dto.note ? { note: dto.note } : {},
+        details: details as object,
+        state: "requested",
       },
       select: this.select,
     });
     return this.present(row);
+  }
+
+  /** Delete an item, scoped to the firm through period -> client. */
+  async remove(userId: string, itemId: string) {
+    const firmId = await this.tenant.firmIdForUser(userId);
+    await this.tenant.assertItemOwnedByFirm(firmId, itemId);
+    await this.prisma.db.items.delete({ where: { id: itemId } });
+    return { deleted: true };
+  }
+
+  /**
+   * Attach a note to an item found by title on the client's current period, or
+   * create the item if there is none. Used by the AI suggestions flow.
+   */
+  async annotate(userId: string, clientId: string, itemTitle: string, note: string) {
+    const firmId = await this.tenant.firmIdForUser(userId);
+    await this.tenant.assertClient(firmId, clientId);
+    const period = await this.ensureCurrentPeriod(clientId);
+
+    const existing = await this.prisma.db.items.findFirst({
+      where: { close_period_id: period.id, title: itemTitle },
+      select: { id: true, details: true },
+    });
+    if (existing) {
+      const details = { ...((existing.details as Record<string, unknown>) ?? {}), note };
+      await this.prisma.db.items.update({
+        where: { id: existing.id },
+        data: { details: details as object },
+      });
+    } else {
+      await this.prisma.db.items.create({
+        data: {
+          close_period_id: period.id,
+          type: "document",
+          source: "manual",
+          title: itemTitle.slice(0, 200) || "New request",
+          details: { note } as object,
+          state: "requested",
+        },
+      });
+    }
+    return { ok: true };
+  }
+
+  private async ensureCurrentPeriod(clientId: string) {
+    const now = new Date();
+    const month = new Date(
+      `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01T00:00:00Z`,
+    );
+    const existing = await this.prisma.db.close_periods.findFirst({
+      where: { client_id: clientId, month },
+      select: { id: true },
+    });
+    if (existing) return existing;
+    try {
+      return await this.prisma.db.close_periods.create({
+        data: { client_id: clientId, month, status: "open" },
+        select: { id: true },
+      });
+    } catch {
+      const raced = await this.prisma.db.close_periods.findFirst({
+        where: { client_id: clientId, month },
+        select: { id: true },
+      });
+      if (raced) return raced;
+      throw new BadRequestException("Could not open the current close period");
+    }
   }
 
   /**

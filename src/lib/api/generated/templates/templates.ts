@@ -4,6 +4,15 @@
  * RuledOff API
  * OpenAPI spec version: 1.0
  */
+import type {
+  AddTemplateItemDto,
+  ApplyTemplateDto,
+  CreateTemplateDto,
+  CreateTemplateWithItemsDto,
+  SetDefaultTemplateDto,
+  UpsertEmailTemplateDto
+} from '../ruledOffAPI.schemas';
+
 import { apiFetcher } from '../../fetcher';
 
 /**
@@ -37,6 +46,295 @@ export const templatesControllerList = async ( options?: RequestInit): Promise<t
     method: 'GET'
     
     
+  }
+);}
+
+
+/**
+ * @summary Create an empty template
+ */
+export type templatesControllerCreateResponse201 = {
+  data: void
+  status: 201
+}
+    
+export type templatesControllerCreateResponseSuccess = (templatesControllerCreateResponse201) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerCreateResponse = (templatesControllerCreateResponseSuccess)
+
+export const getTemplatesControllerCreateUrl = () => {
+
+
+  
+
+  return `/api/templates`
+}
+
+export const templatesControllerCreate = async (createTemplateDto: CreateTemplateDto, options?: RequestInit): Promise<templatesControllerCreateResponse> => {
+  
+  return apiFetcher<templatesControllerCreateResponse>(getTemplatesControllerCreateUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createTemplateDto,)
+  }
+);}
+
+
+/**
+ * @summary Create a template and seed its items (starter packs)
+ */
+export type templatesControllerCreateWithItemsResponse201 = {
+  data: void
+  status: 201
+}
+    
+export type templatesControllerCreateWithItemsResponseSuccess = (templatesControllerCreateWithItemsResponse201) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerCreateWithItemsResponse = (templatesControllerCreateWithItemsResponseSuccess)
+
+export const getTemplatesControllerCreateWithItemsUrl = () => {
+
+
+  
+
+  return `/api/templates/with-items`
+}
+
+export const templatesControllerCreateWithItems = async (createTemplateWithItemsDto: CreateTemplateWithItemsDto, options?: RequestInit): Promise<templatesControllerCreateWithItemsResponse> => {
+  
+  return apiFetcher<templatesControllerCreateWithItemsResponse>(getTemplatesControllerCreateWithItemsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createTemplateWithItemsDto,)
+  }
+);}
+
+
+/**
+ * @summary Add an item to a template
+ */
+export type templatesControllerAddItemResponse201 = {
+  data: void
+  status: 201
+}
+    
+export type templatesControllerAddItemResponseSuccess = (templatesControllerAddItemResponse201) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerAddItemResponse = (templatesControllerAddItemResponseSuccess)
+
+export const getTemplatesControllerAddItemUrl = (id: string,) => {
+
+
+  
+
+  return `/api/templates/${id}/items`
+}
+
+export const templatesControllerAddItem = async (id: string,
+    addTemplateItemDto: AddTemplateItemDto, options?: RequestInit): Promise<templatesControllerAddItemResponse> => {
+  
+  return apiFetcher<templatesControllerAddItemResponse>(getTemplatesControllerAddItemUrl(id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      addTemplateItemDto,)
+  }
+);}
+
+
+/**
+ * @summary Remove a template item
+ */
+export type templatesControllerRemoveItemResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type templatesControllerRemoveItemResponseSuccess = (templatesControllerRemoveItemResponse200) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerRemoveItemResponse = (templatesControllerRemoveItemResponseSuccess)
+
+export const getTemplatesControllerRemoveItemUrl = (itemId: string,) => {
+
+
+  
+
+  return `/api/templates/items/${itemId}`
+}
+
+export const templatesControllerRemoveItem = async (itemId: string, options?: RequestInit): Promise<templatesControllerRemoveItemResponse> => {
+  
+  return apiFetcher<templatesControllerRemoveItemResponse>(getTemplatesControllerRemoveItemUrl(itemId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+/**
+ * @summary Remove a template
+ */
+export type templatesControllerRemoveResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type templatesControllerRemoveResponseSuccess = (templatesControllerRemoveResponse200) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerRemoveResponse = (templatesControllerRemoveResponseSuccess)
+
+export const getTemplatesControllerRemoveUrl = (id: string,) => {
+
+
+  
+
+  return `/api/templates/${id}`
+}
+
+export const templatesControllerRemove = async (id: string, options?: RequestInit): Promise<templatesControllerRemoveResponse> => {
+  
+  return apiFetcher<templatesControllerRemoveResponse>(getTemplatesControllerRemoveUrl(id),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+/**
+ * @summary Apply a template to a client's current close
+ */
+export type templatesControllerApplyResponse201 = {
+  data: void
+  status: 201
+}
+    
+export type templatesControllerApplyResponseSuccess = (templatesControllerApplyResponse201) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerApplyResponse = (templatesControllerApplyResponseSuccess)
+
+export const getTemplatesControllerApplyUrl = (id: string,) => {
+
+
+  
+
+  return `/api/templates/${id}/apply`
+}
+
+export const templatesControllerApply = async (id: string,
+    applyTemplateDto: ApplyTemplateDto, options?: RequestInit): Promise<templatesControllerApplyResponse> => {
+  
+  return apiFetcher<templatesControllerApplyResponse>(getTemplatesControllerApplyUrl(id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      applyTemplateDto,)
+  }
+);}
+
+
+/**
+ * @summary Set or clear a client's default template
+ */
+export type templatesControllerSetDefaultResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type templatesControllerSetDefaultResponseSuccess = (templatesControllerSetDefaultResponse200) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerSetDefaultResponse = (templatesControllerSetDefaultResponseSuccess)
+
+export const getTemplatesControllerSetDefaultUrl = (clientId: string,) => {
+
+
+  
+
+  return `/api/clients/${clientId}/default-template`
+}
+
+export const templatesControllerSetDefault = async (clientId: string,
+    setDefaultTemplateDto: SetDefaultTemplateDto, options?: RequestInit): Promise<templatesControllerSetDefaultResponse> => {
+  
+  return apiFetcher<templatesControllerSetDefaultResponse>(getTemplatesControllerSetDefaultUrl(clientId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      setDefaultTemplateDto,)
+  }
+);}
+
+
+/**
+ * @summary Upsert one of the firm's chase-email templates
+ */
+export type templatesControllerUpsertEmailTemplateResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type templatesControllerUpsertEmailTemplateResponseSuccess = (templatesControllerUpsertEmailTemplateResponse200) & {
+  headers: Headers;
+};
+;
+
+export type templatesControllerUpsertEmailTemplateResponse = (templatesControllerUpsertEmailTemplateResponseSuccess)
+
+export const getTemplatesControllerUpsertEmailTemplateUrl = () => {
+
+
+  
+
+  return `/api/firm/email-templates`
+}
+
+export const templatesControllerUpsertEmailTemplate = async (upsertEmailTemplateDto: UpsertEmailTemplateDto, options?: RequestInit): Promise<templatesControllerUpsertEmailTemplateResponse> => {
+  
+  return apiFetcher<templatesControllerUpsertEmailTemplateResponse>(getTemplatesControllerUpsertEmailTemplateUrl(),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      upsertEmailTemplateDto,)
   }
 );}
 

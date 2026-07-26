@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { ItemResponse, SignedUploadResponse, SignedUrlResponse } from "../../common/api-responses";
-import { IsString, MaxLength } from "class-validator";
+import { IsString, MaxLength, MinLength } from "class-validator";
 import { Public } from "../../common/public.decorator";
 import { CurrentUser, Portal } from "../../common/current-user.decorator";
 import type { AuthUser, PortalPrincipal } from "../../common/current-user.decorator";
@@ -13,6 +13,14 @@ import { AnswerItemDto, ConfirmUploadDto, CreateItemDto, SignUploadDto } from ".
 class DownloadQuery {
   @IsString() @MaxLength(400)
   path!: string;
+}
+
+class AnnotateItemDto {
+  @IsString() @MinLength(1) @MaxLength(200)
+  title!: string;
+
+  @IsString() @MaxLength(2000)
+  note!: string;
 }
 
 /** Bookkeeper-facing item routes. Global JWT guard applies. */
@@ -48,6 +56,22 @@ export class ItemsController {
   @ApiOkResponse({ type: ItemResponse })
   ruleOff(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
     return this.items.ruleOff(user.userId, id);
+  }
+
+  @Delete("items/:id")
+  @ApiOperation({ summary: "Remove an item" })
+  remove(@CurrentUser() user: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
+    return this.items.remove(user.userId, id);
+  }
+
+  @Post("clients/:clientId/items/annotate")
+  @ApiOperation({ summary: "Note an item by title on the current close, creating it if needed" })
+  annotate(
+    @CurrentUser() user: AuthUser,
+    @Param("clientId", ParseUUIDPipe) clientId: string,
+    @Body() dto: AnnotateItemDto,
+  ) {
+    return this.items.annotate(user.userId, clientId, dto.title, dto.note);
   }
 
   @Get("items/:id/download")
