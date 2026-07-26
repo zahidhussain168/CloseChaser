@@ -10,9 +10,10 @@ import { findBlockingTransactions, titleForTxn } from "@/lib/qbo/sync";
 import { revokeToken } from "@/lib/qbo/oauth";
 import { decryptSecret } from "@/lib/crypto";
 import type { FormState } from "@/lib/forms";
-import { isApiEnabled } from "@/lib/api/config";
+import { isApiEnabled, isNestApiEnabled } from "@/lib/api/config";
 import { getServerToken } from "@/lib/api/server";
 import { qboApi } from "@/lib/api/resources";
+import { nestApi } from "@/lib/api/nest";
 
 type ImportResult = FormState & { added?: number; skipped?: number };
 
@@ -24,6 +25,16 @@ type ImportResult = FormState & { added?: number; skipped?: number };
 export async function importFromQboAction(clientId: string): Promise<ImportResult> {
   await requireUserId();
 
+  if (isNestApiEnabled()) {
+    try {
+      const result = await nestApi.qbo.import(await getServerToken(), clientId);
+      revalidatePath(`/clients/${clientId}`);
+      revalidatePath("/dashboard");
+      return { ok: true, added: result.added, skipped: result.skipped };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "QuickBooks sync failed." };
+    }
+  }
   if (isApiEnabled()) {
     try {
       const result = await qboApi.import(await getServerToken(), clientId);
@@ -137,6 +148,15 @@ export async function logManualTextAction(clientId: string): Promise<FormState> 
 /** Disconnect QuickBooks and revoke the grant with Intuit. */
 export async function disconnectQboAction(): Promise<FormState> {
   await requireUserId();
+  if (isNestApiEnabled()) {
+    try {
+      await nestApi.qbo.disconnect(await getServerToken());
+      revalidatePath("/settings", "layout");
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not disconnect." };
+    }
+  }
   const conn = await getQboConnection();
   if (!conn) return { ok: true };
 

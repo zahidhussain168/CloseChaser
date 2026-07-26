@@ -22,6 +22,7 @@ import {
 import { chaseControllerFire } from "./generated/chase/chase";
 import { aiControllerChaseEmails, aiControllerInsight } from "./generated/ai/ai";
 import { billingControllerCheckout, billingControllerPortal } from "./generated/billing/billing";
+import { qboControllerStatus, qboControllerDisconnect, qboImportControllerImport } from "./generated/qbo/qbo";
 import {
   firmControllerGet, firmControllerUpdateBranding, firmControllerUpdateCadence,
 } from "./generated/firm/firm";
@@ -129,6 +130,19 @@ export const nestApi = {
       },
     portal: async (token: string | null) =>
       (await billingControllerPortal(opts(token))).data as unknown as { url: string | null },
+  },
+
+  qbo: {
+    status: async (token: string | null) =>
+      (await qboControllerStatus(opts(token))).data as unknown as {
+        connected: boolean; realmId: string | null; companyName: string | null;
+      },
+    import: async (token: string | null, clientId: string) =>
+      (await qboImportControllerImport(clientId, opts(token))).data as unknown as {
+        ok: boolean; added: number; skipped: number;
+      },
+    disconnect: async (token: string | null) =>
+      (await qboControllerDisconnect(opts(token))).data,
   },
 
   ai: {

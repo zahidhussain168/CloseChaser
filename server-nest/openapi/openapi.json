@@ -1466,6 +1466,75 @@
           "ai"
         ]
       }
+    },
+    "/api/qbo/status": {
+      "get": {
+        "operationId": "QboController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Whether this firm has a QuickBooks company connected",
+        "tags": [
+          "qbo"
+        ]
+      }
+    },
+    "/api/qbo/disconnect": {
+      "post": {
+        "operationId": "QboController_disconnect",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Revoke and remove the QuickBooks connection",
+        "tags": [
+          "qbo"
+        ]
+      }
+    },
+    "/api/clients/{id}/qbo/import": {
+      "post": {
+        "operationId": "QboImportController_import",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Import this month's blocking QuickBooks transactions",
+        "tags": [
+          "qbo"
+        ]
+      }
     }
   },
   "info": {
