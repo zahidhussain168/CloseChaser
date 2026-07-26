@@ -329,5 +329,24 @@ export interface UpdateCadenceDto {
   weeklyStep: number;
 }
 
+export type ChaseEmailsDtoTone = typeof ChaseEmailsDtoTone[keyof typeof ChaseEmailsDtoTone];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ChaseEmailsDtoTone = {
+  Warm: 'Warm',
+  Balanced: 'Balanced',
+  Firm: 'Firm',
+} as const;
+
+export interface ChaseEmailsDto {
+  voice?: string;
+  tone: ChaseEmailsDtoTone;
+}
+
 export type ChaseControllerFire201 = { [key: string]: unknown };
+
+export type AiControllerChaseEmails201 = { [key: string]: unknown };
+
+export type AiControllerInsight201 = { [key: string]: unknown };
 

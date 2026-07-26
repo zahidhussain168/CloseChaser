@@ -935,6 +935,46 @@
         ]
       }
     },
+    "/api/billing/checkout": {
+      "post": {
+        "operationId": "BillingController_checkout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Ensure a Paddle customer and return the ids for checkout",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/api/billing/portal": {
+      "post": {
+        "operationId": "BillingController_portal",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "A short-lived Paddle customer portal URL",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
     "/api/dashboard": {
       "get": {
         "operationId": "DashboardController_get",
@@ -1351,6 +1391,79 @@
         "summary": "Start the initial chase: mark chasing and email the client",
         "tags": [
           "chase"
+        ]
+      }
+    },
+    "/api/ai/chase-emails": {
+      "post": {
+        "operationId": "AiController_chaseEmails",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChaseEmailsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "Generate the chase-email ladder in the firm's voice",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/clients/{id}/insight": {
+      "post": {
+        "operationId": "AiController_insight",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bookkeeper": []
+          }
+        ],
+        "summary": "AI analyst read for one client",
+        "tags": [
+          "ai"
         ]
       }
     }
@@ -2093,6 +2206,25 @@
         "required": [
           "offsets",
           "weeklyStep"
+        ]
+      },
+      "ChaseEmailsDto": {
+        "type": "object",
+        "properties": {
+          "voice": {
+            "type": "string"
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "Warm",
+              "Balanced",
+              "Firm"
+            ]
+          }
+        },
+        "required": [
+          "tone"
         ]
       }
     }

@@ -1,7 +1,8 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma.service";
 import { TenantService } from "../../common/tenant.service";
 import { effectiveTier, entitlementsFor, normaliseStatus } from "./entitlements";
+import { createPortalSession, ensurePaddleCustomer, isBillingConfigured } from "./paddle-api";
 
 /** The shape we care about out of a Paddle subscription event. */
 type PaddleSubscription = {
@@ -152,6 +153,45 @@ export class BillingService {
     await this.prisma.db.billing_events
       .update({ where: { event_id: eventId }, data: { skip_reason: reason, firm_id: firmId } })
       .catch(() => undefined);
+  }
+
+  /**
+   * Prepare a checkout: ensure the firm has a Paddle customer, storing the id.
+   * The client-side Paddle.js opens the actual overlay with these values.
+   */
+  async prepareCheckout(userId: string, email: string) {
+    if (!isBillingConfigured()) throw new BadRequestException("Billing is not set up yet.");
+    const firmId = await this.tenant.firmIdForUser(userId);
+    const firm = await this.prisma.db.firms.findUnique({
+      where: { id: firmId },
+      select: { id: true, name: true, reply_to: true, paddle_customer_id: true },
+    });
+    if (!firm) throw new BadRequestException("No firm found.");
+    const useEmail = email || firm.reply_to || "";
+
+    let customerId = firm.paddle_customer_id;
+    if (!customerId) {
+      customerId = await ensurePaddleCustomer(useEmail, firm.name);
+      await this.prisma.db.firms.update({
+        where: { id: firm.id },
+        data: { paddle_customer_id: customerId },
+      });
+    }
+    return { ok: true as const, customerId, firmId: firm.id, email: useEmail };
+  }
+
+  /** A short-lived Paddle portal URL, or null if there is no customer/session. */
+  async portalUrl(userId: string): Promise<string | null> {
+    const firmId = await this.tenant.firmIdForUser(userId);
+    const firm = await this.prisma.db.firms.findUnique({
+      where: { id: firmId },
+      select: { paddle_customer_id: true, paddle_subscription_id: true },
+    });
+    if (!firm?.paddle_customer_id) return null;
+    return createPortalSession(
+      firm.paddle_customer_id,
+      firm.paddle_subscription_id ? [firm.paddle_subscription_id] : [],
+    );
   }
 
   /** What this bookkeeper can use right now. The frontend's source of truth. */

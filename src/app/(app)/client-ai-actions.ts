@@ -2,6 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { requireUserId } from "@/lib/auth";
+import { isNestApiEnabled } from "@/lib/api/config";
+import { getServerToken } from "@/lib/api/server";
+import { nestApi } from "@/lib/api/nest";
 import { getClientDetail } from "@/lib/data";
 import { getActiveLink } from "@/lib/links";
 import { formatMonth } from "@/lib/format";
@@ -21,7 +24,16 @@ export async function clientInsightAction(clientId: string): Promise<InsightResu
   if (!(await isScale())) {
     return { ok: false, error: "The AI Close Analyst is a Scale feature. Upgrade to use it." };
   }
-  if (!isAiConfigured()) return { ok: false, error: "AI is not set up yet." };
+  if (!isAiConfigured() && !isNestApiEnabled()) return { ok: false, error: "AI is not set up yet." };
+
+  if (isNestApiEnabled()) {
+    try {
+      const insight = await nestApi.ai.insight(await getServerToken(), clientId);
+      return { ok: true, insight: insight as ClientInsight };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "The AI read failed. Try again." };
+    }
+  }
 
   const detail = await getClientDetail(clientId);
   if (!detail) return { ok: false, error: "Client not found." };

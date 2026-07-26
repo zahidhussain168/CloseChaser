@@ -45,3 +45,73 @@ export const billingControllerEntitlements = async ( options?: RequestInit): Pro
 );}
 
 
+/**
+ * @summary Ensure a Paddle customer and return the ids for checkout
+ */
+export type billingControllerCheckoutResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type billingControllerCheckoutResponseSuccess = (billingControllerCheckoutResponse200) & {
+  headers: Headers;
+};
+;
+
+export type billingControllerCheckoutResponse = (billingControllerCheckoutResponseSuccess)
+
+export const getBillingControllerCheckoutUrl = () => {
+
+
+  
+
+  return `/api/billing/checkout`
+}
+
+export const billingControllerCheckout = async ( options?: RequestInit): Promise<billingControllerCheckoutResponse> => {
+  
+  return apiFetcher<billingControllerCheckoutResponse>(getBillingControllerCheckoutUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+/**
+ * @summary A short-lived Paddle customer portal URL
+ */
+export type billingControllerPortalResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type billingControllerPortalResponseSuccess = (billingControllerPortalResponse200) & {
+  headers: Headers;
+};
+;
+
+export type billingControllerPortalResponse = (billingControllerPortalResponseSuccess)
+
+export const getBillingControllerPortalUrl = () => {
+
+
+  
+
+  return `/api/billing/portal`
+}
+
+export const billingControllerPortal = async ( options?: RequestInit): Promise<billingControllerPortalResponse> => {
+  
+  return apiFetcher<billingControllerPortalResponse>(getBillingControllerPortalUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+

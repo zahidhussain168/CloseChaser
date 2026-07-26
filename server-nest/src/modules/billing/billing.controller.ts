@@ -21,6 +21,21 @@ export class BillingController {
   entitlements(@CurrentUser() user: AuthUser) {
     return this.billing.entitlements(user.userId);
   }
+
+  @Post("checkout")
+  @HttpCode(200)
+  @ApiOperation({ summary: "Ensure a Paddle customer and return the ids for checkout" })
+  checkout(@CurrentUser() user: AuthUser) {
+    return this.billing.prepareCheckout(user.userId, user.email ?? "");
+  }
+
+  @Post("portal")
+  @HttpCode(200)
+  @ApiOperation({ summary: "A short-lived Paddle customer portal URL" })
+  async portal(@CurrentUser() user: AuthUser) {
+    const url = await this.billing.portalUrl(user.userId);
+    return { url };
+  }
 }
 
 /**

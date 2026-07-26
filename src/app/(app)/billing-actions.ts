@@ -10,9 +10,10 @@ import {
   isBillingConfigured,
 } from "@/lib/paddle/server";
 import type { FormState } from "@/lib/forms";
-import { isApiEnabled } from "@/lib/api/config";
+import { isApiEnabled, isNestApiEnabled } from "@/lib/api/config";
 import { getServerToken } from "@/lib/api/server";
 import { billingApi } from "@/lib/api/resources";
+import { nestApi } from "@/lib/api/nest";
 
 /**
  * Ensure the firm has a Paddle customer id and return it, so the client-side
@@ -23,6 +24,13 @@ export async function prepareCheckoutAction(): Promise<
 > {
   await requireUserId();
 
+  if (isNestApiEnabled()) {
+    try {
+      return await nestApi.billing.checkout(await getServerToken());
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not start checkout." };
+    }
+  }
   if (isApiEnabled()) {
     try {
       return await billingApi.checkout(await getServerToken());
@@ -59,6 +67,15 @@ export async function prepareCheckoutAction(): Promise<
 export async function openBillingPortalAction(): Promise<void> {
   await requireUserId();
 
+  if (isNestApiEnabled()) {
+    let url: string | null = null;
+    try {
+      url = (await nestApi.billing.portal(await getServerToken())).url;
+    } catch {
+      redirect("/settings/plan?billing=portal_error");
+    }
+    redirect(url ?? "/settings/plan?billing=none");
+  }
   if (isApiEnabled()) {
     let url: string;
     try {

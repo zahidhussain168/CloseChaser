@@ -20,6 +20,8 @@ import {
   clientsControllerEnsureLink, clientsControllerRegenerateLink, clientsControllerSetAutoChase,
 } from "./generated/clients/clients";
 import { chaseControllerFire } from "./generated/chase/chase";
+import { aiControllerChaseEmails, aiControllerInsight } from "./generated/ai/ai";
+import { billingControllerCheckout, billingControllerPortal } from "./generated/billing/billing";
 import {
   firmControllerGet, firmControllerUpdateBranding, firmControllerUpdateCadence,
 } from "./generated/firm/firm";
@@ -121,6 +123,20 @@ export const nestApi = {
   billing: {
     entitlements: async (token: string | null) =>
       (await billingControllerEntitlements(opts(token))).data,
+    checkout: async (token: string | null) =>
+      (await billingControllerCheckout(opts(token))).data as unknown as {
+        ok: true; customerId: string; firmId: string; email: string;
+      },
+    portal: async (token: string | null) =>
+      (await billingControllerPortal(opts(token))).data as unknown as { url: string | null },
+  },
+
+  ai: {
+    chaseEmails: async (token: string | null, voice: string, tone: string) =>
+      (await aiControllerChaseEmails({ voice, tone } as never, opts(token))).data as unknown as
+        Record<string, { subject: string; body: string }>,
+    insight: async (token: string | null, clientId: string) =>
+      (await aiControllerInsight(clientId, opts(token))).data,
   },
 
   reminders: {

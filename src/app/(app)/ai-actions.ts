@@ -7,9 +7,10 @@ import { getFirm } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { generateChaseEmails, isAiConfigured, type GeneratedSet, type EmailKind } from "@/lib/ai/emails";
 import type { FormState } from "@/lib/forms";
-import { isApiEnabled } from "@/lib/api/config";
+import { isApiEnabled, isNestApiEnabled } from "@/lib/api/config";
 import { getServerToken } from "@/lib/api/server";
 import { aiApi } from "@/lib/api/resources";
+import { nestApi } from "@/lib/api/nest";
 
 const KINDS: EmailKind[] = ["initial", "level1", "level2", "level3", "level4"];
 
@@ -27,6 +28,14 @@ export async function generateChaseEmailsAction(
   const cleanVoice = voice.trim().slice(0, 2000);
   const cleanTone = ["Warm", "Balanced", "Firm"].includes(tone) ? tone : "Warm";
 
+  if (isNestApiEnabled()) {
+    try {
+      const templates = (await nestApi.ai.chaseEmails(await getServerToken(), cleanVoice, cleanTone)) as GeneratedSet;
+      return { ok: true, templates };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Could not generate the emails." };
+    }
+  }
   if (isApiEnabled()) {
     try {
       const templates = await aiApi.generate(await getServerToken(), cleanVoice, cleanTone);
